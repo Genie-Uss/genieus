@@ -1,0 +1,55 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://username:password@localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+    hostname: ${spring.application.name}
+    instanceId: ${spring.application.name}:${server.port}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      defaultService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 5
+        registerHealthIndicator: true
+
+logging:
+  level:
+    root: info # 전체 기본 로그 레벨
+    shop.genieus: debug # 사용자 정의 패키지
+    org.springframework.cloud.gateway: debug # Gateway 라우팅 관련
+    org.springframework.web.reactive: info # WebFlux 처리 흐름
+    reactor.netty: warn # Netty 내부 로그
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,metrics
+  endpoint:
+    health:
+      show-details: always
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
