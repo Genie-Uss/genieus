@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: genieus-mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: genieus
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+
+  mongodb:
+    image: mongo
+    container_name: genieus-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    volumes:
+      - ./mongo/data:/data/db
+
+  redis:
+    image: redis/redis-stack
+    container_name: genieus-redis
+    restart: always
+    ports:
+      - "6379:6379"
+      - "8001:8001"   # RedisInsight GUI
+    volumes:
+      - ./redis/data:/data
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: genieus-zipkin
+    restart: unless-stopped
+    ports:
+      - "9411:9411"
