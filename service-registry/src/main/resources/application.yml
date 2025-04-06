@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: service-registry
+  profiles:
+    active: local
+
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false
