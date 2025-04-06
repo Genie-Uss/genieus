@@ -1,0 +1,16 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    root: info
+
+    org.springframework.cloud.config: info # config 요청 상태 확인
+    org.springframework.cloud.config.server: info # 환경 로딩 성공/실패만 확인
+    org.eclipse.jgit: warn # Git 연동은 경고 이상만
+    org.springframework.boot.actuate: info # 기본 상태 유지

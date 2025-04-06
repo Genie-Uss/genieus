@@ -1,0 +1,17 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: info
+
+    org.springframework.cloud.config: warn # config client 요청 이상만 로깅
+    org.springframework.cloud.config.server: warn # Git fetch 실패, 환경 로딩 실패만 확인
+    org.eclipse.jgit: error # 운영에서는 Git 내부 로그 최소화
+    org.springframework.boot.actuate: warn # actuator도 경고 이상만
