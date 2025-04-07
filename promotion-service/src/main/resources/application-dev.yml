@@ -1,0 +1,6 @@
+config:
+  import: optional:configserver:http://${CONFIG_HOST}:${CONFIG_PORT}
+cloud:
+  config:
+    profile: dev
+  # label: main

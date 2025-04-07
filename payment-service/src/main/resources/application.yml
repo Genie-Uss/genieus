@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: payment-service
+  profiles:
+    active: local
+
+server:
+  port: 10040

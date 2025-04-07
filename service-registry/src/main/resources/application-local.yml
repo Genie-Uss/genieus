@@ -1,0 +1,25 @@
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+security:
+  user:
+    name: username
+    password: password
+
+logging:
+  level:
+    root: info
+    com.netflix.discovery: info # Eureka 클라이언트 로깅
+    com.netflix.eureka: info # Eureka 서버 자체 로깅
+    org.springframework.cloud.netflix.eureka: debug # Spring Cloud Netflix Eureka Wrapper
+    # 필요할 경우만 trace
+    # com.netflix.discovery: trace

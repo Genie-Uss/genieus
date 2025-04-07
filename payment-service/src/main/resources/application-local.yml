@@ -1,0 +1,31 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://username:password@localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+    hostname: ${spring.application.name}
+    instanceId: ${spring.application.name}:${server.port}
+
+spring:
+  cloud:
+    config:
+      enabled: false
+  config:
+    import: 'classpath:docker-database.yml'
+
+logging:
+  level:
+    root: info
+    shop.genieus: debug
+    org.springframework.cloud.gateway: debug
+    org.springframework.web.reactive: info
+    reactor.netty: warn
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0

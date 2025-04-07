@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/genieus
+    username: root
+    password: 1234
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      username: root
+      password: 1234
+      authentication-database: admin
+      database: genieus
+
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true

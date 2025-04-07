@@ -1,0 +1,28 @@
+server:
+  port: ${EUREKA_PORT}
+management:
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+eureka:
+  server:
+    enable-self-preservation: true
+
+security:
+  user:
+    name: ${EUREKA_USERNAME}
+    password: ${EUREKA_PASSWORD}
+
+logging:
+  level:
+    root: info
+    com.netflix.discovery: info # Eureka 클라이언트 로깅 (기본 상태)
+    com.netflix.eureka: info # Eureka 서버 자체 로깅 (에러나 상태 이상만 체크)
+    org.springframework.cloud.netflix.eureka: warn # Spring 설정 로깅은 최소화
+    # trace는 비활성화 (운영 환경에서 너무 verbose)
+    # com.netflix.discovery: trace

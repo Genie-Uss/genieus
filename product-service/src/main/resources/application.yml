@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: product-service
+  profiles:
+    active: local
+
+server:
+  port: 10060
