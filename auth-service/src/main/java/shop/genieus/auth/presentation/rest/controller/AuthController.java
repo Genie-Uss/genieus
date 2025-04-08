@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 import shop.genieus.auth.application.in.command.AuthenticationCommandService;
 import shop.genieus.auth.application.in.command.dto.LoginCommand;
 import shop.genieus.auth.application.in.command.dto.LogoutCommand;
+import shop.genieus.auth.application.in.command.dto.RefreshCommand;
 import shop.genieus.auth.domain.model.TokenPair;
 import shop.genieus.auth.presentation.rest.dto.AuthApiResponse;
 import shop.genieus.auth.presentation.rest.dto.request.LoginRequest;
 import shop.genieus.auth.presentation.rest.dto.request.LogoutRequest;
+import shop.genieus.auth.presentation.rest.dto.request.RefreshTokenRequest;
 import shop.genieus.auth.presentation.rest.dto.response.LoginResponse;
 import shop.genieus.auth.presentation.rest.dto.response.LogoutResponse;
+import shop.genieus.auth.presentation.rest.dto.response.RefreshTokenResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,5 +43,14 @@ public class AuthController {
     commandService.logout(command);
 
     return ResponseEntity.ok().body(AuthApiResponse.ok(LogoutResponse.success()));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(
+      @Valid @RequestBody final RefreshTokenRequest request) {
+    RefreshCommand command = request.toCommand(request);
+    TokenPair tokenPair = commandService.refresh(command);
+
+    return ResponseEntity.ok().body(AuthApiResponse.ok(RefreshTokenResponse.from(tokenPair)));
   }
 }
