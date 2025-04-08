@@ -1,16 +1,20 @@
 package shop.genieus.auth.application.in.command;
 
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.auth.application.in.command.dto.LoginCommand;
+import shop.genieus.auth.application.in.command.dto.LogoutCommand;
 import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
 import shop.genieus.auth.application.out.support.encoder.PasswordEncryptionPort;
 import shop.genieus.auth.application.out.support.id.IdGeneratorPort;
 import shop.genieus.auth.application.out.support.token.AuthTokenPort;
 import shop.genieus.auth.domain.model.TokenPair;
+import shop.genieus.auth.domain.model.TokenValidationResult;
 import shop.genieus.auth.domain.model.entity.User;
+import shop.genieus.auth.domain.model.vo.TokenId;
 
 @Service
 @Transactional
@@ -38,11 +42,35 @@ public class AuthenticationCommandService {
     return tokenPair;
   }
 
+  public void logout(final LogoutCommand command) {
+    TokenValidationResult tokenValidationResult = validateAndCheckBlacklist(command.accessToken());
+
+    TokenId tokenId = tokenValidationResult.getTokenId();
+    invalidateOldTokenIfNeeded(command.accessToken(), tokenId, tokenValidationResult.getUserId());
+    log.info("로그아웃 성공: TokenId={}", tokenId.value());
+  }
+
   private TokenPair createAndSaveTokenPair(Long userId) {
     String tokenId = idGenerator.generateUniqueId();
     TokenPair tokenPair = tokenPort.createTokenPair(tokenId, userId);
     persistencePort.saveRefreshToken(
         tokenPair.getTokenId(), userId, tokenPair.getRefreshTokenCredential());
     return tokenPair;
+  }
+
+  private void invalidateOldTokenIfNeeded(String accessToken, TokenId tokenId, Long userId) {
+    Instant expirationTime = tokenPort.getExpirationTime(accessToken);
+    if (expirationTime.isAfter(Instant.now())) {
+      persistencePort.addToBlacklist(tokenId, expirationTime);
+    }
+    persistencePort.removeRefreshToken(tokenId, userId);
+  }
+
+  private TokenValidationResult validateAndCheckBlacklist(String token) {
+    TokenValidationResult tokenValidationResult = tokenPort.validateTokenAndExtractId(token);
+    if (persistencePort.isBlacklisted(tokenValidationResult.getTokenId())) {
+      throw new IllegalArgumentException("차단된 JWT 토큰입니다.");
+    }
+    return tokenValidationResult;
   }
 }
