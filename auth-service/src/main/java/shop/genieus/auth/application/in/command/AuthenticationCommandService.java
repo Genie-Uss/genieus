@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.auth.application.in.command.dto.LoginCommand;
 import shop.genieus.auth.application.in.command.dto.LogoutCommand;
+import shop.genieus.auth.application.in.command.dto.RefreshCommand;
 import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
 import shop.genieus.auth.application.out.support.encoder.PasswordEncryptionPort;
 import shop.genieus.auth.application.out.support.id.IdGeneratorPort;
@@ -50,6 +51,22 @@ public class AuthenticationCommandService {
     log.info("로그아웃 성공: TokenId={}", tokenId.value());
   }
 
+  public TokenPair refresh(final RefreshCommand command) {
+    String refreshToken = command.refreshToken();
+    TokenValidationResult validationResult = tokenPort.validateTokenAndExtractId(command.refreshToken());
+
+    Long userId = validationResult.getUserId();
+    TokenId oldTokenId = validationResult.getTokenId();
+
+    validateRefreshToken(oldTokenId, refreshToken);
+    invalidateOldTokenIfNeeded(command.accessToken(), oldTokenId, userId);
+
+    TokenPair newTokenPair = createAndSaveTokenPair(userId);
+    log.info("토큰 갱신 성공- Id: {}", userId);
+
+    return newTokenPair;
+  }
+
   private TokenPair createAndSaveTokenPair(Long userId) {
     String tokenId = idGenerator.generateUniqueId();
     TokenPair tokenPair = tokenPort.createTokenPair(tokenId, userId);
@@ -72,5 +89,12 @@ public class AuthenticationCommandService {
       throw new IllegalArgumentException("차단된 JWT 토큰입니다.");
     }
     return tokenValidationResult;
+  }
+
+  private void validateRefreshToken(TokenId tokenId, String refreshToken) {
+    boolean isValidRefreshToken = persistencePort.isValidRefreshToken(tokenId, refreshToken);
+    if (!isValidRefreshToken) {
+      throw new IllegalArgumentException("저장된 리프레시 토큰과 일치하지 않습니다. 다시 로그인해주세요.");
+    }
   }
 }
