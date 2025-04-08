@@ -22,7 +22,7 @@ import shop.genieus.auth.global.common.RoleType;
 
 @Entity
 @Getter
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 @Comment("사용자 테이블")
 @Table(name = "m_auth_user")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
