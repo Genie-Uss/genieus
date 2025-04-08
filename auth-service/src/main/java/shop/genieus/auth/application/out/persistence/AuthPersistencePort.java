@@ -15,4 +15,6 @@ public interface AuthPersistencePort {
   void removeRefreshToken(TokenId tokenId, Long userId);
 
   boolean isBlacklisted(TokenId tokenId);
+
+  boolean isValidRefreshToken(TokenId tokenId, String refreshToken);
 }

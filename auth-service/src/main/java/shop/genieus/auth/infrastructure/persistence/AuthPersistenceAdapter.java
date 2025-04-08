@@ -55,4 +55,14 @@ public class AuthPersistenceAdapter implements AuthPersistencePort {
   public boolean isBlacklisted(TokenId tokenId) {
     return tokenRedisRepository.isBlacklisted(tokenId.value());
   }
+
+  @Override
+  public boolean isValidRefreshToken(TokenId userId, String refreshToken) {
+    if (userId == null || refreshToken == null || refreshToken.isEmpty()) {
+      return false;
+    }
+    String storedToken = tokenRedisRepository.getRefreshToken(userId.value());
+
+    return storedToken != null && storedToken.equals(refreshToken);
+  }
 }
