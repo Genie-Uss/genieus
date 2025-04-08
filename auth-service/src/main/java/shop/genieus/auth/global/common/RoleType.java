@@ -1,4 +1,4 @@
-package shop.genieus.user.domain.model.vo;
+package shop.genieus.auth.global.common;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
