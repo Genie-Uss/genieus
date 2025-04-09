@@ -1,0 +1,22 @@
+package shop.genieus.coupon.domain.model.vo;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class CouponStartDate {
+
+  @Column(name = "coupon_start_date", nullable = false)
+  private LocalDateTime value;
+
+  private CouponStartDate(LocalDateTime value) {
+    if (value.isBefore(LocalDateTime.now())) {
+      // todo. throw exception
+    }
+    this.value = value;
+  }
+}
