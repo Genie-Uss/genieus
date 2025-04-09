@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.auth.application.in.command.dto.LoginCommand;
 import shop.genieus.auth.application.in.command.dto.LogoutCommand;
 import shop.genieus.auth.application.in.command.dto.RefreshCommand;
+import shop.genieus.auth.application.in.command.dto.ValidateAccessTokenCommand;
 import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
 import shop.genieus.auth.application.out.support.encoder.PasswordEncryptionPort;
 import shop.genieus.auth.application.out.support.id.IdGeneratorPort;
@@ -44,7 +45,8 @@ public class AuthenticationCommandService {
   }
 
   public void logout(final LogoutCommand command) {
-    TokenValidationResult tokenValidationResult = validateTokenAndCheckBlacklist(command.accessToken());
+    TokenValidationResult tokenValidationResult =
+        validateTokenAndCheckBlacklist(command.accessToken());
 
     TokenId tokenId = tokenValidationResult.getTokenId();
     revokeTokenPair(command.accessToken(), tokenId, tokenValidationResult.getUserId());
@@ -53,7 +55,8 @@ public class AuthenticationCommandService {
 
   public TokenPair refresh(final RefreshCommand command) {
     String refreshToken = command.refreshToken();
-    TokenValidationResult validationResult = tokenPort.validateTokenAndExtractId(command.refreshToken());
+    TokenValidationResult validationResult =
+        tokenPort.validateTokenAndExtractId(command.refreshToken());
 
     Long userId = validationResult.getUserId();
     TokenId oldTokenId = validationResult.getTokenId();
@@ -65,6 +68,10 @@ public class AuthenticationCommandService {
     log.info("토큰 갱신 성공- Id: {}", userId);
 
     return newTokenPair;
+  }
+
+  public TokenValidationResult validateAccessToken(ValidateAccessTokenCommand command) {
+    return validateTokenAndCheckBlacklist(command.token());
   }
 
   private TokenPair generateAndPersistTokenPair(Long userId) {
