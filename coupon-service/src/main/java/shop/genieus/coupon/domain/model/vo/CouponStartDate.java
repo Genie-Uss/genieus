@@ -16,9 +16,6 @@ public class CouponStartDate {
   private LocalDateTime value;
 
   private CouponStartDate(LocalDateTime value) {
-    if (value.isBefore(LocalDateTime.now())) {
-      // todo. throw exception
-    }
     this.value = value;
   }
 }

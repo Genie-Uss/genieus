@@ -16,9 +16,13 @@ public class CouponEndDate {
   private LocalDateTime value;
 
   private CouponEndDate(LocalDateTime value) {
-    if (value.isBefore(LocalDateTime.now())) {
-      // todo. throw exception
-    }
     this.value = value;
+  }
+
+  public boolean validateEndDate(LocalDateTime startDate) {
+    if (this.value.isBefore(startDate)) { // 발급 종료일자는 시작일자와 같거나 미래
+      return false;
+    }
+    return true;
   }
 }
