@@ -47,4 +47,9 @@ public class TokenRedisRepository {
     String key = BLACKLIST_PREFIX + tokenId;
     return Boolean.TRUE.equals(redisTemplate.hasKey(key));
   }
+
+  public String getRefreshToken(String tokenId) {
+    String key = REFRESH_TOKEN_PREFIX + tokenId;
+    return redisTemplate.opsForValue().get(key);
+  }
 }
