@@ -28,4 +28,9 @@ public class Password {
       throw new IllegalArgumentException("비밀번호는 필수 입력값입니다");
     }
   }
+
+  public boolean matches(
+      String plainPassword, PasswordEncryptionService passwordEncryptionService) {
+    return passwordEncryptionService.matches(plainPassword, this.value);
+  }
 }

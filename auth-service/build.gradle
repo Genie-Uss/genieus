@@ -45,9 +45,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // database
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // msa
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -61,6 +63,9 @@ dependencies {
 
     // etc
     implementation 'com.genieus:genieus-common-lib:1.0.0'
+    compileOnly 'io.jsonwebtoken:jjwt-api:0.11.5'           // security (JWT)
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 }
 
 dependencyManagement {

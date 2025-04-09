@@ -62,4 +62,9 @@ public class User extends BaseEntity {
         .role(Role.of(roleType))
         .build();
   }
+
+  public boolean matchPassword(
+      String plainPassword, PasswordEncryptionService passwordEncryptionService) {
+    return this.password.matches(plainPassword, passwordEncryptionService);
+  }
 }
