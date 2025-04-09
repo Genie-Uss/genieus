@@ -1,5 +1,6 @@
 package shop.genieus.coupon.domain.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.time.LocalDateTime;
@@ -15,7 +16,8 @@ public class CouponEndDate {
   @Column(name = "coupon_end_date")
   private LocalDateTime value;
 
-  private CouponEndDate(LocalDateTime value) {
+  @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+  public CouponEndDate(LocalDateTime value) {
     this.value = value;
   }
 

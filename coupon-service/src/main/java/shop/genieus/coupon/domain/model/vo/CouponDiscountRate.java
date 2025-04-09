@@ -14,7 +14,7 @@ public class CouponDiscountRate {
   @Column(name = "coupon_discount_rate", nullable = false)
   private Integer value;
 
-  private CouponDiscountRate(Integer value) {
+  public CouponDiscountRate(Integer value) {
     if (value < 1 || value > 99) {
       // todo. throw exception
     }
