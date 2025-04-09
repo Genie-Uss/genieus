@@ -3,9 +3,11 @@ package shop.genieus.auth.domain.model.vo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.genieus.auth.global.common.AbstractEmail;
 
+@Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Email extends AbstractEmail {
