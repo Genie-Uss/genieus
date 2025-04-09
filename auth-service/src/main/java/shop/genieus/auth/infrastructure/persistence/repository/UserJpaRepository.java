@@ -10,4 +10,7 @@ import shop.genieus.auth.domain.model.vo.Email;
 public interface UserJpaRepository extends JpaRepository<User, String> {
   @Query("SELECT u FROM User u WHERE u.email = :email AND u.deletedAt IS NULL")
   Optional<User> findByEmailNotDeleted(@Param("email") Email email);
+
+  @Query("SELECT u FROM User u WHERE u.id = :id AND u.deletedAt IS NULL")
+  Optional<User> findByIdNotDeleted(@Param("id") Long userId);
 }

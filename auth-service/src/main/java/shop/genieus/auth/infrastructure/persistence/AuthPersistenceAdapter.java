@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
+import shop.genieus.auth.domain.model.Passport;
 import shop.genieus.auth.domain.model.entity.User;
 import shop.genieus.auth.domain.model.vo.Email;
 import shop.genieus.auth.domain.model.vo.TokenCredential;
 import shop.genieus.auth.domain.model.vo.TokenId;
+import shop.genieus.auth.infrastructure.persistence.repository.PassportRedisRepository;
 import shop.genieus.auth.infrastructure.persistence.repository.TokenRedisRepository;
 import shop.genieus.auth.infrastructure.persistence.repository.UserJpaRepository;
 
@@ -18,6 +20,7 @@ import shop.genieus.auth.infrastructure.persistence.repository.UserJpaRepository
 public class AuthPersistenceAdapter implements AuthPersistencePort {
   private final UserJpaRepository userJpaRepository;
   private final TokenRedisRepository tokenRedisRepository;
+  private final PassportRedisRepository passportRedisRepository;
 
   @Override
   public User findByEmail(String username) {
@@ -64,5 +67,27 @@ public class AuthPersistenceAdapter implements AuthPersistencePort {
     String storedToken = tokenRedisRepository.getRefreshToken(userId.value());
 
     return storedToken != null && storedToken.equals(refreshToken);
+  }
+
+  @Override
+  public User findByUserId(Long userId) {
+    return userJpaRepository
+        .findByIdNotDeleted(userId)
+        .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+  }
+
+  @Override
+  public Passport findPassportFromCache(Long userId) {
+    try {
+      Passport passport = passportRedisRepository.findPassportByUserId(userId);
+      return passport;
+    } catch (Exception exception) {
+      throw exception;
+    }
+  }
+
+  @Override
+  public Passport savePassport(Passport passport) {
+    return passportRedisRepository.savePassport(passport);
   }
 }
