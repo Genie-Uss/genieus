@@ -21,6 +21,14 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/Genie-Uss/genieus-common-lib")
+        credentials {
+            username = project.findProperty("COMMON_GITHUB_USER") ?: System.getenv("COMMON_GITHUB_USER")
+            password = project.findProperty("COMMON_GITHUB_TOKEN") ?: System.getenv("COMMON_GITHUB_TOKEN")
+        }
+    }
 }
 
 ext {
@@ -28,27 +36,48 @@ ext {
 }
 
 dependencies {
+    //common-lib
+    implementation 'com.genieus:genieus-common-lib:1.1.0'
+
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // spring
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // database
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // Jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
     // msa
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // resilience4j
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
     // tracing & monitoring
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.github.openfeign:feign-micrometer'
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // QueryDsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 dependencyManagement {
