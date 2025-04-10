@@ -131,7 +131,7 @@ spring:
           filters:
             - TokenExtractor
 
-        # ================================= 사용자(users)\
+        # ================================= 사용자(users)
         - id: user-signup
           uri: lb://USER-SERVICE
           predicates:
