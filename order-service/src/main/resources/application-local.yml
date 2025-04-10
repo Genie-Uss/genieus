@@ -11,6 +11,9 @@ spring:
   cloud:
     config:
       enabled: false
+    openfeign:
+      circuitbreaker:
+        enabled: true
   config:
     import: 'classpath:docker-database.yml'
 
@@ -29,3 +32,21 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        ignore-exceptions:
+          - shop.genieus.order.global.exception.CustomNotFoundException
+          - feign.FeignException.BadRequest
+          - feign.FeignException.NotFound
+          - feign.FeignException.Unauthorized
+          - feign.FeignException.Forbidden
+    instances:
+      promotionClient:
+        base-config: default
+      couponClient:
+        base-config: default
+      productClient:
+        base-config: default
