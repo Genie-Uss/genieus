@@ -12,10 +12,10 @@ import shop.genieus.auth.application.out.support.id.IdGeneratorPort;
 import shop.genieus.auth.domain.model.Passport;
 import shop.genieus.auth.domain.model.entity.User;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j(topic = "[PassportCommandService]")
 public class PassportCommandService {
   private final PassportEncodingPort passportEncodingPort;
   private final AuthPersistencePort persistencePort;

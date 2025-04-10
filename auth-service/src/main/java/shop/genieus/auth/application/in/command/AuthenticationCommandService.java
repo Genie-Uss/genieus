@@ -18,10 +18,10 @@ import shop.genieus.auth.domain.model.TokenValidationResult;
 import shop.genieus.auth.domain.model.entity.User;
 import shop.genieus.auth.domain.model.vo.TokenId;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j(topic = "[AuthenticationCommandService]")
 public class AuthenticationCommandService {
   private final AuthPersistencePort persistencePort;
   private final AuthTokenPort tokenPort;

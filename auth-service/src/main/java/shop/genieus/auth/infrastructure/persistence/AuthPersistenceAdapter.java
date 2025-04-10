@@ -14,9 +14,9 @@ import shop.genieus.auth.infrastructure.persistence.repository.PassportRedisRepo
 import shop.genieus.auth.infrastructure.persistence.repository.TokenRedisRepository;
 import shop.genieus.auth.infrastructure.persistence.repository.UserJpaRepository;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j(topic = "[AuthPersistenceAdapter]")
 public class AuthPersistenceAdapter implements AuthPersistencePort {
   private final UserJpaRepository userJpaRepository;
   private final TokenRedisRepository tokenRedisRepository;
