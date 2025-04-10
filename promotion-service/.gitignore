@@ -36,4 +36,4 @@ out/
 .vscode/
 
 ### gradle.properties ###
-**/resources/gradle.properties
+gradle.properties
