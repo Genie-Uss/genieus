@@ -1,5 +1,7 @@
 package shop.genieus.auth.domain.model.vo;
 
+import com.genieus.common.auth.model.AbstractRole;
+import com.genieus.common.auth.model.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -7,8 +9,6 @@ import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import shop.genieus.auth.global.common.AbstractRole;
-import shop.genieus.auth.global.common.RoleType;
 
 @Getter
 @Embeddable

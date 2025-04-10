@@ -1,6 +1,7 @@
 package shop.genieus.auth.domain.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.genieus.common.auth.model.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -18,7 +19,6 @@ import shop.genieus.auth.domain.model.service.PasswordEncryptionService;
 import shop.genieus.auth.domain.model.vo.Email;
 import shop.genieus.auth.domain.model.vo.Password;
 import shop.genieus.auth.domain.model.vo.Role;
-import shop.genieus.auth.global.common.RoleType;
 
 @Entity
 @Getter

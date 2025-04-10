@@ -1,19 +1,21 @@
 package shop.genieus.auth.domain.model;
 
+import com.genieus.common.auth.model.RoleType;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import shop.genieus.auth.global.common.RoleType;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Passport {
   public static final int DEFAULT_SESSION_HOURS = 24;
 
-  private final String sessionId;
+  private String sessionId;
   private Long userId;
   private RoleType role;
   private LocalDateTime issuedAt;
