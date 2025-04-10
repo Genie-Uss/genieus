@@ -12,7 +12,6 @@ import shop.genieus.promotion.domain.model.PromotionForCreate;
 import shop.genieus.promotion.domain.model.PromotionProductForCreate;
 import shop.genieus.promotion.domain.model.entity.Promotion;
 import shop.genieus.promotion.domain.model.entity.PromotionProduct;
-import shop.genieus.promotion.domain.model.vo.PromotionProductStatus;
 import shop.genieus.promotion.global.exception.PromotionException;
 import shop.genieus.promotion.infrastructure.persistence.repository.PromotionJpaRepository;
 
