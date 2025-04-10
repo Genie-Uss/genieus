@@ -2,6 +2,8 @@ spring:
   cloud:
     config:
       enabled: false
+  config:
+    import: 'classpath:local-route.yml'
     gateway:
       discovery:
         locator:
@@ -35,6 +37,7 @@ logging:
   level:
     root: info # 전체 기본 로그 레벨
     shop.genieus: debug # 사용자 정의 패키지
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
     org.springframework.cloud.gateway: debug # Gateway 라우팅 관련
     org.springframework.web.reactive: info # WebFlux 처리 흐름
     reactor.netty: warn # Netty 내부 로그
