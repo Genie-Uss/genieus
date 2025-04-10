@@ -1,5 +1,6 @@
 package shop.genieus.promotion.presentation.rest.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import shop.genieus.promotion.domain.model.entity.Promotion;
@@ -9,7 +10,9 @@ import shop.genieus.promotion.domain.model.vo.PromotionStatus;
 public record CreatePromotionResponse(
     Long promotionId,
     String promotionName,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime promotionStartDate,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime promotionEndDate,
     PromotionStatus promotionStatus,
     List<PromotionProduct> promotionProducts
@@ -36,7 +39,6 @@ public record CreatePromotionResponse(
       Long promotionProductId,
       Long productId,
       Integer promotionProductDisCountRate,
-      Integer promotionProductDiscountPrice,
       PromotionProductStatus promotionProductStatus
   ) {
     public static PromotionProduct fromEntity(
@@ -46,7 +48,6 @@ public record CreatePromotionResponse(
           promotionProduct.getPromotionProductId(),
           promotionProduct.getProductId(),
           promotionProduct.getPromotionProductDiscountRate().getValue(),
-          promotionProduct.getPromotionProductDiscountPrice(),
           promotionProduct.getPromotionProductStatus()
       );
     }
