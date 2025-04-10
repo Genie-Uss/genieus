@@ -5,16 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import shop.genieus.coupon.application.in.command.dto.CreateCouponCommand;
-import shop.genieus.coupon.application.out.persistence.CouponPersistencePort;
+import shop.genieus.coupon.application.out.persistence.CouponCommandPort;
 import shop.genieus.coupon.domain.model.entity.Coupon;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j(topic = "[CouponCommandService]")
+@Slf4j
 public class CouponCommandService {
 
-  private final CouponPersistencePort persistencePort;
+  private final CouponCommandPort persistencePort;
 
   public Coupon createCoupon(CreateCouponCommand request) {
     // todo. user 권한 검증 (MASTER 만 가능)

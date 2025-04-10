@@ -13,7 +13,7 @@ import shop.genieus.coupon.domain.model.vo.CouponExpiredDate;
 import shop.genieus.coupon.domain.model.vo.CouponStartDate;
 
 public record CreateCouponRequest(
-    @NotBlank(message = "쿠퐁 이름은 필수입니다.") String couponName,
+    @NotBlank(message = "쿠폰 이름은 필수입니다.") String couponName,
     @NotNull @Min(1) @Max(99) Integer couponDiscountRate,
     @NotNull @Min(1) Integer couponQuantity,
     @NotNull @FutureOrPresent(message = "쿠폰 발급 시작일은 오늘 이후여야 합니다.") LocalDateTime couponStartDate,
