@@ -1,0 +1,28 @@
+package shop.genieus.order.global.exception;
+
+import lombok.Getter;
+
+@Getter
+public enum ErrorCode {
+  ORDER_NOT_FOUND(4001, "해당 주문이 존재하지 않습니다."),
+  CREATE_ORDER_FORBIDDEN(4002, "주문을 생성할 권한이 없습니다."),
+  UPDATE_ORDER_FORBIDDEN(4003, "주문을 수정할 권한이 없습니다."),
+  DELETE_ORDER_FORBIDDEN(4004, "주문을 삭제할 권한이 없습니다."),
+  ACCESS_ORDER_FORBIDDEN(4005, "주문을 조회할 권한이 없습니다."),
+
+  PRODUCT_NOT_FOUND(4101, "상품 서비스에서 유효한 데이터가 존재하지 않습니다."),
+  COUPON_NOT_FOUND(4102, "쿠폰 서비스에서 유효한 데이터가 존재하지 않습니다."),
+  PROMOTION_NOT_FOUND(4103, "프로모션 서비스에서 유효한 데이터가 존재하지 않습니다."),
+
+  PROMOTION_SERVICE_FAILURE(4201, "프로모션 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요."),
+  PRODUCT_SERVICE_FAILURE(4202, "상품 재고 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요."),
+  COUPON_SERVICE_FAILURE(4203, "쿠폰 사용에 실패했습니다. 잠시 후 다시 시도해주세요."),
+  ;
+  private final Integer code;
+  private final String message;
+
+  ErrorCode(final Integer code, final String message) {
+    this.code = code;
+    this.message = message;
+  }
+}
