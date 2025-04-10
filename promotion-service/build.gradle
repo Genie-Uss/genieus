@@ -36,6 +36,9 @@ ext {
 }
 
 dependencies {
+    // open feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
     // 공통 라이브러리
     implementation 'com.genieus:genieus-common-lib:1.0.0'
 
