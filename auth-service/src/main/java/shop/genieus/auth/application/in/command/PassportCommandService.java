@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.auth.application.in.command.dto.IssuePassportCommand;
-import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
+import shop.genieus.auth.application.out.persistence.AuthCommandPort;
 import shop.genieus.auth.application.out.support.encoder.PassportEncodingPort;
 import shop.genieus.auth.application.out.support.id.IdGeneratorPort;
 import shop.genieus.auth.domain.model.Passport;
@@ -18,7 +18,7 @@ import shop.genieus.auth.domain.model.entity.User;
 @RequiredArgsConstructor
 public class PassportCommandService {
   private final PassportEncodingPort passportEncodingPort;
-  private final AuthPersistencePort persistencePort;
+  private final AuthCommandPort commandPort;
   private final IdGeneratorPort idGeneratorPort;
 
   public String issueEncodedPassport(IssuePassportCommand command) {
@@ -29,7 +29,7 @@ public class PassportCommandService {
       return serializePassport(cachedPassport);
     }
 
-    User user = persistencePort.findByUserId(userId);
+    User user = commandPort.findByUserId(userId);
     log.debug("passport 발급을 요청한 유저: {}", user.toString());
     Passport passport = createAndSavePassport(user);
 
@@ -39,7 +39,7 @@ public class PassportCommandService {
 
   private Passport checkCachedPassport(Long userId) {
     try {
-      Passport cachedPassport = persistencePort.findPassportFromCache(userId);
+      Passport cachedPassport = commandPort.findPassportFromCache(userId);
       if (cachedPassport != null) {
         return cachedPassport;
       }
@@ -54,7 +54,7 @@ public class PassportCommandService {
     LocalDateTime now = LocalDateTime.now();
     Passport passport = Passport.create(sessionId, user.getId(), user.getRole().getValue(), now);
 
-    return persistencePort.savePassport(passport);
+    return commandPort.savePassport(passport);
   }
 
   private String serializePassport(Passport passport) {

@@ -9,7 +9,7 @@ import shop.genieus.auth.application.in.command.dto.LoginCommand;
 import shop.genieus.auth.application.in.command.dto.LogoutCommand;
 import shop.genieus.auth.application.in.command.dto.RefreshCommand;
 import shop.genieus.auth.application.in.command.dto.ValidateAccessTokenCommand;
-import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
+import shop.genieus.auth.application.out.persistence.AuthCommandPort;
 import shop.genieus.auth.application.out.support.encoder.PasswordEncryptionPort;
 import shop.genieus.auth.application.out.support.id.IdGeneratorPort;
 import shop.genieus.auth.application.out.support.token.AuthTokenPort;
@@ -23,13 +23,13 @@ import shop.genieus.auth.domain.model.vo.TokenId;
 @Transactional
 @RequiredArgsConstructor
 public class AuthenticationCommandService {
-  private final AuthPersistencePort persistencePort;
+  private final AuthCommandPort commandPort;
   private final AuthTokenPort tokenPort;
   private final PasswordEncryptionPort encryptionPort;
   private final IdGeneratorPort idGenerator;
 
   public TokenPair login(final LoginCommand command) {
-    User user = persistencePort.findByEmail(command.username());
+    User user = commandPort.findByEmail(command.username());
 
     if (!user.isActive()) {
       throw new IllegalArgumentException("비활성화된 사용자입니다.");
@@ -77,7 +77,7 @@ public class AuthenticationCommandService {
   private TokenPair generateAndPersistTokenPair(Long userId) {
     String tokenId = idGenerator.generateUniqueId();
     TokenPair tokenPair = tokenPort.createTokenPair(tokenId, userId);
-    persistencePort.saveRefreshToken(
+    commandPort.saveRefreshToken(
         tokenPair.getTokenId(), userId, tokenPair.getRefreshTokenCredential());
     return tokenPair;
   }
@@ -85,21 +85,21 @@ public class AuthenticationCommandService {
   private void revokeTokenPair(String accessToken, TokenId tokenId, Long userId) {
     Instant expirationTime = tokenPort.getExpirationTime(accessToken);
     if (expirationTime.isAfter(Instant.now())) {
-      persistencePort.addToBlacklist(tokenId, expirationTime);
+      commandPort.addToBlacklist(tokenId, expirationTime);
     }
-    persistencePort.removeRefreshToken(tokenId, userId);
+    commandPort.removeRefreshToken(tokenId, userId);
   }
 
   private TokenValidationResult validateTokenAndCheckBlacklist(String token) {
     TokenValidationResult tokenValidationResult = tokenPort.validateTokenAndExtractId(token);
-    if (persistencePort.isBlacklisted(tokenValidationResult.getTokenId())) {
+    if (commandPort.isBlacklisted(tokenValidationResult.getTokenId())) {
       throw new IllegalArgumentException("차단된 JWT 토큰입니다.");
     }
     return tokenValidationResult;
   }
 
   private void validateRefreshToken(TokenId tokenId, String refreshToken) {
-    boolean isValidRefreshToken = persistencePort.isValidRefreshToken(tokenId, refreshToken);
+    boolean isValidRefreshToken = commandPort.isValidRefreshToken(tokenId, refreshToken);
     if (!isValidRefreshToken) {
       throw new IllegalArgumentException("저장된 리프레시 토큰과 일치하지 않습니다. 다시 로그인해주세요.");
     }
