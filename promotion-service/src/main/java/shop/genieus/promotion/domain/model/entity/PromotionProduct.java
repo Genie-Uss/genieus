@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import shop.genieus.promotion.domain.model.PromotionProductForCreate;
 import shop.genieus.promotion.domain.model.vo.PromotionProductStatus;
 import shop.genieus.promotion.domain.model.vo.Rate;
 
@@ -43,10 +44,6 @@ public class PromotionProduct extends BaseEntity {
   private Rate promotionProductDiscountRate;
 
   @Column(nullable = false)
-  @Comment("할인가")
-  private Integer promotionProductDiscountPrice;
-
-  @Column(nullable = false)
   @Enumerated(value = EnumType.STRING)
   @Comment("프로모션 상품 상태")
   private PromotionProductStatus promotionProductStatus;
@@ -54,4 +51,13 @@ public class PromotionProduct extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "promotion_id")
   private Promotion promotion;
+
+  public static PromotionProduct create(PromotionProductForCreate dto, Promotion promotion) {
+    return PromotionProduct.builder()
+        .productId(dto.productId())
+        .promotionProductDiscountRate(Rate.of(dto.promotionProductDiscountRate()))
+        .promotionProductStatus(dto.promotionProductStatus())
+        .promotion(promotion)
+        .build();
+  }
 }

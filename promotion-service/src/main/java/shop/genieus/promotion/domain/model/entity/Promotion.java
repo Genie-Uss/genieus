@@ -18,7 +18,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Comment;
+import shop.genieus.promotion.domain.model.PromotionForCreate;
 import shop.genieus.promotion.domain.model.vo.PromotionStatus;
 
 @Getter
@@ -51,23 +53,17 @@ public class Promotion extends BaseEntity {
   @Comment("프로모션 상태")
   private PromotionStatus promotionStatus;
 
-  @Builder.Default
+  @Setter
   @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<PromotionProduct> promotionProducts = new ArrayList<>();
+  @Builder.Default private List<PromotionProduct> promotionProducts = new ArrayList<>();
 
-  public static Promotion create(
-      String promotionName,
-      LocalDateTime promotionStartDate,
-      LocalDateTime promotionEndDate,
-      PromotionStatus promotionStatus,
-      List<PromotionProduct> promotionProducts
-      ) {
+  public static Promotion create(PromotionForCreate dto) {
     return Promotion.builder()
-        .promotionName(promotionName)
-        .promotionStartDate(promotionStartDate)
-        .promotionEndDate(promotionEndDate)
-        .promotionStatus(promotionStatus)
-        .promotionProducts(promotionProducts)
+        .promotionName(dto.promotionName())
+        .promotionStartDate(dto.promotionStartDate())
+        .promotionEndDate(dto.promotionEndDate())
+        .promotionStatus(dto.promotionStatus())
+        .promotionProducts(new ArrayList<>())
         .build();
   }
 }
