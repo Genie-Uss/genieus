@@ -14,14 +14,16 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
 
 @Entity
 @Table(name = "m_coupon_user")
+@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CouponUser {
+public class CouponUser extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +44,12 @@ public class CouponUser {
   @Enumerated(EnumType.STRING)
   private CouponUseStatus couponUserStatus;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "coupon_id")
   private Coupon coupon;
+
+  public void useCoupon() {
+    this.couponUserStatus = CouponUseStatus.USED;
+    this.couponUserUsedDate = LocalDateTime.now();
+  }
 }

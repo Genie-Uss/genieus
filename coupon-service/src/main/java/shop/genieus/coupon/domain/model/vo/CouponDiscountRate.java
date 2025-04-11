@@ -16,7 +16,7 @@ public class CouponDiscountRate {
 
   public CouponDiscountRate(Integer value) {
     if (value < 1 || value > 99) {
-      // todo. throw exception
+      throw new IllegalArgumentException("쿠폰 할인율은 1 ~ 99 사이에서 입력할 수 있습니다.");
     }
     this.value = value;
   }
