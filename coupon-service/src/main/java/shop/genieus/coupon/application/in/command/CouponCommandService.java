@@ -48,9 +48,7 @@ public class CouponCommandService {
   }
 
   private CouponUser findAvailableCoupon(UseCouponRequest request) {
-    log.info("request: couponId - {} | userId - {}", request.couponId(), request.userId());
     CouponUser couponUser = persistencePort.validUserCoupon(request.couponId(), request.userId());
-    log.info("couponUser: {}", couponUser.getUserId());
     if (couponUser == null) {
       throw new IllegalArgumentException("존재하지 않는 쿠폰입니다.");
     }
