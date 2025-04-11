@@ -1,5 +1,7 @@
 package shop.genieus.coupon.application.in.command;
 
+import com.genieus.common.internal.request.UseCouponRequest;
+import com.genieus.common.internal.response.CouponClientResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Service;
 import shop.genieus.coupon.application.in.command.dto.CreateCouponCommand;
 import shop.genieus.coupon.application.out.persistence.CouponCommandPort;
 import shop.genieus.coupon.domain.model.entity.Coupon;
+import shop.genieus.coupon.domain.model.entity.CouponUser;
+import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
 
 @Service
 @Transactional
@@ -28,5 +32,32 @@ public class CouponCommandService {
 
     Coupon coupon = CreateCouponCommand.toEntity(request);
     return persistencePort.createCoupon(coupon);
+  }
+
+  public CouponClientResponse useCoupon(UseCouponRequest request) {
+    // 1. 쿠폰 사용 가능 여부 확인
+    CouponUser couponUser = findAvailableCoupon(request);
+    // 쿠폰 정보 조회
+    Coupon coupon = persistencePort.findCoupon(request.couponId());
+    // 2. 쿠폰 사용
+    couponUser.useCoupon();
+    return new CouponClientResponse(
+        coupon.getCouponId(),
+        coupon.getCouponDiscountRate().getValue(),
+        coupon.getCouponMaxPrice());
+  }
+
+  private CouponUser findAvailableCoupon(UseCouponRequest request) {
+    CouponUser couponUser = persistencePort.validUserCoupon(request.couponId(), request.userId());
+    if (couponUser == null) {
+      throw new IllegalArgumentException("존재하지 않는 쿠폰입니다.");
+    }
+    if (!couponUser.getCouponUserStatus().equals(CouponUseStatus.AVAILABLE)) {
+      throw new IllegalArgumentException("사용 불가능한 쿠폰입니다.");
+    }
+    if (couponUser.getCouponUserExpiredDate().isBefore(request.orderedAt())) {
+      throw new IllegalArgumentException("사용 기한이 지난 쿠폰입니다.");
+    }
+    return couponUser;
   }
 }
