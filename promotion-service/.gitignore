@@ -34,3 +34,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### gradle.properties ###
+gradle.properties
