@@ -11,4 +11,12 @@ public class CustomBadRequestException extends RuntimeException {
     super(message);
     this.code = code;
   }
+
+  public static class CancelOrderBadRequestException extends CustomBadRequestException {
+    public CancelOrderBadRequestException() {
+      super(
+          ErrorCode.CANCEL_ORDER_BAD_REQUEST.getCode(),
+          ErrorCode.CANCEL_ORDER_BAD_REQUEST.getMessage());
+    }
+  }
 }

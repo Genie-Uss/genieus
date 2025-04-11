@@ -10,4 +10,12 @@ public class CustomForbiddenException extends RuntimeException {
     super(message);
     this.code = code;
   }
+
+  public static class AccessOrderForbiddenException extends CustomForbiddenException {
+    public AccessOrderForbiddenException() {
+      super(
+          ErrorCode.ACCESS_ORDER_FORBIDDEN.getCode(),
+          ErrorCode.ACCESS_ORDER_FORBIDDEN.getMessage());
+    }
+  }
 }

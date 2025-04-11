@@ -1,7 +1,9 @@
 package shop.genieus.order.presentation.rest.controller;
 
+import com.genieus.common.auth.annotation.HasRole;
 import com.genieus.common.auth.annotation.WithPassport;
 import com.genieus.common.auth.model.Passport;
+import com.genieus.common.auth.model.RoleType;
 import com.genieus.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shop.genieus.order.application.in.command.OrderCommandService;
+import shop.genieus.order.application.in.command.dto.CancelOrderCommand;
 import shop.genieus.order.domain.model.entity.Order;
 import shop.genieus.order.presentation.rest.dto.request.CreateOrderRequest;
 import shop.genieus.order.presentation.rest.dto.request.PaymentRequest;
@@ -38,8 +41,17 @@ public class OrderController {
       @PathVariable Long orderId,
       @Valid @RequestBody PaymentRequest request) {
     log.info("Process payment request: {}", request);
-    Order order = orderCommandService.payment(request.toCommand(passport, orderId));
+    Order order = orderCommandService.requestPayment(request.toCommand(passport, orderId));
     PaymentResponse response = PaymentResponse.toResponse(order);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
+  }
+
+  @HasRole({RoleType.CUSTOMER, RoleType.MASTER_ADMIN})
+  @PostMapping("/{orderId}/cancel")
+  public ResponseEntity<ApiResponse<Void>> cancelOrder(
+      @WithPassport Passport passport, @PathVariable Long orderId) {
+    log.info("Cancel order request: {}", orderId);
+    orderCommandService.cancelOrderByUser(new CancelOrderCommand(passport.getUserId(), orderId));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.noContent());
   }
 }
