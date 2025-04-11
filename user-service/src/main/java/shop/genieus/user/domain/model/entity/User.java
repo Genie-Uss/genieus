@@ -1,6 +1,7 @@
 package shop.genieus.user.domain.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.genieus.common.auth.model.RoleType;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
@@ -24,7 +25,6 @@ import shop.genieus.user.domain.model.vo.Name;
 import shop.genieus.user.domain.model.vo.Password;
 import shop.genieus.user.domain.model.vo.PhoneNumber;
 import shop.genieus.user.domain.model.vo.Role;
-import shop.genieus.user.domain.model.vo.RoleType;
 
 @Entity
 @Getter

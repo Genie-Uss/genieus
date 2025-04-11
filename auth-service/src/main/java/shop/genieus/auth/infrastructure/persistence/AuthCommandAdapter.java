@@ -4,7 +4,7 @@ import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import shop.genieus.auth.application.out.persistence.AuthPersistencePort;
+import shop.genieus.auth.application.out.persistence.AuthCommandPort;
 import shop.genieus.auth.domain.model.Passport;
 import shop.genieus.auth.domain.model.entity.User;
 import shop.genieus.auth.domain.model.vo.Email;
@@ -14,10 +14,10 @@ import shop.genieus.auth.infrastructure.persistence.repository.PassportRedisRepo
 import shop.genieus.auth.infrastructure.persistence.repository.TokenRedisRepository;
 import shop.genieus.auth.infrastructure.persistence.repository.UserJpaRepository;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j(topic = "[AuthPersistenceAdapter]")
-public class AuthPersistenceAdapter implements AuthPersistencePort {
+public class AuthCommandAdapter implements AuthCommandPort {
   private final UserJpaRepository userJpaRepository;
   private final TokenRedisRepository tokenRedisRepository;
   private final PassportRedisRepository passportRedisRepository;

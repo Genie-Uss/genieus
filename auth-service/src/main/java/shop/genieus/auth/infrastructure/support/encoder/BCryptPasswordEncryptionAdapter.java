@@ -1,9 +1,9 @@
 package shop.genieus.auth.infrastructure.support.encoder;
 
+import com.genieus.common.auth.util.GenieusPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import shop.genieus.auth.application.out.support.encoder.PasswordEncryptionPort;
-import shop.genieus.auth.global.common.GenieusPasswordEncoder;
 
 @Component
 @RequiredArgsConstructor

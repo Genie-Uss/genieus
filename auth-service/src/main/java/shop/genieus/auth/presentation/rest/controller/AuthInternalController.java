@@ -1,5 +1,7 @@
 package shop.genieus.auth.presentation.rest.controller;
 
+import com.genieus.common.internal.request.AuthClientRequest;
+import com.genieus.common.internal.response.AuthClientResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,8 +13,6 @@ import shop.genieus.auth.application.in.command.PassportCommandService;
 import shop.genieus.auth.application.in.command.dto.IssuePassportCommand;
 import shop.genieus.auth.application.in.command.dto.ValidateAccessTokenCommand;
 import shop.genieus.auth.domain.model.TokenValidationResult;
-import shop.genieus.auth.global.common.AuthClientResponse;
-import shop.genieus.auth.presentation.rest.dto.request.AuthClientRequest;
 
 @RestController
 @RequiredArgsConstructor

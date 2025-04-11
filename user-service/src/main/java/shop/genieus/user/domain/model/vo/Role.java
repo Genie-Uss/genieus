@@ -1,5 +1,6 @@
 package shop.genieus.user.domain.model.vo;
 
+import com.genieus.common.auth.model.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
