@@ -8,7 +8,9 @@ public enum ErrorCode {
   CREATE_ORDER_FORBIDDEN(4002, "주문을 생성할 권한이 없습니다."),
   UPDATE_ORDER_FORBIDDEN(4003, "주문을 수정할 권한이 없습니다."),
   DELETE_ORDER_FORBIDDEN(4004, "주문을 삭제할 권한이 없습니다."),
-  ACCESS_ORDER_FORBIDDEN(4005, "주문을 조회할 권한이 없습니다."),
+  ACCESS_ORDER_FORBIDDEN(4005, "해당 주문을 접근할 권한이 없습니다."),
+  CANCEL_ORDER_FORBIDDEN(4006, "주문을 취소할 권한이 없습니다."),
+  CANCEL_ORDER_BAD_REQUEST(4007, "주문을 취소할 수 없습니다."),
 
   PRODUCT_NOT_FOUND(4101, "상품 서비스에서 유효한 데이터가 존재하지 않습니다."),
   COUPON_NOT_FOUND(4102, "쿠폰 서비스에서 유효한 데이터가 존재하지 않습니다."),

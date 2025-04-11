@@ -1,5 +1,8 @@
 package shop.genieus.order.domain.model.entity;
 
+import static shop.genieus.order.global.exception.CustomBadRequestException.*;
+import static shop.genieus.order.global.exception.CustomForbiddenException.*;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -19,7 +22,6 @@ import org.hibernate.annotations.Comment;
 import shop.genieus.order.domain.model.assembler.CreateOrderAssembler;
 import shop.genieus.order.domain.model.vo.OrderPrice;
 import shop.genieus.order.domain.model.vo.OrderStatus;
-import shop.genieus.order.domain.model.vo.PaymentMethod;
 import shop.genieus.order.domain.model.vo.Receiver;
 
 @Entity
@@ -42,11 +44,6 @@ public class Order extends BaseEntity {
   private Long userId;
 
   @Embedded private Receiver receiver;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "payment_method")
-  @Comment("결제수단")
-  private PaymentMethod paymentMethod;
 
   @Column(name = "coupon_id")
   @Comment("쿠폰 식별자")
@@ -74,6 +71,10 @@ public class Order extends BaseEntity {
   @Column(name = "paid_at")
   @Comment("결제완료일시")
   private LocalDateTime paidAt;
+
+  @Column(name = "completed_at")
+  @Comment("주문완료일시")
+  private LocalDateTime completedAt;
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   @Comment("주문상품 리스트")
@@ -109,12 +110,30 @@ public class Order extends BaseEntity {
   }
 
   public void useCoupon(Integer couponDiscountAmount) {
-    this.orderPrice = orderPrice.useCoupon(couponDiscountAmount);
+    this.orderPrice = this.orderPrice.useCoupon(couponDiscountAmount);
   }
 
-  public void paymentRequest(LocalDateTime paymentRequestedAt, String paymentMethod) {
+  public void requestPayment(LocalDateTime paymentRequestedAt) {
     this.paymentRequestedAt = paymentRequestedAt;
-    this.paymentMethod = PaymentMethod.valueOf(paymentMethod);
     this.status = OrderStatus.PAYMENT_PENDING;
+  }
+
+  public void cancel(LocalDateTime canceledAt) {
+    this.canceledAt = canceledAt;
+    this.status = OrderStatus.ORDER_CANCELLED;
+  }
+
+  public void startDelivery(LocalDateTime deliveryStartedAt) {
+    this.status = OrderStatus.DELIVERY_STARTED;
+  }
+
+  public void completePayment(LocalDateTime paidAt) {
+    this.paidAt = paidAt;
+    this.status = OrderStatus.PAYMENT_COMPLETED;
+  }
+
+  public void completeOrder(LocalDateTime completedAt) {
+    this.completedAt = completedAt;
+    this.status = OrderStatus.ORDER_COMPLETED;
   }
 }
