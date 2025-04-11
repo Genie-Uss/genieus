@@ -61,7 +61,7 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
     // common library
-    implementation 'com.genieus:genieus-common-lib:1.0.0'
+    implementation 'com.genieus:genieus-common-lib:1.2.2'
 }
 
 dependencyManagement {
