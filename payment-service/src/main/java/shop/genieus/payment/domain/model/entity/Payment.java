@@ -42,7 +42,7 @@ public class Payment extends BaseEntity {
     private Money paymentPrice;
 
     @Comment("결제 수단")
-    @Column(name = "payment_method", nullable = false)
+    @Column(name = "payment_method")
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
@@ -60,7 +60,6 @@ public class Payment extends BaseEntity {
                 .userId(assembler.userId())
                 .orderId(assembler.orderId())
                 .paymentPrice(new Money(assembler.paymentPrice()))
-                .paymentMethod(assembler.paymentMethod())
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
     }
