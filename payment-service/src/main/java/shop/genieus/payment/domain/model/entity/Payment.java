@@ -64,21 +64,6 @@ public class Payment extends BaseEntity {
                 .build();
     }
 
-    public Payment markAsPaid() {
-        if (!isPendingOrFailed()) {
-            throw new IllegalArgumentException("결제 상태가 [" + paymentStatus + "] 인 상태에서는 결제 완료할 수 없습니다.");
-        }
-
-        this.paymentStatus = PaymentStatus.SUCCESS;
-        this.paymentPaidAt = LocalDateTime.now();
-        return this;
-    }
-
-    private boolean isPendingOrFailed() {
-        return paymentStatus == PaymentStatus.PENDING
-                || paymentStatus == PaymentStatus.FAILED;
-    }
-
     public void setPaymentMethod(String method) {
         paymentMethod = parsePaymentMethod(method);
     }
@@ -89,5 +74,19 @@ public class Payment extends BaseEntity {
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid payment method: " + paymentMethod);
         }
+    }
+
+    public void registerPaymentSuccess() {
+        if (!isPendingOrFailed()) {
+            throw new IllegalArgumentException("결제 상태가 [" + paymentStatus + "] 인 상태에서는 결제 완료할 수 없습니다.");
+        }
+
+        paymentStatus = PaymentStatus.SUCCESS;
+        paymentPaidAt = LocalDateTime.now();
+    }
+
+    private boolean isPendingOrFailed() {
+        return paymentStatus == PaymentStatus.PENDING
+                || paymentStatus == PaymentStatus.FAILED;
     }
 }

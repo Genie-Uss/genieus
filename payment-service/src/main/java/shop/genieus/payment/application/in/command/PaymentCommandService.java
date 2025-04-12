@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.payment.application.dto.CreatePaymentCommand;
 import shop.genieus.payment.application.dto.ProcessPaymentCommand;
+import shop.genieus.payment.application.dto.RegisterPaymentCommand;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.application.out.strategy.PaymentStrategy;
@@ -36,6 +37,14 @@ public class PaymentCommandService {
 
         PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
         return paymentStrategy.process(payment);
+    }
+
+    @Transactional
+    public Payment registerPayment(RegisterPaymentCommand registerPaymentCommand) {
+        Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
+        payment.registerPaymentSuccess();
+
+        return payment;
     }
 
     private Payment findPaymentByOrderId(Long orderId) {

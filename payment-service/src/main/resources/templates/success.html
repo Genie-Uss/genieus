@@ -70,6 +70,30 @@
         // console.log(json);
         return json;
       }
+
+      async function notifyServer() {
+        const paymentKey = urlParams.get("paymentKey");
+        const orderId = urlParams.get("orderId");
+        const amount = urlParams.get("amount");
+
+        const result = {
+          paymentKey: paymentKey,
+          orderId: orderId,
+          amount: parseInt(amount),
+        }
+
+        const response = fetch("/api/v1/payments/success", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(result)
+        });
+
+        const json = await response.json();
+        console.log("서버 응답:", json);
+      }
+
       confirm().then(function (data) {
         document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
       });
@@ -81,6 +105,8 @@
       orderIdElement.textContent = urlParams.get("orderId");
       amountElement.textContent = urlParams.get("amount") + "원";
       paymentKeyElement.textContent = urlParams.get("paymentKey");
+
+      notifyServer();
     </script>
   </body>
 </html>

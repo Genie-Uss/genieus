@@ -15,6 +15,7 @@ import shop.genieus.payment.application.in.command.PaymentCommandService;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.presentation.rest.dto.request.CreatePaymentRequest;
 import shop.genieus.payment.presentation.rest.dto.request.ProcessPaymentRequest;
+import shop.genieus.payment.presentation.rest.dto.request.RegisterPaymentRequest;
 
 @Slf4j
 @RestController
@@ -29,6 +30,7 @@ public class PaymentController {
             @RequestBody CreatePaymentRequest createPaymentRequest
     ) {
         paymentCommandService.create(CreatePaymentRequest.toCommand(createPaymentRequest));
+
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
     }
 
@@ -41,5 +43,14 @@ public class PaymentController {
             case JSON -> ResponseEntity.ok(ApiResponse.ok(paymentProcessorResult.payload()));
             case REDIRECT -> new RedirectView(paymentProcessorResult.payload().toString());
         };
+    }
+
+    @PostMapping("/success")
+    ResponseEntity<ApiResponse<HttpStatusCode>> registerPayment(
+            @RequestBody RegisterPaymentRequest registerPaymentRequest
+    ) {
+        paymentCommandService.registerPayment(RegisterPaymentRequest.toCommand(registerPaymentRequest));
+
+        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
     }
 }
