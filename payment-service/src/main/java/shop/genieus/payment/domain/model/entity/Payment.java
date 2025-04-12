@@ -78,4 +78,16 @@ public class Payment extends BaseEntity {
         return paymentStatus == PaymentStatus.PENDING
                 || paymentStatus == PaymentStatus.FAILED;
     }
+
+    public void setPaymentMethod(String method) {
+        paymentMethod = parsePaymentMethod(method);
+    }
+
+    private PaymentMethod parsePaymentMethod(String method) {
+        try {
+            return PaymentMethod.valueOf(method.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid payment method: " + paymentMethod);
+        }
+    }
 }

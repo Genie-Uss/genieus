@@ -16,4 +16,10 @@ public class PaymentCommandAdapter implements PaymentCommandPort {
     public Payment create(Payment payment) {
         return paymentJpaRepository.save(payment);
     }
+
+    @Override
+    public Payment findPaymentByOrderId(Long orderId) {
+        return paymentJpaRepository.getPaymentByOrderId(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+    }
 }

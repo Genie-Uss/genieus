@@ -5,4 +5,6 @@ import shop.genieus.payment.domain.model.entity.Payment;
 public interface PaymentCommandPort {
 
     Payment create(Payment payment);
+
+    Payment findPaymentByOrderId(Long orderId);
 }

@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 import shop.genieus.payment.application.in.command.PaymentCommandService;
+import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.presentation.rest.dto.request.CreatePaymentRequest;
+import shop.genieus.payment.presentation.rest.dto.request.ProcessPaymentRequest;
 
 @Slf4j
 @RestController
@@ -27,5 +30,16 @@ public class PaymentController {
     ) {
         paymentCommandService.create(CreatePaymentRequest.toCommand(createPaymentRequest));
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
+    }
+
+    @PostMapping("/process")
+    Object processPayment(@RequestBody ProcessPaymentRequest processPaymentRequest) {
+        PaymentProcessorResult paymentProcessorResult =
+                paymentCommandService.processPayment(ProcessPaymentRequest.toCommand(processPaymentRequest));
+
+        return switch (paymentProcessorResult.resultType()) {
+            case JSON -> ResponseEntity.ok(ApiResponse.ok(paymentProcessorResult.payload()));
+            case REDIRECT -> new RedirectView(paymentProcessorResult.payload().toString());
+        };
     }
 }
