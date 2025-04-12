@@ -43,9 +43,10 @@ dependencies {
 
     // spring
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // database
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -55,11 +56,16 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
     // tracing & monitoring
-    implementation 'com.genieus:genieus-common-lib:1.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.github.openfeign:feign-micrometer'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+    // json
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    // common
+    implementation 'com.genieus:genieus-common-lib:1.1.0'
 }
 
 dependencyManagement {
