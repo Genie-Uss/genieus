@@ -25,15 +25,6 @@ public class PaymentController {
 
     private final PaymentCommandService paymentCommandService;
 
-    @PostMapping
-    ResponseEntity<ApiResponse<HttpStatusCode>> createPayment(
-            @RequestBody CreatePaymentRequest createPaymentRequest
-    ) {
-        paymentCommandService.create(CreatePaymentRequest.toCommand(createPaymentRequest));
-
-        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
-    }
-
     @PostMapping("/process")
     Object processPayment(@RequestBody ProcessPaymentRequest processPaymentRequest) {
         PaymentProcessorResult paymentProcessorResult =

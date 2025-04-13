@@ -2,6 +2,7 @@
     - orderId 로 payment 객체 한 번 더 조회
         - RequestParam 으로 받은 amount 랑 payment.paymentPrice 랑 같은지 검증
         - paymentMethod 가 TOSS_PAY 인지 검증
+        - 이거 결제 방법 받아서 결제 객체 조회할 때 캐싱하고, TTL 은 결제 제한 시간인 10분 해두면 될 듯
 2. webhook 붙여야 함
     - 근데 도메인 주소 사용해야 함
         - http, localhost 로 불가능
@@ -20,3 +21,115 @@
 9. 의논
     - dto 네이밍 규칙은 확인 ProcessPaymentCommand
     - 메서드는? process()? processPayment()?
+10. api-gateway-route 
+```yaml
+
+        - id: payment-list
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-detail
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/{paymentId}
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-create
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-process
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/process
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication        
+
+        - id: payment-success
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/success
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-fail
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/fail
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+              
+        - id: payment-refund
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/{paymentId}/refund
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-delete
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/{paymentId}
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+  
+        - id: toss-checkout
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+             - Path=/api/v1/payments/toss
+             - Method=GET
+          filters:
+             - TokenExtractor
+             - Authentication 
+             
+        - id: toss-confirm
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/toss/confirm
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: toss-success
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/toss/success
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+                  
+        - id: toss-fail
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/toss/fail
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+  
+```
