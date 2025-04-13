@@ -29,12 +29,12 @@ public abstract class BaseEntity {
   private Long createdBy;
 
   @LastModifiedDate
-  @Column(name = "updated_at", insertable = false)
+  @Column(name = "updated_at")
   @Comment("수정 일시")
   private LocalDateTime updatedAt;
 
   @LastModifiedBy
-  @Column(name = "updated_by", insertable = false)
+  @Column(name = "updated_by")
   @Comment("수정자")
   private Long updatedBy;
 
