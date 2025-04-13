@@ -5,16 +5,21 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import shop.genieus.order.domain.model.entity.OrderProduct;
 
 @Getter
 @Builder
 @AllArgsConstructor
 public class CreateOrderAssembler {
   private final Long userId;
-  private final List<OrderProductAssembler> orderProducts;
+  private List<OrderProduct> orderProducts;
   private LocalDateTime orderedAt;
   private Integer totalProductPrice;
-  private Integer PromotionDiscountAmount;
+  private Integer promotionDiscountAmount;
+
+  public void applyOrderProducts(List<OrderProduct> orderProducts) {
+    this.orderProducts = orderProducts;
+  }
 
   public void applyOrderedAt(LocalDateTime orderedAt) {
     this.orderedAt = orderedAt;
@@ -25,6 +30,6 @@ public class CreateOrderAssembler {
   }
 
   public void applyPromotionDiscountAmount(Integer promotionDiscountAmount) {
-    this.PromotionDiscountAmount = promotionDiscountAmount;
+    this.promotionDiscountAmount = promotionDiscountAmount;
   }
 }

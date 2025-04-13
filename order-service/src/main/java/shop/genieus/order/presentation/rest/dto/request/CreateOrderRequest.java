@@ -8,11 +8,12 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import shop.genieus.order.application.in.command.dto.CreateOrderCommand;
 
-public record CreateOrderRequest(@Valid List<OrderProductRequest> orderProductRequests) {
+public record CreateOrderRequest(
+    @Valid @NotNull(message = "주문상품은 필수입니다.") List<OrderProductRequest> orderProductRequests) {
 
   public record OrderProductRequest(
       @NotNull(message = "상품은 필수입니다.") Long productId,
-      Long promotionId,
+      @NotNull(message = "프로모션은 필수입니다.") Long promotionId,
       @NotNull(message = "수량은 필수입니다.") Integer quantity) {}
 
   public CreateOrderCommand toCommand(Passport passport) {

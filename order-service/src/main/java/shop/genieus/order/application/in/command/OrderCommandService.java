@@ -10,7 +10,9 @@ import shop.genieus.order.application.out.client.OrderClientPort;
 import shop.genieus.order.application.out.persistence.OrderCommandPort;
 import shop.genieus.order.application.out.util.OrderTimePort;
 import shop.genieus.order.domain.model.assembler.CreateOrderAssembler;
+import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
 import shop.genieus.order.domain.model.entity.Order;
+import shop.genieus.order.domain.model.entity.OrderProduct;
 import shop.genieus.order.domain.model.vo.Coupon;
 import shop.genieus.order.domain.model.vo.Product;
 import shop.genieus.order.domain.model.vo.PromotionProduct;
@@ -26,15 +28,20 @@ public class OrderCommandService {
   private final OrderCommandPort orderCommandPort;
 
   public Order create(CreateOrderCommand command) {
-
+    LocalDateTime orderedAt = getCurrentTime();
     CreateOrderAssembler assembler = command.toAssembler();
-    assembler.applyOrderedAt(getCurrentTime());
+    assembler.applyOrderedAt(orderedAt);
 
-    List<PromotionProduct> promotionProducts = getPromotionProducts(assembler);
-    applyPromotionDiscounts(assembler, promotionProducts);
+    List<OrderProductAssembler> productAssemblers = command.toProductAssembler();
+    List<PromotionProduct> promotions = getPromotionProducts(productAssemblers, orderedAt);
+    List<Product> products = getProducts(productAssemblers);
 
-    List<Product> products = getProducts(assembler);
-    applyProductPrices(assembler, products);
+    applyPromotionDiscounts(productAssemblers, promotions);
+    applyProductPrices(productAssemblers, products);
+
+    List<OrderProduct> orderProducts =
+        productAssemblers.stream().map(OrderProduct::create).toList();
+    assembler.applyOrderProducts(orderProducts);
 
     OrderPriceCalculator.calculate(assembler);
 
@@ -96,28 +103,30 @@ public class OrderCommandService {
     return orderClientPort.useCoupon(order.getUserId(), command.couponId(), order.getOrderedAt());
   }
 
-  private List<PromotionProduct> getPromotionProducts(CreateOrderAssembler assembler) {
-    return orderClientPort.verifyPromotion(assembler.getOrderProducts(), assembler.getOrderedAt());
+  private List<PromotionProduct> getPromotionProducts(
+      List<OrderProductAssembler> productAssemblers, LocalDateTime orderedAt) {
+    return orderClientPort.verifyPromotion(productAssemblers, orderedAt);
   }
 
-  private List<Product> getProducts(CreateOrderAssembler assembler) {
-    return orderClientPort.useStock(assembler.getOrderProducts());
+  private List<Product> getProducts(List<OrderProductAssembler> productAssemblers) {
+    return orderClientPort.useStock(productAssemblers);
   }
 
   private void applyPromotionDiscounts(
-      CreateOrderAssembler assembler, List<PromotionProduct> promotionProducts) {
-    promotionProducts.forEach(
+      List<OrderProductAssembler> productAssemblers, List<PromotionProduct> promotions) {
+    promotions.forEach(
         pp ->
-            assembler.getOrderProducts().stream()
+            productAssemblers.stream()
                 .filter(op -> op.getProductId().equals(pp.productId()))
                 .forEach(op -> op.applyDiscountRate(pp.discountRate())));
   }
 
-  private void applyProductPrices(CreateOrderAssembler assembler, List<Product> products) {
+  private void applyProductPrices(
+      List<OrderProductAssembler> productAssemblers, List<Product> products) {
     products.forEach(
         p ->
-            assembler.getOrderProducts().stream()
-                .filter(op -> op.getProductId().equals(p.productId()))
-                .forEach(op -> op.applyProductPrice(p.productPrice())));
+            productAssemblers.stream()
+                .filter(op -> op.getProductId().equals(p.getProductId()))
+                .forEach(op -> op.applyProductPrice(p.getProductPrice())));
   }
 }

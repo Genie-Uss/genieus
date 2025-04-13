@@ -1,4 +1,4 @@
-package shop.genieus.order.infrastructure.client.feign;
+package shop.genieus.order.infrastructure.client.product;
 
 import com.genieus.common.internal.client.ProductInternalClient;
 import org.springframework.cloud.openfeign.FeignClient;

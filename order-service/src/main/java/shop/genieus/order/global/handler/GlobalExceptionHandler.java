@@ -1,8 +1,9 @@
 package shop.genieus.order.global.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.genieus.common.auth.exception.UnauthorizedException;
 import com.genieus.common.response.ApiResponse;
-import feign.FeignException;
+import feign.FeignException.FeignClientException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import shop.genieus.order.global.exception.CustomBadRequestException;
 import shop.genieus.order.global.exception.CustomForbiddenException;
 import shop.genieus.order.global.exception.CustomNotFoundException;
 import shop.genieus.order.global.exception.CustomServiceUnavailableException;
+import shop.genieus.order.global.exception.ErrorCode;
 
 @Slf4j
 @RestControllerAdvice
@@ -51,7 +53,10 @@ public class GlobalExceptionHandler {
   protected ResponseEntity<ApiResponse<Void>> handleServiceUnavailableException(
       CustomServiceUnavailableException e) {
     log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
-    final ApiResponse<Void> response = ApiResponse.fail(e.getCode(), e.getMessage());
+    final ApiResponse<Void> response =
+        ApiResponse.fail(
+            ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
+            ErrorCode.ORDER_SERVICE_FAILURE.getMessage());
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
   }
 
@@ -75,8 +80,8 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
-  @ExceptionHandler(FeignException.class)
-  protected ResponseEntity<ApiResponse<Void>> handleFeignException(FeignException e) {
+  @ExceptionHandler(FeignClientException.class)
+  protected ResponseEntity<ApiResponse<Void>> handleFeignClientException(FeignClientException e) {
     try {
       String content = e.contentUTF8();
       ApiResponse<?> response = objectMapper.readValue(content, ApiResponse.class);
@@ -88,5 +93,25 @@ public class GlobalExceptionHandler {
       return ResponseEntity.status(e.status())
           .body(ApiResponse.fail(e.status(), "Feign 예외 발생 (Body 파싱 실패)"));
     }
+  }
+
+  @ExceptionHandler(UnauthorizedException.class)
+  protected ResponseEntity<ApiResponse<Void>> handleUnauthorizedException(UnauthorizedException e) {
+    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    final ApiResponse<Void> response =
+        ApiResponse.fail(
+            ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
+            ErrorCode.ORDER_SERVICE_FAILURE.getMessage());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
+
+  @ExceptionHandler(RuntimeException.class)
+  protected ResponseEntity<ApiResponse<Void>> handleRuntimeException(RuntimeException e) {
+    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    final ApiResponse<Void> response =
+        ApiResponse.fail(
+            ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
+            ErrorCode.ORDER_SERVICE_FAILURE.getMessage());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 }

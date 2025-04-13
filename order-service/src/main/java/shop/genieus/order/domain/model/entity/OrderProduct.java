@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
+import shop.genieus.order.domain.model.vo.Product;
+import shop.genieus.order.domain.model.vo.Promotion;
+import shop.genieus.order.domain.model.vo.Quantity;
 
 @Entity
 @Getter
@@ -25,33 +28,17 @@ public class OrderProduct {
   @Comment("주문 식별자")
   private Order order;
 
-  @Column(name = "product_id", nullable = false)
-  @Comment("상품 식별자")
-  private Long productId;
+  @Embedded private Product product;
 
-  @Column(name = "promotion_id", nullable = false)
-  @Comment("프로모션 식별자")
-  private Long promotionId;
+  @Embedded private Promotion promotion;
 
-  @Column(name = "promotion_discount_rate", nullable = false)
-  @Comment("프로모션 할인금액")
-  private Integer promotionDiscountRate;
-
-  @Column(name = "product_price", nullable = false)
-  @Comment("상품 정상가")
-  private Integer productPrice;
-
-  @Column(name = "quantity", nullable = false)
-  @Comment("수량")
-  private Integer quantity;
+  @Embedded private Quantity quantity;
 
   public static OrderProduct create(OrderProductAssembler assembler) {
     return OrderProduct.builder()
-        .productId(assembler.getProductId())
-        .promotionId(assembler.getPromotionId())
-        .promotionDiscountRate(assembler.getPromotionDiscountRate())
-        .productPrice(assembler.getProductPrice())
-        .quantity(assembler.getQuantity())
+        .product(Product.of(assembler.getProductId(), assembler.getProductPrice()))
+        .promotion(Promotion.of(assembler.getPromotionId(), assembler.getPromotionDiscountRate()))
+        .quantity(Quantity.of(assembler.getQuantity()))
         .build();
   }
 

@@ -28,16 +28,16 @@ public abstract class BaseEntity {
   private Long createdBy;
 
   @LastModifiedDate
-  @Column(name = "updated_at", nullable = false)
+  @Column(name = "updated_at")
   @Comment("수정 일시")
   private LocalDateTime updatedAt;
 
   @LastModifiedBy
-  @Column(name = "updated_by", nullable = false)
+  @Column(name = "updated_by")
   @Comment("수정자")
   private Long updatedBy;
 
-  @Column(name = "is_deleted", nullable = false)
+  @Column(name = "is_deleted")
   @Comment("삭제여부")
   private boolean isDeleted;
 
@@ -49,30 +49,6 @@ public abstract class BaseEntity {
   @Comment("삭제자")
   private Long deletedBy;
 
-  protected void createdByUser(Long userId) {
-    this.createdAt = LocalDateTime.now();
-    this.createdBy = userId;
-    this.updatedAt = LocalDateTime.now();
-    this.updatedBy = userId;
-  }
-
-  protected void createdBySystem() {
-    this.createdAt = LocalDateTime.now();
-    this.createdBy = 0L;
-    this.updatedAt = LocalDateTime.now();
-    this.updatedBy = 0L;
-  }
-
-  protected void updatedByUser(Long userId) {
-    this.updatedAt = LocalDateTime.now();
-    this.updatedBy = userId;
-  }
-
-  protected void updatedBySystem() {
-    this.updatedAt = LocalDateTime.now();
-    this.updatedBy = 0L;
-  }
-
   protected void deletedByUser(Long userId) {
     this.deletedAt = LocalDateTime.now();
     this.deletedBy = userId;
@@ -80,6 +56,6 @@ public abstract class BaseEntity {
 
   protected void deleteBySystem() {
     this.deletedAt = LocalDateTime.now();
-    this.deletedBy = 0L;
+    this.deletedBy = -1L;
   }
 }

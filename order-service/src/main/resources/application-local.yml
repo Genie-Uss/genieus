@@ -11,8 +11,8 @@ spring:
   cloud:
     config:
       enabled: false
-    openfeign:
-      circuitbreaker:
+    circuitbreaker:
+      resilience4j:
         enabled: true
   config:
     import: 'classpath:docker-database.yml'
@@ -37,16 +37,17 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        record-exceptions:
+          - java.io.IOException
+          - feign.RetryableException
+          - feign.FeignException.FeignServerException
         ignore-exceptions:
-          - shop.genieus.order.global.exception.CustomNotFoundException
-          - feign.FeignException.BadRequest
-          - feign.FeignException.NotFound
-          - feign.FeignException.Unauthorized
-          - feign.FeignException.Forbidden
-    instances:
-      promotionClient:
-        base-config: default
-      couponClient:
-        base-config: default
-      productClient:
-        base-config: default
+          - shop.genieus.order.global.exception.CustomNotFoundException.PromotionNotFoundException
+          - feign.FeignException.FeignClientException
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+        cancel-running-future: true

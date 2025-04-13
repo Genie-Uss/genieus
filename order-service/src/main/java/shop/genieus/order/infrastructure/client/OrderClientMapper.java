@@ -1,5 +1,6 @@
-package shop.genieus.order.infrastructure.client.mapper;
+package shop.genieus.order.infrastructure.client;
 
+import com.genieus.common.internal.request.CreatePaymentRequest;
 import com.genieus.common.internal.request.StockRequest;
 import com.genieus.common.internal.request.UseCouponRequest;
 import com.genieus.common.internal.request.VerifyPromotionRequest;
@@ -9,6 +10,7 @@ import com.genieus.common.internal.response.PromotionClientResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
+import shop.genieus.order.domain.model.entity.Order;
 import shop.genieus.order.domain.model.vo.Coupon;
 import shop.genieus.order.domain.model.vo.Product;
 import shop.genieus.order.domain.model.vo.PromotionProduct;
@@ -40,7 +42,7 @@ public class OrderClientMapper {
   }
 
   public static List<Product> toProducts(List<ProductClientResponse> response) {
-    return response.stream().map(r -> new Product(r.productId(), r.productPrice())).toList();
+    return response.stream().map(r -> Product.of(r.productId(), r.productPrice())).toList();
   }
 
   public static UseCouponRequest toUseCouponRequest(
@@ -51,5 +53,9 @@ public class OrderClientMapper {
   public static Coupon toCoupon(CouponClientResponse response) {
     return new Coupon(
         response.couponId(), response.couponDiscountRate(), response.couponMaxPrice());
+  }
+
+  public static CreatePaymentRequest toCreatePaymentRequest(Order order) {
+    return new CreatePaymentRequest(order.getOrderId(), order.getOrderPrice().getFinalPrice());
   }
 }

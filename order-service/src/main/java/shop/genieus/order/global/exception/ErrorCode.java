@@ -16,9 +16,11 @@ public enum ErrorCode {
   COUPON_NOT_FOUND(4102, "쿠폰 서비스에서 유효한 데이터가 존재하지 않습니다."),
   PROMOTION_NOT_FOUND(4103, "프로모션 서비스에서 유효한 데이터가 존재하지 않습니다."),
 
-  PROMOTION_SERVICE_FAILURE(4201, "프로모션 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요."),
-  PRODUCT_SERVICE_FAILURE(4202, "상품 재고 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요."),
-  COUPON_SERVICE_FAILURE(4203, "쿠폰 사용에 실패했습니다. 잠시 후 다시 시도해주세요."),
+  ORDER_SERVICE_FAILURE(4200, "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
+  PROMOTION_SERVICE_FAILURE(4201, "프로모션 서비스 호출에 실패했습니다."),
+  PRODUCT_SERVICE_FAILURE(4202, "상품 서비스 호출에 실패했습니다."),
+  COUPON_SERVICE_FAILURE(4203, "쿠폰 서비스 호출에 실패했습니다."),
+  PAYMENT_SERVICE_FAILURE(4204, "결제 서비스 호출에 실패했습니다."),
   ;
   private final Integer code;
   private final String message;
