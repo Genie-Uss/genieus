@@ -1,14 +1,27 @@
 package shop.genieus.product.global.exception;
 
 import lombok.Getter;
-import shop.genieus.product.global.constants.Code;
 
 @Getter
 public class ProductException extends RuntimeException {
-  private final Code errorCode;
+  private static final int DEFAULT_CODE = 2999;
+  private final int code;
 
-  public ProductException(Code errorCode) {
-    super(errorCode.getMessage());
-    this.errorCode = errorCode;
+  protected ProductException(String message, int code) {
+    super(message);
+    this.code = code;
+  }
+
+  protected ProductException(String message) {
+    this(message, DEFAULT_CODE);
+  }
+
+  protected ProductException(String message, Throwable cause, int code) {
+    super(message, cause);
+    this.code = code;
+  }
+
+  protected ProductException(String message, Throwable cause) {
+    this(message, cause, DEFAULT_CODE);
   }
 }
