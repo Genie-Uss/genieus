@@ -21,6 +21,14 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/Genie-Uss/genieus-common-lib")
+        credentials {
+            username = project.findProperty("COMMON_GITHUB_USER") ?: System.getenv("COMMON_GITHUB_USER")
+            password = project.findProperty("COMMON_GITHUB_TOKEN") ?: System.getenv("COMMON_GITHUB_TOKEN")
+        }
+    }
 }
 
 ext {
@@ -28,14 +36,17 @@ ext {
 }
 
 dependencies {
+
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // spring
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // database
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -49,6 +60,12 @@ dependencies {
     implementation 'io.github.openfeign:feign-micrometer'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+    // json
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    // common
+    implementation 'com.genieus:genieus-common-lib:1.1.0'
 }
 
 dependencyManagement {
