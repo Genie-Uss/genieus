@@ -90,13 +90,8 @@ public class Order extends BaseEntity {
             .orderPrice(orderPrice)
             .build();
 
-    assembler
-        .getOrderProducts()
-        .forEach(
-            opAssembler -> {
-              OrderProduct orderProduct = OrderProduct.create(opAssembler);
-              order.addOrderProduct(orderProduct);
-            });
+    assembler.getOrderProducts().forEach(order::addOrderProduct);
+
     return order;
   }
 

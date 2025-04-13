@@ -3,22 +3,22 @@ package shop.genieus.order.domain.service;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import shop.genieus.order.domain.model.assembler.CreateOrderAssembler;
-import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
 import shop.genieus.order.domain.model.entity.Order;
+import shop.genieus.order.domain.model.entity.OrderProduct;
 import shop.genieus.order.domain.model.vo.Coupon;
 
 @Slf4j
 public class OrderPriceCalculator {
 
   public static void calculate(CreateOrderAssembler assembler) {
-    List<OrderProductAssembler> orderProductAssemblers = assembler.getOrderProducts();
+    List<OrderProduct> orderProducts = assembler.getOrderProducts();
     int totalProductPrice = 0;
     int totalDiscountAmount = 0;
 
-    for (OrderProductAssembler product : orderProductAssemblers) {
-      int price = product.getProductPrice();
-      int quantity = product.getQuantity();
-      int discountRate = product.getPromotionDiscountRate();
+    for (OrderProduct product : orderProducts) {
+      int price = product.getProduct().getProductPrice();
+      int quantity = product.getQuantity().getQuantity();
+      int discountRate = product.getPromotion().getPromotionDiscountRate();
 
       int productPrice = price * quantity;
       int discountAmount = (productPrice * discountRate) / 100;

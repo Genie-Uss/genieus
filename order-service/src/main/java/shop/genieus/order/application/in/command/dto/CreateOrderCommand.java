@@ -13,18 +13,18 @@ public record CreateOrderCommand(
   public record OrderProductCommand(Long productId, Long promotionId, Integer quantity) {}
 
   public CreateOrderAssembler toAssembler() {
-    return CreateOrderAssembler.builder()
-        .userId(userId)
-        .orderProducts(
-            orderProductCommands.stream()
-                .map(
-                    p ->
-                        OrderProductAssembler.builder()
-                            .productId(p.productId)
-                            .promotionId(p.promotionId)
-                            .quantity(p.quantity)
-                            .build())
-                .toList())
-        .build();
+    return CreateOrderAssembler.builder().userId(userId).build();
+  }
+
+  public List<OrderProductAssembler> toProductAssembler() {
+    return orderProductCommands.stream()
+        .map(
+            p ->
+                OrderProductAssembler.builder()
+                    .productId(p.productId)
+                    .promotionId(p.promotionId)
+                    .quantity(p.quantity)
+                    .build())
+        .toList();
   }
 }

@@ -6,6 +6,7 @@ import org.hibernate.annotations.Comment;
 import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
 import shop.genieus.order.domain.model.vo.Product;
 import shop.genieus.order.domain.model.vo.Promotion;
+import shop.genieus.order.domain.model.vo.Quantity;
 
 @Entity
 @Getter
@@ -31,15 +32,13 @@ public class OrderProduct {
 
   @Embedded private Promotion promotion;
 
-  @Column(name = "quantity", nullable = false)
-  @Comment("수량")
-  private Integer quantity;
+  @Embedded private Quantity quantity;
 
   public static OrderProduct create(OrderProductAssembler assembler) {
     return OrderProduct.builder()
         .product(Product.of(assembler.getProductId(), assembler.getProductPrice()))
         .promotion(Promotion.of(assembler.getPromotionId(), assembler.getPromotionDiscountRate()))
-        .quantity(assembler.getQuantity())
+        .quantity(Quantity.of(assembler.getQuantity()))
         .build();
   }
 
