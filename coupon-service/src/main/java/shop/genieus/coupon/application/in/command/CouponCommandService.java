@@ -18,7 +18,7 @@ import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
 @Slf4j
 public class CouponCommandService {
 
-  private final CouponCommandPort persistencePort;
+  private final CouponCommandPort commandPort;
 
   public Coupon createCoupon(CreateCouponCommand request) {
     // todo. user 권한 검증 (MASTER 만 가능)
@@ -31,14 +31,14 @@ public class CouponCommandService {
     }
 
     Coupon coupon = CreateCouponCommand.toEntity(request);
-    return persistencePort.createCoupon(coupon);
+    return commandPort.createCoupon(coupon);
   }
 
   public CouponClientResponse useCoupon(UseCouponRequest request) {
     // 1. 쿠폰 사용 가능 여부 확인
     CouponUser couponUser = findAvailableCoupon(request);
     // 쿠폰 정보 조회
-    Coupon coupon = persistencePort.findCoupon(request.couponId());
+    Coupon coupon = commandPort.findCoupon(request.couponId());
     // 2. 쿠폰 사용
     couponUser.useCoupon();
     return new CouponClientResponse(
@@ -48,7 +48,7 @@ public class CouponCommandService {
   }
 
   private CouponUser findAvailableCoupon(UseCouponRequest request) {
-    CouponUser couponUser = persistencePort.validUserCoupon(request.couponId(), request.userId());
+    CouponUser couponUser = commandPort.validUserCoupon(request.couponId(), request.userId());
     if (couponUser == null) {
       throw new IllegalArgumentException("존재하지 않는 쿠폰입니다.");
     }
