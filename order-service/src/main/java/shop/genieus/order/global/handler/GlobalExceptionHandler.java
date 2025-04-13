@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -103,6 +104,17 @@ public class GlobalExceptionHandler {
             ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
             ErrorCode.ORDER_SERVICE_FAILURE.getMessage());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  protected ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException e) {
+    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    final ApiResponse<Void> response =
+        ApiResponse.fail(
+            ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
+            ErrorCode.ORDER_SERVICE_FAILURE.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @ExceptionHandler(RuntimeException.class)

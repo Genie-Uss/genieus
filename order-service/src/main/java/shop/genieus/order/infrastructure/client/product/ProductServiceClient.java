@@ -26,7 +26,7 @@ public class ProductServiceClient {
 
   public List<ProductClientResponse> useStockFallback(StockRequest request, Throwable ex) {
     if (ex instanceof FeignClientException) {
-      log.error("상품 서비스 응답 오류: {}", ex.getMessage(), ex);
+      log.error("상품 서비스 응답 오류: {}", ex.getMessage());
       throw (FeignClientException) ex;
     }
 
@@ -40,7 +40,7 @@ public class ProductServiceClient {
       throw new ProductServiceFailureException();
     }
 
-    log.error("상품 서비스 처리 중 알 수 없는 오류 발생", ex);
+    log.error("상품 서비스 처리 중 알 수 없는 오류 발생");
     throw new RuntimeException("상품 서비스 처리 중 알 수 없는 오류가 발생했습니다.");
   }
 }
