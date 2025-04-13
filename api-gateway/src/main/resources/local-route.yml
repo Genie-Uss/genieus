@@ -197,7 +197,7 @@ spring:
         - id: order-create
           uri: lb://ORDER-SERVICE
           predicates:
-            - Path=/api/v1/orders/{orderId}
+            - Path=/api/v1/orders
             - Method=POST
           filters:
             - TokenExtractor
