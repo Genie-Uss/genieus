@@ -16,10 +16,11 @@ public class PromotionClientAdapter implements PromotionClientPort {
 
   @Override
   public List<Long> findProducts(List<Long> productIds) {
-    // TODO Feign 응답 값으로 변경
-//    List<ProductClientResponse> productClientResponses
-//        = productFeignClient.findProductList(productIds);
+    List<ProductClientResponse> productClientResponses
+        = productFeignClient.findProductList(productIds);
 
-    return productIds;
+    return productClientResponses.stream()
+        .map(ProductClientResponse::productId)
+        .toList();
   }
 }
