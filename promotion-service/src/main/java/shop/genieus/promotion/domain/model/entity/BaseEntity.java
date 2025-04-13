@@ -20,7 +20,6 @@ public abstract class BaseEntity {
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
-  @CurrentTimestamp
   @Comment("생성 일시")
   private LocalDateTime createdAt;
 
@@ -30,13 +29,12 @@ public abstract class BaseEntity {
   private Long createdBy;
 
   @LastModifiedDate
-  @Column(name = "updated_at")
-  @CurrentTimestamp
+  @Column(name = "updated_at", insertable = false)
   @Comment("수정 일시")
   private LocalDateTime updatedAt;
 
   @LastModifiedBy
-  @Column(name = "updated_by")
+  @Column(name = "updated_by", insertable = false)
   @Comment("수정자")
   private Long updatedBy;
 
