@@ -36,11 +36,14 @@ ext {
 }
 
 dependencies {
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // open feign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // 공통 라이브러리
-    implementation 'com.genieus:genieus-common-lib:1.0.0'
+    implementation 'com.genieus:genieus-common-lib:1.2.4'
 
     // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
