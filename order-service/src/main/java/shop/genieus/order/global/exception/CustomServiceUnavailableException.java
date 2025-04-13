@@ -34,4 +34,12 @@ public class CustomServiceUnavailableException extends RuntimeException {
           ErrorCode.COUPON_SERVICE_FAILURE.getMessage());
     }
   }
+
+  public static class PaymentServiceFailureException extends CustomServiceUnavailableException {
+    public PaymentServiceFailureException() {
+      super(
+          ErrorCode.PAYMENT_SERVICE_FAILURE.getCode(),
+          ErrorCode.PAYMENT_SERVICE_FAILURE.getMessage());
+    }
+  }
 }
