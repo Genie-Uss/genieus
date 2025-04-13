@@ -1,5 +1,7 @@
 package shop.genieus.payment.presentation.rest.controller;
 
+import com.genieus.common.auth.annotation.WithPassport;
+import com.genieus.common.auth.model.Passport;
 import com.genieus.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,14 +19,14 @@ import shop.genieus.payment.presentation.rest.dto.request.CreatePaymentRequest;
 @RequestMapping("/internal/v1/payments")
 public class PaymentInternalController {
 
-    private final PaymentCommandService paymentCommandService;
+  private final PaymentCommandService paymentCommandService;
 
-    @PostMapping
-    ResponseEntity<ApiResponse<HttpStatusCode>> createPayment(
-            @RequestBody CreatePaymentRequest createPaymentRequest
-    ) {
-        paymentCommandService.create(CreatePaymentRequest.toCommand(createPaymentRequest));
+  @PostMapping
+  ResponseEntity<ApiResponse<HttpStatusCode>> createPayment(
+      @WithPassport Passport passport, @RequestBody CreatePaymentRequest createPaymentRequest) {
+    paymentCommandService.create(
+        CreatePaymentRequest.toCommand(createPaymentRequest, passport.getUserId()));
 
-        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
+  }
 }

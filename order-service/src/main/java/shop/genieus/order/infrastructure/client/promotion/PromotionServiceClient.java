@@ -28,7 +28,7 @@ public class PromotionServiceClient {
   public List<Promotion> verifyPromotionFallback(VerifyPromotionRequest request, Throwable ex) {
 
     if (ex instanceof FeignClientException) {
-      log.error("프로모션 서비스 응답 오류: {}", ex.getMessage(), ex);
+      log.error("프로모션 서비스 응답 오류: {}", ex.getMessage());
       throw (FeignClientException) ex;
     }
 
@@ -42,7 +42,7 @@ public class PromotionServiceClient {
       throw new PromotionServiceFailureException();
     }
 
-    log.error("프로모션 서비스 처리 중 알 수 없는 오류 발생", ex);
+    log.error("프로모션 서비스 처리 중 알 수 없는 오류 발생");
     throw new RuntimeException("서비스 처리 중 알 수 없는 오류가 발생했습니다.");
   }
 }

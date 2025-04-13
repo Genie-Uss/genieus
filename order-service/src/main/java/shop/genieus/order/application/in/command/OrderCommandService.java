@@ -54,8 +54,8 @@ public class OrderCommandService {
     Order order = findOrder(command.orderId());
 
     processCouponForPayment(command, order);
-
     order.requestPayment(paymentRequested);
+    createPayment(order);
     return order;
   }
 
@@ -97,6 +97,10 @@ public class OrderCommandService {
       Integer couponDiscountAmount = OrderPriceCalculator.useCoupon(order, coupon);
       order.useCoupon(couponDiscountAmount);
     }
+  }
+
+  private void createPayment(Order order) {
+    orderClientPort.createPayment(order);
   }
 
   private Coupon getCoupon(PaymentCommand command, Order order) {
