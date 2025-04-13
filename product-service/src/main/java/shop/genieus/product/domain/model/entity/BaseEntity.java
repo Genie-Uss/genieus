@@ -6,7 +6,6 @@ import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.CurrentTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -19,33 +18,31 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class BaseEntity {
 
   @CreatedDate
-  @Column(name = "created_at", nullable = false, updatable = false)
-  @CurrentTimestamp
   @Comment("생성 일시")
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @CreatedBy
-  @Column(name = "created_by", nullable = false, updatable = false)
   @Comment("생성자")
+  @Column(name = "created_by", nullable = false, updatable = false)
   private Long createdBy;
 
   @LastModifiedDate
-  @Column(name = "updated_at")
-  @CurrentTimestamp
   @Comment("수정 일시")
+  @Column(name = "updated_at", insertable = false)
   private LocalDateTime updatedAt;
 
   @LastModifiedBy
-  @Column(name = "updated_by")
   @Comment("수정자")
+  @Column(name = "updated_by", insertable = false)
   private Long updatedBy;
 
-  @Column(name = "deleted_at")
   @Comment("삭제 일시")
+  @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
-  @Column(name = "deleted_by")
   @Comment("삭제자")
+  @Column(name = "deleted_by")
   private Long deletedBy;
 
   public void delete(Long id) {

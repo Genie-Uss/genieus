@@ -1,4 +1,4 @@
-package shop.genieus.product.global.config;
+package shop.genieus.auth.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

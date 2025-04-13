@@ -14,7 +14,7 @@ public record CreateProductResponse(
   public static CreateProductResponse from(Product product) {
     return new CreateProductResponse(
         product.getProductId(),
-        product.getProductName(),
+        product.getProductName().getValue(),
         product.getProductText(),
         product.getProductPrice().getValue(),
         product.getProductTotalStock(),

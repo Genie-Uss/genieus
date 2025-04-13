@@ -3,6 +3,8 @@ package shop.genieus.product.domain.model.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import shop.genieus.product.domain.model.vo.ProductName;
 import shop.genieus.product.domain.model.vo.ProductPrice;
 import shop.genieus.product.domain.model.vo.ProductStatus;
 
@@ -29,9 +32,9 @@ public class Product extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long productId;
 
-  @Column(nullable = false, length = 30)
+  @Embedded
   @Comment("상품 이름")
-  private String productName;
+  private ProductName productName;
 
   @Comment("상품 설명")
   private String productText;
@@ -44,8 +47,9 @@ public class Product extends BaseEntity {
   @Comment("상품 재고")
   private Integer productTotalStock;
 
-  @Column(nullable = false)
   @Comment("상품 상태")
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private ProductStatus productStatus;
 
   public static Product create(
@@ -53,10 +57,9 @@ public class Product extends BaseEntity {
       String productText,
       Integer productPrice,
       Integer productTotalStock,
-      ProductStatus productStatus
-  ) {
+      ProductStatus productStatus) {
     return Product.builder()
-        .productName(productName)
+        .productName(ProductName.of(productName))
         .productText(productText)
         .productPrice(ProductPrice.of(productPrice))
         .productTotalStock(productTotalStock)
