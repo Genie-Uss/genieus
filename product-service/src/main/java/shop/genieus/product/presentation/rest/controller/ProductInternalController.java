@@ -23,7 +23,8 @@ public class ProductInternalController {
   private final ProductInternalMapper mapper;
 
   @GetMapping
-  public List<ProductClientResponse> findProductList(@RequestParam List<Long> productIds) {
+  public List<ProductClientResponse> findProductList(
+      @RequestParam("productId") List<Long> productIds) {
     List<Product> productList =
         productCommandService.findProductListByIds(new ListProductCommand(productIds));
     return mapper.toProductClientResponseList(productList);
