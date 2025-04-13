@@ -26,12 +26,11 @@ public class OrderCommandService {
   private final OrderCommandPort orderCommandPort;
 
   public Order create(CreateOrderCommand command) {
-
     CreateOrderAssembler assembler = command.toAssembler();
     assembler.applyOrderedAt(getCurrentTime());
 
-    List<PromotionProduct> promotionProducts = getPromotionProducts(assembler);
-    applyPromotionDiscounts(assembler, promotionProducts);
+    List<PromotionProduct> promotions = getPromotionProducts(assembler);
+    applyPromotionDiscounts(assembler, promotions);
 
     List<Product> products = getProducts(assembler);
     applyProductPrices(assembler, products);
@@ -105,8 +104,8 @@ public class OrderCommandService {
   }
 
   private void applyPromotionDiscounts(
-      CreateOrderAssembler assembler, List<PromotionProduct> promotionProducts) {
-    promotionProducts.forEach(
+      CreateOrderAssembler assembler, List<PromotionProduct> promotions) {
+    promotions.forEach(
         pp ->
             assembler.getOrderProducts().stream()
                 .filter(op -> op.getProductId().equals(pp.productId()))
@@ -117,7 +116,7 @@ public class OrderCommandService {
     products.forEach(
         p ->
             assembler.getOrderProducts().stream()
-                .filter(op -> op.getProductId().equals(p.productId()))
-                .forEach(op -> op.applyProductPrice(p.productPrice())));
+                .filter(op -> op.getProductId().equals(p.getProductId()))
+                .forEach(op -> op.applyProductPrice(p.getProductPrice())));
   }
 }

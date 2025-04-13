@@ -1,8 +1,5 @@
 package shop.genieus.order.domain.model.entity;
 
-import static shop.genieus.order.global.exception.CustomBadRequestException.*;
-import static shop.genieus.order.global.exception.CustomForbiddenException.*;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -100,7 +97,6 @@ public class Order extends BaseEntity {
               OrderProduct orderProduct = OrderProduct.create(opAssembler);
               order.addOrderProduct(orderProduct);
             });
-    order.createdByUser(order.getUserId());
     return order;
   }
 

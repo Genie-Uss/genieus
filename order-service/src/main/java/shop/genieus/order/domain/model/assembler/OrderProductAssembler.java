@@ -14,11 +14,11 @@ public class OrderProductAssembler {
   private Integer promotionDiscountRate;
   private Integer productPrice;
 
-  public void applyDiscountRate(Integer promotionDiscountRate) {
-    this.promotionDiscountRate = promotionDiscountRate;
+  public void applyDiscountRate(Integer discountRate) {
+    this.promotionDiscountRate = discountRate;
   }
 
-  public void applyProductPrice(Integer productPrice) {
-    this.productPrice = productPrice;
+  public void applyProductPrice(Integer price) {
+    this.productPrice = price;
   }
 }
