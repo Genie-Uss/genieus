@@ -3,6 +3,7 @@ package shop.genieus.payment.domain.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import shop.genieus.payment.domain.assembler.CancelPaymentAssembler;
 import shop.genieus.payment.domain.assembler.CreatePaymentAssembler;
 import shop.genieus.payment.domain.model.vo.Money;
 import shop.genieus.payment.domain.model.vo.PaymentMethod;
@@ -77,13 +78,13 @@ public class Payment extends BaseEntity {
     }
 
     public void registerPaymentSuccess() {
-        checkPaymentStatus();
+        checkPaymentStatusForRegister();
 
         paymentStatus = PaymentStatus.SUCCESS;
         paymentPaidAt = LocalDateTime.now();
     }
 
-    private void checkPaymentStatus() {
+    private void checkPaymentStatusForRegister() {
         switch (this.paymentStatus) {
             case SUCCESS -> throw new IllegalArgumentException("완료된 결제를 시도할 수 없습니다.");
             case REFUNDED -> throw new IllegalArgumentException("환불된 결제를 시도할 수 없습니다.");
