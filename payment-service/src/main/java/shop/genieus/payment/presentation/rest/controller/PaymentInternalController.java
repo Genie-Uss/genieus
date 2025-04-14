@@ -23,9 +23,10 @@ public class PaymentInternalController {
 
   @PostMapping
   ResponseEntity<ApiResponse<HttpStatusCode>> createPayment(
-      @WithPassport Passport passport, @RequestBody CreatePaymentRequest createPaymentRequest) {
-    paymentCommandService.create(
-        CreatePaymentRequest.toCommand(createPaymentRequest, passport.getUserId()));
+      @WithPassport Passport passport,
+      @RequestBody CreatePaymentRequest createPaymentRequest
+  ) {
+    paymentCommandService.create(CreatePaymentRequest.toCommand(createPaymentRequest, passport.getUserId()));
 
     return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
   }
