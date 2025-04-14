@@ -47,6 +47,13 @@ public class CouponCommandService {
         coupon.getCouponMaxPrice());
   }
 
+  public void issueCoupon(Long couponId, Long userId) {
+    // 1. 쿠폰 유효성 검사 (쿠폰 발급 기간,
+    Coupon coupon = commandPort.findCoupon(couponId);
+    // 2. 쿠폰 재고 확인 및 발급
+    commandPort.createCouponUser(coupon, userId);
+  }
+
   private CouponUser findAvailableCoupon(UseCouponRequest request) {
     CouponUser couponUser = commandPort.validUserCoupon(request.couponId(), request.userId());
     if (couponUser == null) {
