@@ -77,16 +77,16 @@ public class Payment extends BaseEntity {
     }
 
     public void registerPaymentSuccess() {
-        if (!isPendingOrFailed()) {
-            throw new IllegalArgumentException("결제 상태가 [" + paymentStatus + "] 인 상태에서는 결제 완료할 수 없습니다.");
-        }
+        checkPaymentStatus();
 
         paymentStatus = PaymentStatus.SUCCESS;
         paymentPaidAt = LocalDateTime.now();
     }
 
-    private boolean isPendingOrFailed() {
-        return paymentStatus == PaymentStatus.PENDING
-                || paymentStatus == PaymentStatus.FAILED;
+    private void checkPaymentStatus() {
+        switch (this.paymentStatus) {
+            case SUCCESS -> throw new IllegalArgumentException("완료된 결제를 시도할 수 없습니다.");
+            case REFUNDED -> throw new IllegalArgumentException("환불된 결제를 시도할 수 없습니다.");
+        }
     }
 }

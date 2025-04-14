@@ -40,7 +40,7 @@ public class PaymentCommandService {
     }
 
     @Transactional
-    public Payment registerPayment(RegisterPaymentCommand registerPaymentCommand) {
+    public Payment registerPaymentSuccess(RegisterPaymentCommand registerPaymentCommand) {
         Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
         payment.registerPaymentSuccess();
 

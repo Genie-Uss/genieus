@@ -25,6 +25,16 @@ public class PaymentController {
 
     private final PaymentCommandService paymentCommandService;
 
+    // TEST 용 API
+    @PostMapping
+    ResponseEntity<ApiResponse<HttpStatusCode>> createPayment(
+            @RequestBody CreatePaymentRequest createPaymentRequest
+    ) {
+        paymentCommandService.create(CreatePaymentRequest.toCommand(createPaymentRequest, 1L));
+
+        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
+    }
+
     @PostMapping("/process")
     Object processPayment(@RequestBody ProcessPaymentRequest processPaymentRequest) {
         PaymentProcessorResult paymentProcessorResult =
@@ -37,10 +47,10 @@ public class PaymentController {
     }
 
     @PostMapping("/success")
-    ResponseEntity<ApiResponse<HttpStatusCode>> registerPayment(
+    ResponseEntity<ApiResponse<HttpStatusCode>> registerPaymentSuccess(
             @RequestBody RegisterPaymentRequest registerPaymentRequest
     ) {
-        paymentCommandService.registerPayment(RegisterPaymentRequest.toCommand(registerPaymentRequest));
+        paymentCommandService.registerPaymentSuccess(RegisterPaymentRequest.toCommand(registerPaymentRequest));
 
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
     }
