@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
@@ -23,6 +24,13 @@ public class WebClientConfig {
             (request, next) -> {
               brave.Span currentSpan = tracer.currentSpan();
               if (currentSpan != null) {
+                String b3 =
+                    String.format(
+                        "%s-%s-1",
+                        currentSpan.context().traceIdString(),
+                        currentSpan.context().spanIdString());
+                request = ClientRequest.from(request).header("b3", b3).build();
+
                 return next.exchange(request)
                     .contextWrite(ctx -> ctx.put(TRACE_ID, currentSpan.context().traceIdString()));
               }
