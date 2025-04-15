@@ -16,6 +16,15 @@ spring:
         enabled: true
   config:
     import: 'classpath:docker-database.yml'
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:19093
+    template:
+      default-topic: order
+    consumer:
+      group-id: order-service
+      topic:
+        payment: payment
+        order: order
 
 logging:
   level:
@@ -51,3 +60,7 @@ resilience4j:
       default:
         timeout-duration: 5s
         cancel-running-future: true
+order:
+  cancel-policy:
+    order-pending: 1
+    payment-pending: 1
