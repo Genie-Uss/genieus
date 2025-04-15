@@ -14,6 +14,11 @@ import shop.genieus.order.infrastructure.event.producer.OrderKafkaProducer;
 public class OrderEventSendAdapter implements OrderEventSendPort {
   private final OrderKafkaProducer orderKafkaProducer;
 
+  /**
+   * 주문 취소 이벤트를 Kafka를 통해 발행합니다.
+   *
+   * @param event 발행할 주문 취소 이벤트
+   */
   @Override
   public void sendOrderCanceledEvent(OrderCanceledEvent event) {
     EventEnvelope<OrderCanceledEvent> envelope = EventEnvelope.create(event);
@@ -21,6 +26,11 @@ public class OrderEventSendAdapter implements OrderEventSendPort {
     orderKafkaProducer.publish(key, envelope);
   }
 
+  /**
+   * 주문 취소 트리거 이벤트를 Kafka를 통해 발행합니다.
+   *
+   * @param event 발행할 주문 취소 트리거 이벤트
+   */
   @Override
   public void sendOrderCancelTriggerEvent(OrderCancelTriggerEvent event) {
     EventEnvelope<OrderCancelTriggerEvent> envelope = EventEnvelope.create(event);
@@ -28,6 +38,11 @@ public class OrderEventSendAdapter implements OrderEventSendPort {
     orderKafkaProducer.publish(key, envelope);
   }
 
+  /**
+   * 주문 생성 이벤트를 Kafka를 통해 발행합니다.
+   *
+   * @param event 발행할 주문 생성 이벤트
+   */
   @Override
   public void sendOrderCreated(OrderCreatedEvent event) {
     EventEnvelope<OrderCreatedEvent> envelope = EventEnvelope.create(event);

@@ -26,6 +26,11 @@ public class KafkaConsumerConfig {
   @Value("${spring.kafka.consumer.group-id}")
   private String groupId;
 
+  /**
+   * Kafka 컨슈머를 위한 설정 속성 맵을 생성합니다.
+   *
+   * @return Kafka 컨슈머의 부트스트랩 서버, 그룹 ID, 키 및 값 디시리얼라이저 클래스가 포함된 설정 맵
+   */
   @Bean
   public Map<String, Object> consumerConfig() {
     Map<String, Object> props = new HashMap<>();
@@ -36,6 +41,11 @@ public class KafkaConsumerConfig {
     return props;
   }
 
+  /**
+   * Kafka 메시지 소비를 위한 ConsumerFactory 빈을 생성합니다.
+   *
+   * @return Kafka 메시지 소비에 사용되는 ConsumerFactory 인스턴스
+   */
   @Bean
   public ConsumerFactory<String, String> consumerFactory() {
     return new DefaultKafkaConsumerFactory<>(consumerConfig());

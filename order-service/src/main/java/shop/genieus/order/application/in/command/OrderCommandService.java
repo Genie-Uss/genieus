@@ -32,6 +32,12 @@ public class OrderCommandService {
   private final OrderCancelPolicy orderCancelPolicy;
   private final OrderEventPublisher orderEventPublisher;
 
+  /**
+   * 주문 생성 명령을 처리하여 새로운 주문을 생성하고 저장한 후, 주문 생성 이벤트를 발행합니다.
+   *
+   * @param command 주문 생성에 필요한 정보가 담긴 명령 객체
+   * @return 생성 및 저장된 주문 객체
+   */
   public Order create(CreateOrderCommand command) {
     LocalDateTime orderedAt = getCurrentTime();
     CreateOrderAssembler assembler = command.toAssembler();
@@ -57,6 +63,14 @@ public class OrderCommandService {
     return saved;
   }
 
+  /**
+   * 주문에 대한 결제 요청을 처리하고 결제 프로세스를 시작합니다.
+   *
+   * 결제 요청 시 쿠폰이 포함되어 있으면 쿠폰을 적용하며, 주문 상태를 결제 요청으로 변경한 후 결제 생성을 외부 시스템에 위임합니다.
+   *
+   * @param command 결제 요청에 필요한 정보가 담긴 명령 객체
+   * @return 결제 요청이 반영된 주문 객체
+   */
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequested = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -66,6 +80,11 @@ public class OrderCommandService {
     return order;
   }
 
+  /**
+   * 사용자가 주문을 취소하도록 처리하고, 주문 취소 이벤트를 발행합니다.
+   *
+   * @param command 주문 취소에 필요한 정보(주문 ID, 사용자 ID 등)
+   */
   public void cancelOrderByUser(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -73,6 +92,11 @@ public class OrderCommandService {
     orderEventPublisher.publishOrderCanceled(order);
   }
 
+  /**
+   * 시스템에 의해 주문을 취소하고 주문 취소 이벤트를 발행합니다.
+   *
+   * @param command 주문 취소에 필요한 정보를 담은 커맨드 객체
+   */
   public void cancelOrderBySystem(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -80,6 +104,11 @@ public class OrderCommandService {
     orderEventPublisher.publishOrderCanceled(order);
   }
 
+  /**
+   * 결제 완료 명령을 처리하여 주문의 결제 상태를 완료로 변경하고, 주문 완료 이벤트를 발행합니다.
+   *
+   * @param command 결제 완료에 필요한 정보를 담은 명령 객체
+   */
   public void completePayment(CompletePaymentCommand command) {
     LocalDateTime paidAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -87,6 +116,11 @@ public class OrderCommandService {
     orderEventPublisher.publishOrderCompleted(order);
   }
 
+  /**
+   * 주문을 완료 상태로 변경합니다.
+   *
+   * @param command 주문 완료 명령 객체
+   */
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();
     Order order = findOrder(command.orderId());

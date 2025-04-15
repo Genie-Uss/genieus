@@ -27,10 +27,24 @@ public class OrderKafkaEventHandler {
           "shop.genieus.order.domain.event.OrderCancelTriggerEvent",
           OrderCancelTriggerEvent.class);
 
+  /**
+   * 주어진 이벤트 타입 문자열에 해당하는 DomainEvent 클래스를 반환합니다.
+   *
+   * @param eventType 이벤트 타입을 나타내는 문자열
+   * @return 이벤트 타입에 매핑된 DomainEvent 클래스, 매핑이 없으면 null 반환
+   */
   public Class<? extends DomainEvent> resolve(String eventType) {
     return eventTypeMap.get(eventType);
   }
 
+  /**
+   * 주문 관련 도메인 이벤트를 처리합니다.
+   *
+   * 결제 완료, 주문 생성, 주문 취소 트리거 이벤트를 구분하여 각각의 비즈니스 로직을 실행합니다.
+   * 지원하지 않는 이벤트 타입의 경우 경고 로그를 남깁니다.
+   *
+   * @param domainEvent 처리할 도메인 이벤트
+   */
   public void handle(DomainEvent domainEvent) {
     if (domainEvent instanceof PaymentCompletedEvent event) {
       log.info("[OrderKafkaEventHandler] 결제 완료 이벤트 수신: {}", event);

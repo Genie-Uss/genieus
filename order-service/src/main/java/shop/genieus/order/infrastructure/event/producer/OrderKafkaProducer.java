@@ -20,6 +20,12 @@ public class OrderKafkaProducer {
   @Value("${spring.kafka.template.default-topic}")
   private String orderTopic;
 
+  /**
+   * 지정된 키와 이벤트 엔벨로프를 Kafka 토픽에 비동기적으로 발행합니다.
+   *
+   * @param key 메시지의 파티션을 결정하는 키
+   * @param eventEnvelop 발행할 도메인 이벤트를 감싼 엔벨로프 객체
+   */
   public void publish(String key, EventEnvelope<? extends DomainEvent> eventEnvelop) {
     CompletableFuture<SendResult<String, EventEnvelope<? extends DomainEvent>>> result =
         kafkaTemplate.send(orderTopic, key, eventEnvelop);
