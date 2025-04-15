@@ -29,7 +29,7 @@ public abstract class BaseEntity {
 
   @LastModifiedDate
   @Comment("수정 일시")
-  @Column(name = "updated_at", insertable = false)
+  @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
   @LastModifiedBy
