@@ -7,5 +7,7 @@ public interface ProductCommandPort {
 
   Product save(Product product);
 
-  List<Product> findProductsByIds(List<Long> longs);
+  Product findProductById(Long id);
+
+  List<Product> findProductsByIds(List<Long> productIds);
 }
