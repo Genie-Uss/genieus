@@ -15,10 +15,6 @@ public interface ProductCachePort {
 
   void saveProductBatch(List<Product> products);
 
-  Long getUsedStock(Long productId);
-
-  Long getTotalStock(Long productId);
-
   void setTotalStock(Long productId, Long totalStock);
 
   List<String> decreaseStock(Map<Long, Integer> productQuantities);

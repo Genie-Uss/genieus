@@ -3,7 +3,6 @@ package shop.genieus.product.infrastructure.cache;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,12 +20,13 @@ public class ProductCacheAdapter implements ProductCachePort {
 
   @Override
   public ProductView findProductViewById(Long productId) {
-    Optional<ProductView> productViewOpt = productRedisRepository.findProductViewById(productId);
-    if (productViewOpt.isEmpty()) {
-      log.info("캐시에서 상품 뷰 정보를 찾을 수 없습니다. productId: {}", productId);
-      return null;
-    }
-    return productViewOpt.get();
+    return productRedisRepository
+        .findProductViewById(productId)
+        .orElseGet(
+            () -> {
+              log.info("캐시에서 상품 뷰 정보를 찾을 수 없습니다. productId: {}", productId);
+              return null;
+            });
   }
 
   @Override
@@ -75,16 +75,6 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public Long getUsedStock(Long productId) {
-    return productRedisRepository.getUsedStock(productId);
-  }
-
-  @Override
-  public Long getTotalStock(Long productId) {
-    return productRedisRepository.getTotalStock(productId);
-  }
-
-  @Override
   public void setTotalStock(Long productId, Long totalStock) {
     productRedisRepository.setTotalStock(productId, totalStock);
   }
@@ -93,14 +83,10 @@ public class ProductCacheAdapter implements ProductCachePort {
   public List<String> decreaseStock(Map<Long, Integer> productQuantities) {
     List<String> results = productRedisRepository.atomicDecreaseStock(productQuantities);
 
-    if (!results.isEmpty()) {
-      for (int i = 0; i < results.size(); i += 2) {
-        if (i + 1 < results.size()) {
-          String productId = results.get(i);
-          String usedStock = results.get(i + 1);
-          log.info("상품 ID {} 재고 차감 완료. 총 사용량: {}", productId, usedStock);
-        }
-      }
+    for (int i = 0; i + 1 < results.size(); i += 2) {
+      String productId = results.get(i);
+      String usedStock = results.get(i + 1);
+      log.info("상품 ID {} 재고 차감 완료. 총 사용량: {}", productId, usedStock);
     }
 
     return results;
