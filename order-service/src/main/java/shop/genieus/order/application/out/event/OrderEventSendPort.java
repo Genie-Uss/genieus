@@ -1,7 +1,13 @@
 package shop.genieus.order.application.out.event;
 
-import shop.genieus.order.domain.model.entity.Order;
+import com.genieus.common.event.order.OrderCanceledEvent;
+import shop.genieus.order.domain.event.OrderCancelTriggerEvent;
+import shop.genieus.order.domain.event.OrderCreatedEvent;
 
 public interface OrderEventSendPort {
-  void sendOrderCanceledEvent(Order order);
+  void sendOrderCanceledEvent(OrderCanceledEvent event);
+
+  void sendOrderCancelTriggerEvent(OrderCancelTriggerEvent event);
+
+  void sendOrderCreatedEvent(OrderCreatedEvent event);
 }

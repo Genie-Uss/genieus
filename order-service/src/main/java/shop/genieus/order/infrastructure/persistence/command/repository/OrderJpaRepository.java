@@ -1,4 +1,4 @@
-package shop.genieus.order.infrastructure.persistence.repository;
+package shop.genieus.order.infrastructure.persistence.command.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import shop.genieus.order.domain.model.entity.Order;

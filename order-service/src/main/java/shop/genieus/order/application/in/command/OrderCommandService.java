@@ -3,12 +3,15 @@ package shop.genieus.order.application.in.command;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.order.application.in.command.dto.*;
+import shop.genieus.order.application.in.event.OrderEventPublisher;
 import shop.genieus.order.application.out.client.OrderClientPort;
 import shop.genieus.order.application.out.persistence.OrderCommandPort;
 import shop.genieus.order.application.out.util.OrderTimePort;
+import shop.genieus.order.application.policy.OrderCancelPolicy;
 import shop.genieus.order.domain.model.assembler.CreateOrderAssembler;
 import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
 import shop.genieus.order.domain.model.entity.Order;
@@ -16,9 +19,9 @@ import shop.genieus.order.domain.model.entity.OrderProduct;
 import shop.genieus.order.domain.model.vo.Coupon;
 import shop.genieus.order.domain.model.vo.Product;
 import shop.genieus.order.domain.model.vo.PromotionProduct;
-import shop.genieus.order.domain.service.OrderCancelPolicy;
 import shop.genieus.order.domain.service.OrderPriceCalculator;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -26,6 +29,8 @@ public class OrderCommandService {
   private final OrderTimePort orderTimePort;
   private final OrderClientPort orderClientPort;
   private final OrderCommandPort orderCommandPort;
+  private final OrderCancelPolicy orderCancelPolicy;
+  private final OrderEventPublisher orderEventPublisher;
 
   public Order create(CreateOrderCommand command) {
     LocalDateTime orderedAt = getCurrentTime();
@@ -46,13 +51,15 @@ public class OrderCommandService {
     OrderPriceCalculator.calculate(assembler);
 
     Order order = Order.create(assembler);
-    return orderCommandPort.save(order);
+    Order saved = orderCommandPort.save(order);
+
+    orderEventPublisher.publishOrderCreated(order);
+    return saved;
   }
 
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequested = getCurrentTime();
     Order order = findOrder(command.orderId());
-
     processCouponForPayment(command, order);
     order.requestPayment(paymentRequested);
     createPayment(order);
@@ -62,19 +69,22 @@ public class OrderCommandService {
   public void cancelOrderByUser(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
-    OrderCancelPolicy.cancelOrderByUser(order, command.userId(), canceledAt);
+    orderCancelPolicy.cancelOrderByUser(order, command.userId(), canceledAt);
+    orderEventPublisher.publishOrderCanceled(order);
   }
 
   public void cancelOrderBySystem(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
-    OrderCancelPolicy.cancelOrderBySystem(order, canceledAt);
+    orderCancelPolicy.cancelOrderBySystem(order, canceledAt);
+    orderEventPublisher.publishOrderCanceled(order);
   }
 
   public void completePayment(CompletePaymentCommand command) {
     LocalDateTime paidAt = getCurrentTime();
     Order order = findOrder(command.orderId());
     order.completePayment(paidAt);
+    orderEventPublisher.publishOrderCompleted(order);
   }
 
   public void completeOrder(CompleteOrderCommand command) {
