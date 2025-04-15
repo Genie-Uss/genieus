@@ -35,10 +35,9 @@ public class ProductCommandService {
             command.productTotalStock(),
             command.productStatus());
 
-    Product savedProduct = productCommandPort.save(product);
-    productCachePort.saveProduct(savedProduct.getProductId(), savedProduct);
-
-    return savedProduct;
+    Product saved = productCommandPort.save(product);
+    productCachePort.saveProduct(saved.getProductId(), saved);
+    return saved;
   }
 
   public List<Product> findProductListByIds(ListProductCommand command) {
@@ -47,30 +46,29 @@ public class ProductCommandService {
 
   public List<StockValidationResult> checkStockAvailability(ValidateProductCommand command) {
     List<ValidateProductCommand.StockValidationItem> items = command.validateProductStocks();
-    List<Long> productIds = extractProductIds(items);
+    Map<Long, Integer> requestedQuantities = aggregateStockRequests(items);
+    List<Long> productIds = new ArrayList<>(requestedQuantities.keySet());
 
-    // 1. 캐시에서 상품 뷰 조회
+    // 1. 캐시 우선 조회
     Map<Long, ProductView> cachedViews = productCachePort.findProductViewListByIds(productIds);
 
-    // 2. 판매 불가능한 상품 체크
+    // 2. 캐시 누락된 ID 조회 및 캐싱
+    List<Long> uncachedIds =
+        productIds.stream().filter(id -> !cachedViews.containsKey(id)).toList();
+    Map<Long, Product> dbProducts = fetchAndCacheProducts(uncachedIds, cachedViews);
+
+    // 3. 전체 상품 판매 가능 여부 검증
     validateAllProductsAvailable(productIds, cachedViews);
 
-    // 3. 캐시에 없는 상품 DB 조회 및 캐싱
-    List<Long> uncachedIds = findUncachedIds(productIds, cachedViews);
-    Map<Long, Product> productMap = fetchAndCacheProducts(uncachedIds, cachedViews);
-
-    // 4. 재고 차감 요청 집계
-    Map<Long, Integer> aggregatedRequests = aggregateStockRequests(items);
+    // 4. 총 재고 캐시 보완
+    supplementTotalStock(cachedViews, dbProducts);
 
     try {
-      // 5. 재고 검증
-      validateSufficientStock(aggregatedRequests, cachedViews, productMap);
+      // 5. 재고 차감
+      productCachePort.decreaseStock(requestedQuantities);
+      log.info("재고 차감 성공: {}", requestedQuantities);
 
-      // 6. 재고 차감
-      productCachePort.decreaseStock(aggregatedRequests);
-      log.info("상품 재고 차감 성공: {}", aggregatedRequests);
-
-      // 7. 결과 반환
+      // 6. 결과 반환
       return productIds.stream()
           .map(cachedViews::get)
           .filter(Objects::nonNull)
@@ -83,51 +81,6 @@ public class ProductCommandService {
     }
   }
 
-  private List<Long> extractProductIds(List<ValidateProductCommand.StockValidationItem> items) {
-    return items.stream().map(ValidateProductCommand.StockValidationItem::id).toList();
-  }
-
-  private List<Long> findUncachedIds(List<Long> productIds, Map<Long, ProductView> cachedViews) {
-    return productIds.stream().filter(id -> !cachedViews.containsKey(id)).toList();
-  }
-
-  private void validateAllProductsAvailable(
-      List<Long> productIds, Map<Long, ProductView> cachedViews) {
-    List<Long> unavailableIds =
-        productIds.stream()
-            .filter(
-                id -> {
-                  ProductView view = cachedViews.get(id);
-                  return view != null && !view.isOnSale();
-                })
-            .toList();
-
-    if (!unavailableIds.isEmpty()) {
-      log.warn("판매 중이 아닌 상품 ID: {}", unavailableIds);
-      throw new ProductUnavailableException();
-    }
-  }
-
-  private Map<Long, Product> fetchAndCacheProducts(
-      List<Long> uncachedIds, Map<Long, ProductView> cachedViews) {
-
-    if (uncachedIds.isEmpty()) {
-      return Collections.emptyMap();
-    }
-
-    List<Product> dbProducts = productCommandPort.findProductsByIds(uncachedIds);
-
-    if (!dbProducts.isEmpty()) {
-      productCachePort.saveProductBatch(dbProducts);
-
-      for (Product product : dbProducts) {
-        cachedViews.put(product.getProductId(), ProductView.from(product));
-      }
-    }
-
-    return dbProducts.stream().collect(Collectors.toMap(Product::getProductId, p -> p));
-  }
-
   private Map<Long, Integer> aggregateStockRequests(
       List<ValidateProductCommand.StockValidationItem> items) {
     return items.stream()
@@ -138,32 +91,49 @@ public class ProductCommandService {
                 Integer::sum));
   }
 
-  private void validateSufficientStock(
-      Map<Long, Integer> aggregatedRequests,
-      Map<Long, ProductView> cachedViews,
-      Map<Long, Product> productMap) {
+  private Map<Long, Product> fetchAndCacheProducts(List<Long> ids, Map<Long, ProductView> cache) {
+    if (ids.isEmpty()) return Collections.emptyMap();
 
-    for (Long productId : aggregatedRequests.keySet()) {
-      ProductView view = cachedViews.get(productId);
+    List<Product> found = productCommandPort.findProductsByIds(ids);
+    if (found.isEmpty()) return Collections.emptyMap();
 
-      if (view == null) {
-        log.warn("상품 ID {}의 뷰 정보가 없습니다", productId);
-        throw new ProductUnavailableException();
-      }
+    productCachePort.saveProductBatch(found);
 
-      ensureTotalStockCached(productId, view, productMap);
+    for (Product product : found) {
+      cache.put(product.getProductId(), ProductView.from(product));
+    }
+
+    return found.stream().collect(Collectors.toMap(Product::getProductId, p -> p));
+  }
+
+  private void validateAllProductsAvailable(List<Long> ids, Map<Long, ProductView> views) {
+    boolean hasUnavailable =
+        ids.stream()
+            .anyMatch(
+                id -> {
+                  ProductView view = views.get(id);
+                  return view == null || !view.isOnSale();
+                });
+
+    if (hasUnavailable) {
+      log.warn("판매 불가 상품 포함: {}", ids);
+      throw new ProductUnavailableException();
     }
   }
 
-  private void ensureTotalStockCached(
-      Long productId, ProductView view, Map<Long, Product> productMap) {
-    if (view.getProductTotalStock() == null) {
-      if (productMap.containsKey(productId)) {
-        productCachePort.setTotalStock(
-            productId, (long) productMap.get(productId).getProductTotalStock());
-      } else {
-        log.warn("상품 ID {}의 총 재고량 정보가 없습니다", productId);
-        throw new InsufficientStockException();
+  private void supplementTotalStock(Map<Long, ProductView> views, Map<Long, Product> dbMap) {
+    for (Map.Entry<Long, ProductView> entry : views.entrySet()) {
+      Long id = entry.getKey();
+      ProductView view = entry.getValue();
+
+      if (view.getProductTotalStock() == null) {
+        Product dbProduct = dbMap.get(id);
+        if (dbProduct == null) {
+          log.warn("총 재고 정보 없음: {}", id);
+          throw new InsufficientStockException();
+        }
+
+        productCachePort.setTotalStock(id, (long) dbProduct.getProductTotalStock());
       }
     }
   }
