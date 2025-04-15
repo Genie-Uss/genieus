@@ -31,46 +31,43 @@ public class ProductRedisRepository {
   }
 
   public List<ProductView> findProductViewListByIds(List<Long> productIds) {
-    List<String> keys =
-        productIds.stream().map(id -> META_PREFIX + id).collect(Collectors.toList());
-
-    if (keys == null || keys.isEmpty()) {
+    if (productIds == null || productIds.isEmpty()) {
       return Collections.emptyList();
     }
 
-    return productViewRedisTemplate.opsForValue().multiGet(keys);
+    List<String> keys =
+        productIds.stream().map(id -> META_PREFIX + id).collect(Collectors.toList());
+
+    return Optional.ofNullable(productViewRedisTemplate.opsForValue().multiGet(keys))
+        .orElse(Collections.emptyList());
   }
 
   public void saveProductView(Long id, ProductView productView) {
-    String key = META_PREFIX + id;
-    productViewRedisTemplate.opsForValue().set(key, productView, META_TTL, TimeUnit.HOURS);
+    productViewRedisTemplate
+        .opsForValue()
+        .set(META_PREFIX + id, productView, META_TTL, TimeUnit.HOURS);
   }
 
   public void saveProductViewBatch(Map<Long, ProductView> productViewMap) {
     if (productViewMap == null || productViewMap.isEmpty()) return;
 
-    Map<String, ProductView> keyValueMap = new HashMap<>();
-    for (Map.Entry<Long, ProductView> entry : productViewMap.entrySet()) {
-      keyValueMap.put(META_PREFIX + entry.getKey(), entry.getValue());
-    }
+    Map<String, ProductView> keyValueMap =
+        productViewMap.entrySet().stream()
+            .collect(Collectors.toMap(entry -> META_PREFIX + entry.getKey(), Map.Entry::getValue));
 
     productViewRedisTemplate.opsForValue().multiSet(keyValueMap);
 
-    for (Long id : productViewMap.keySet()) {
-      productViewRedisTemplate.expire(META_PREFIX + id, META_TTL, TimeUnit.HOURS);
-    }
+    keyValueMap
+        .keySet()
+        .forEach(key -> productViewRedisTemplate.expire(key, META_TTL, TimeUnit.HOURS));
   }
 
   public Long getUsedStock(Long id) {
-    String key = USED_PREFIX + id;
-    Long value = longRedisTemplate.opsForValue().get(key);
-    return value != null ? value : 0L;
+    return Optional.ofNullable(longRedisTemplate.opsForValue().get(USED_PREFIX + id)).orElse(0L);
   }
 
   public Long getTotalStock(Long id) {
-    String key = TOTAL_PREFIX + id;
-    Long value = longRedisTemplate.opsForValue().get(key);
-    return value != null ? value : 0L;
+    return Optional.ofNullable(longRedisTemplate.opsForValue().get(TOTAL_PREFIX + id)).orElse(0L);
   }
 
   public void setTotalStock(Long id, Long total) {
@@ -83,39 +80,36 @@ public class ProductRedisRepository {
     }
 
     try {
-      List<String> keys = new ArrayList<>();
-      List<String> args = new ArrayList<>();
+      List<String> keys =
+          productQuantities.keySet().stream().map(String::valueOf).collect(Collectors.toList());
 
+      List<String> args = new ArrayList<>(2 + productQuantities.size());
       args.add(TOTAL_PREFIX);
       args.add(USED_PREFIX);
-
-      for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {
-        Long productId = entry.getKey();
-        Integer quantity = entry.getValue();
-
-        keys.add(productId.toString());
-
-        args.add(String.valueOf(quantity));
-      }
+      productQuantities.values().forEach(qty -> args.add(String.valueOf(qty)));
 
       List<String> result =
           stringRedisTemplate.execute(
               ProductLuaScriptProvider.getStockDecreaseScript(), keys, args.toArray());
 
-      log.debug("재고 차감 스크립트 실행 결과: Id-{}, Count-{}", result.get(0), result.get(1));
+      if (result != null && !result.isEmpty()) {
+        log.debug("재고 차감 스크립트 실행 결과: {}", result);
+      }
+
       return result != null ? result : Collections.emptyList();
+
     } catch (Exception e) {
-      log.error("재고 차감 중 오류 발생: {}", getRedisErrorMessage(e));
-      throw new RedisSystemException("재고 차감 실패: " + getRedisErrorMessage(e), e);
+      String message = extractRedisErrorMessage(e);
+      log.error("재고 차감 중 오류 발생: {}", message);
+      throw new RedisSystemException("재고 차감 실패: " + message, e);
     }
   }
 
-  private String getRedisErrorMessage(Throwable e) {
+  private String extractRedisErrorMessage(Throwable e) {
     Throwable root = e;
     while (root.getCause() != null) {
       root = root.getCause();
     }
-
-    return root.getMessage() != null ? root.getMessage() : e.getMessage();
+    return Optional.ofNullable(root.getMessage()).orElse(e.getMessage());
   }
 }
