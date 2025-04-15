@@ -21,7 +21,7 @@ public class ProductException extends RuntimeException {
     this.code = code;
   }
 
-  protected ProductException(String message, Throwable cause) {
+  public ProductException(String message, Throwable cause) {
     this(message, cause, DEFAULT_CODE);
   }
 }

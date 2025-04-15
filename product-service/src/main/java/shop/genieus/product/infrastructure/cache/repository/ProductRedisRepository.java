@@ -5,11 +5,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 import shop.genieus.product.domain.model.ProductView;
+import shop.genieus.product.global.exception.ProductException;
 import shop.genieus.product.infrastructure.cache.util.ProductLuaScriptProvider;
 
 @Slf4j
@@ -101,7 +101,7 @@ public class ProductRedisRepository {
     } catch (Exception e) {
       String message = extractRedisErrorMessage(e);
       log.error("재고 차감 중 오류 발생: {}", message);
-      throw new RedisSystemException("재고 차감 실패: " + message, e);
+      throw new ProductException("재고 차감 실패: " + message, e);
     }
   }
 
