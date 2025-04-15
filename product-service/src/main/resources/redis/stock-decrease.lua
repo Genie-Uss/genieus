@@ -12,6 +12,11 @@ for i = 1, #KEYS do
     local productId = KEYS[i]
     local amount = tonumber(ARGV[i + 2])
 
+    -- 차감 개수 유효성 검사
+    if amount <= 0 then
+        return redis.error_reply('Invalid amount. Must be positive for product: ' .. productId)
+    end
+
     local totalKey = totalPrefix .. productId
     local usedKey = usedPrefix .. productId
 
