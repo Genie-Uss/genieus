@@ -23,13 +23,21 @@ public class OrderDelayQueueAdapter implements OrderDelayQueuePort {
       double score = schedule.scheduledAt().atZone(ZoneOffset.UTC).toEpochSecond();
       redisTemplate.opsForZSet().add(ZSET_KEY, orderId, score);
     } catch (Exception e) {
-      log.error("[OrderDelayQueueAdapter] 저장 중 예외발생: {}, schedule: {}", e.getMessage(), schedule);
+      log.error("[save] 저장 중 예외발생: {}, schedule: {}", e.getMessage(), schedule);
     }
   }
 
   @Override
   public Set<Long> findExpiredEvents(long untilEpochSeconds) {
-    return redisTemplate.opsForZSet().rangeByScore(ZSET_KEY, 0, untilEpochSeconds);
+    try {
+      return redisTemplate.opsForZSet().rangeByScore(ZSET_KEY, 0, untilEpochSeconds);
+    } catch (Exception e) {
+      log.error(
+          "[findExpiredEvents] 만료된 이벤트 조회 중 예외발생: {}, untilEpochSeconds: {}",
+          e.getMessage(),
+          untilEpochSeconds);
+      return Set.of();
+    }
   }
 
   @Override
@@ -37,7 +45,7 @@ public class OrderDelayQueueAdapter implements OrderDelayQueuePort {
     try {
       redisTemplate.opsForZSet().remove(ZSET_KEY, orderId);
     } catch (Exception e) {
-      log.error("[OrderDelayQueueAdapter] 삭제 중 예외발생: {}, orderId: {}", e.getMessage(), orderId);
+      log.error("[delete] 삭제 중 예외발생: {}, orderId: {}", e.getMessage(), orderId);
     }
   }
 }

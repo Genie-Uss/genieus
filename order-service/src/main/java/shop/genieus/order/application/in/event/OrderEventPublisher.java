@@ -40,8 +40,9 @@ public class OrderEventPublisher {
             order.getOrderId(),
             order.getUserId(),
             order.getCouponId(),
+            // todo 주문상품 객체 수정
             new ArrayList<>(),
-            order.getCanceledAt());
+            order.getCompletedAt());
     publisher.publishEvent(event);
   }
 

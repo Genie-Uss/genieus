@@ -19,6 +19,6 @@ public class OrderTimeAdapter implements OrderTimePort {
 
   @Override
   public long getEpochSecond() {
-    return LocalDateTime.now(clock).atZone(ZoneOffset.UTC).toEpochSecond();
+    return LocalDateTime.now(clock).toInstant(ZoneOffset.UTC).getEpochSecond();
   }
 }

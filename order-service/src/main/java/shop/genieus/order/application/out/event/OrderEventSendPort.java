@@ -9,5 +9,5 @@ public interface OrderEventSendPort {
 
   void sendOrderCancelTriggerEvent(OrderCancelTriggerEvent event);
 
-  void sendOrderCreated(OrderCreatedEvent event);
+  void sendOrderCreatedEvent(OrderCreatedEvent event);
 }

@@ -33,11 +33,14 @@ public class KafkaConsumerConfig {
     props.put(GROUP_ID_CONFIG, groupId);
     props.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+    props.put(
+        JsonDeserializer.TRUSTED_PACKAGES,
+        "com.genieus.common.event,shop.genieus.order.domain.event");
     return props;
   }
 
   @Bean
-  public ConsumerFactory<String, String> consumerFactory() {
+  public ConsumerFactory<String, Object> consumerFactory() {
     return new DefaultKafkaConsumerFactory<>(consumerConfig());
   }
 }

@@ -29,7 +29,7 @@ public class OrderEventSendAdapter implements OrderEventSendPort {
   }
 
   @Override
-  public void sendOrderCreated(OrderCreatedEvent event) {
+  public void sendOrderCreatedEvent(OrderCreatedEvent event) {
     EventEnvelope<OrderCreatedEvent> envelope = EventEnvelope.create(event);
     String key = String.valueOf(event.orderId());
     orderKafkaProducer.publish(key, envelope);

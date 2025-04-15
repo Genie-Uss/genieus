@@ -29,11 +29,17 @@ public class KafkaProducerConfig {
     props.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     props.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     props.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+    props.put(RETRIES_CONFIG, 3);
+    props.put(ENABLE_IDEMPOTENCE_CONFIG, true);
+    props.put(BATCH_SIZE_CONFIG, 16384);
+    props.put(LINGER_MS_CONFIG, 5);
+    props.put(COMPRESSION_TYPE_CONFIG, "snappy");
+    props.put(ACKS_CONFIG, "all");
     return new DefaultKafkaProducerFactory<>(props);
   }
 
   @Bean
   public KafkaTemplate<String, EventEnvelope<? extends DomainEvent>> kafkaTemplate() {
-    return new KafkaTemplate<>((producerFactory()));
+    return new KafkaTemplate<>(producerFactory());
   }
 }

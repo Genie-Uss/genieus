@@ -64,3 +64,5 @@ order:
   cancel-policy:
     order-pending: 1
     payment-pending: 1
+  scheduler:
+    poll-interval: 30000

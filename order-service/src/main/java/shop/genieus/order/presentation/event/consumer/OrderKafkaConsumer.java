@@ -30,8 +30,12 @@ public class OrderKafkaConsumer {
         return;
       }
       EventEnvelope<? extends DomainEvent> envelope = deserializeEnvelope(message, eventClass);
-      orderEventHandler.handle(envelope.getEvent());
-      log.info("[OrderKafkaConsumer] 결제 이벤트 처리완료 : {}", envelope);
+      DomainEvent event = envelope.getEvent();
+      orderEventHandler.handle(event);
+      log.info(
+          "[consumePayment] 결제 이벤트 처리완료 - 타입: {}, 이벤트: {}",
+          event.getClass().getSimpleName(),
+          event);
 
     } catch (Exception e) {
       log.error("[consumePayment] 이벤트 처리 실패", e);

@@ -18,7 +18,7 @@ public class OrderScheduler {
   private final OrderEventSendPort orderEventSendPort;
   private final OrderDelayQueuePort orderDelayQueuePort;
 
-  @Scheduled(fixedDelay = 30000)
+  @Scheduled(fixedDelayString = "${order.scheduler.poll-interval:30000}")
   public void pollExpiredMessages() {
     long epochSecond = orderTimePort.getEpochSecond();
     Set<Long> orderIds = orderDelayQueuePort.findExpiredEvents(epochSecond);
@@ -32,8 +32,10 @@ public class OrderScheduler {
       log.info("[handleOrderTrigger] 주문취소 트리거 이벤트 전송: {}", event);
       orderDelayQueuePort.delete(orderId);
     } catch (Exception e) {
-      log.error("[handleOrderTrigger] 메시지 처리 중 예외 발생: {}", orderId);
-      // todo DQL 및 재시도 로직 구현
+      log.error(
+          "[handleOrderTrigger] 메시지 처리 중 예외 발생: orderId={}, error={}", orderId, e.getMessage(), e);
+      // TODO: DLQ 및 재시도 로직 구현
+      // 임시 재시도 로직 - 지연 큐에서 삭제하지 않으면 다음 스케줄링에서 다시 시도됨
     }
   }
 }

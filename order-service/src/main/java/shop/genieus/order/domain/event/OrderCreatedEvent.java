@@ -25,7 +25,7 @@ public record OrderCreatedEvent(
 
   public record OrderPriceDto(
       Integer totalProductPrice,
-      Integer PromotionDiscountAmount,
+      Integer promotionDiscountAmount,
       Integer couponDiscountAmount,
       Integer totalDiscountAmount,
       Integer finalPrice) {
