@@ -25,8 +25,11 @@ public class KafkaPaymentListener {
     public void orderCancelEventHandle(String key) {
         try {
             Long orderId = objectMapper.readValue(key, Long.class);
-            log.info("주문 취소 이벤트 수신: {}, {}", orderId, orderId.getClass().getSimpleName());
+            log.info("[주문 취소 이벤트] 메세지 수신: {}", orderId);
             paymentEventListener.handle(orderId);
+            log.info("[주문 취소 이벤트] 결제 취소 완료");
+        } catch (IllegalArgumentException e) {
+            log.warn("[주문 취소 이벤트] 결제 취소 실패: {}", e.getMessage());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
