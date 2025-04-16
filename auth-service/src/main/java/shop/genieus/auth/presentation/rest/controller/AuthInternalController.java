@@ -40,7 +40,8 @@ public class AuthInternalController {
   @PostMapping
   public ResponseEntity<Void> registerUser(@RequestBody final AuthUserClientRequest request) {
     authenticationCommandService.registerUser(
-        new RegisterUserCommand(request.email(), request.hashedPassword(), request.role()));
+        new RegisterUserCommand(
+            request.userId(), request.email(), request.hashedPassword(), request.role()));
 
     return ResponseEntity.ok().build();
   }

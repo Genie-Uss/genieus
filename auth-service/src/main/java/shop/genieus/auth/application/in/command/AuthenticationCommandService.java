@@ -41,7 +41,7 @@ public class AuthenticationCommandService {
     }
 
     TokenPair tokenPair = generateAndPersistTokenPair(user.getId());
-    log.info("로그인 성공, 유저 로그인 아이디: {}", user.getEmail());
+    log.info("로그인 성공, 유저 로그인 아이디: {}", user.getEmail().getValue());
 
     return tokenPair;
   }
@@ -82,7 +82,8 @@ public class AuthenticationCommandService {
     }
 
     try {
-      User user = User.create(command.email(), command.hashedPassword(), command.roleType());
+      User user =
+          User.create(command.id(), command.email(), command.hashedPassword(), command.roleType());
       commandPort.save(user);
     } catch (Exception exception) {
       throw new AuthException(exception.getMessage());
