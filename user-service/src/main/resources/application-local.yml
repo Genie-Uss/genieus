@@ -13,6 +13,9 @@ spring:
       enabled: false
   config:
     import: 'classpath:docker-database.yml'
+    circuitbreaker:
+      resilience4j:
+        enabled: true
 
 logging:
   level:
@@ -29,3 +32,21 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        record-exceptions:
+          - java.io.IOException
+          - feign.RetryableException
+          - feign.FeignException.FeignServerException
+        ignore-exceptions:
+          - feign.FeignException.FeignClientException
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+        cancel-running-future: true

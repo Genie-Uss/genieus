@@ -5,8 +5,6 @@ import com.genieus.common.auth.model.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -29,7 +27,6 @@ import shop.genieus.auth.domain.model.vo.Role;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
   private Long id;
 
@@ -51,14 +48,19 @@ public class User extends BaseEntity {
   @Column(name = "is_active")
   private boolean isActive = true;
 
-  public static User create(
-      String email,
-      String password,
-      PasswordEncryptionService passwordEncryptionService,
-      RoleType roleType) {
+  public static User create(Long id, String email, String password, RoleType roleType) {
+    return User.builder()
+        .id(id)
+        .email(Email.of(email))
+        .password(Password.of(password))
+        .role(Role.of(roleType))
+        .build();
+  }
+
+  public static User create(String email, String password, RoleType roleType) {
     return User.builder()
         .email(Email.of(email))
-        .password(Password.of(password, passwordEncryptionService))
+        .password(Password.of(password))
         .role(Role.of(roleType))
         .build();
   }

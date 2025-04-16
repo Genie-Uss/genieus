@@ -24,4 +24,8 @@ public interface AuthCommandPort {
   Passport findPassportFromCache(Long userId);
 
   Passport savePassport(Passport passport);
+
+  boolean existsByEmail(String email);
+
+  User save(User user);
 }

@@ -1,10 +1,13 @@
 package shop.genieus.auth.global.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.genieus.common.auth.exception.UnauthorizedException;
 import com.genieus.common.response.ApiResponse;
+import feign.FeignException.FeignClientException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +27,7 @@ import shop.genieus.auth.global.exception.TokenParsingException;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final int DEFAULT_ERROR_CODE = 7999;
@@ -33,6 +37,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   private static final String SERVER_ERROR_MESSAGE = "서버 내부 오류가 발생했습니다";
   private static final String VALIDATION_ERROR_MESSAGE = "입력값이 유효하지 않습니다";
   private static final String REQUEST_PARSING_ERROR_MESSAGE = "요청 본문을 읽을 수 없습니다";
+
+  private final ObjectMapper objectMapper;
 
   @ExceptionHandler(TokenExpiredException.class)
   public ResponseEntity<ApiResponse<Void>> handleTokenExpiredException(
@@ -72,6 +78,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     logError(exc);
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
+
+  @ExceptionHandler(FeignClientException.class)
+  protected ResponseEntity<ApiResponse<Void>> handleFeignClientException(FeignClientException e) {
+    try {
+      String content = e.contentUTF8();
+      ApiResponse<?> response = objectMapper.readValue(content, ApiResponse.class);
+      log.error(
+          "{} 예외 발생 - status: {}, message: {}",
+          e.getClass().getSimpleName(),
+          e.status(),
+          e.getMessage());
+      return ResponseEntity.status(e.status())
+          .body(ApiResponse.fail(response.code(), response.message()));
+    } catch (Exception ex) {
+      log.error("{} 예외 발생: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
+      return ResponseEntity.status(e.status())
+          .body(ApiResponse.fail(e.status(), "서비스 처리 중 오류가 발생했습니다."));
+    }
   }
 
   @ExceptionHandler(RuntimeException.class)

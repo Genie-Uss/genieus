@@ -12,7 +12,7 @@ public class AuthException extends RuntimeException {
     this.code = code;
   }
 
-  protected AuthException(String message) {
+  public AuthException(String message) {
     this(message, DEFAULT_CODE);
   }
 
