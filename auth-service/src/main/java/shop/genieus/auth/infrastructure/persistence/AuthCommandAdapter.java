@@ -1,5 +1,7 @@
 package shop.genieus.auth.infrastructure.persistence;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,8 @@ public class AuthCommandAdapter implements AuthCommandPort {
   private final UserJpaRepository userJpaRepository;
   private final TokenRedisRepository tokenRedisRepository;
   private final PassportRedisRepository passportRedisRepository;
+
+  @PersistenceContext private EntityManager entityManager;
 
   @Override
   public User findByEmail(String username) {
@@ -98,6 +102,7 @@ public class AuthCommandAdapter implements AuthCommandPort {
 
   @Override
   public User save(User user) {
-    return userJpaRepository.save(user);
+    entityManager.persist(user);
+    return user;
   }
 }

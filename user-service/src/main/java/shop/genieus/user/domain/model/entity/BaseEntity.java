@@ -6,7 +6,6 @@ import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.CurrentTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -20,7 +19,6 @@ public abstract class BaseEntity {
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
-  @CurrentTimestamp
   @Comment("생성 일시")
   private LocalDateTime createdAt;
 
@@ -31,7 +29,6 @@ public abstract class BaseEntity {
 
   @LastModifiedDate
   @Column(name = "updated_at", insertable = false)
-  @CurrentTimestamp
   @Comment("수정 일시")
   private LocalDateTime updatedAt;
 
