@@ -73,7 +73,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     Map<String, String> details = extractFieldErrors(exc);
     ApiResponse<Object> response =
         ApiResponse.fail(VALIDATION_ERROR_CODE, VALIDATION_ERROR_MESSAGE);
-    logError(exc, VALIDATION_ERROR_CODE, details);
+    logError(VALIDATION_ERROR_CODE, details);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
@@ -100,7 +100,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     Map<String, String> details = createMethodValidationErrors(exc);
     ApiResponse<Object> response =
         ApiResponse.fail(VALIDATION_ERROR_CODE, VALIDATION_ERROR_MESSAGE);
-    logError(exc, VALIDATION_ERROR_CODE, details);
+    logError(VALIDATION_ERROR_CODE, details);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
@@ -121,13 +121,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         code);
   }
 
-  private void logError(Exception exception, int code, Map<String, String> details) {
-    log.error(
-        "Validation Exception - Type: {}, Message: {}, Code: {}, Details: {}",
-        exception.getClass().getSimpleName(),
-        exception.getMessage(),
-        code,
-        details);
+  private void logError(int code, Map<String, String> details) {
+    log.error("Validation Exception - Code: {}, Details: {}", code, details);
   }
 
   private Map<String, String> extractFieldErrors(MethodArgumentNotValidException exc) {
