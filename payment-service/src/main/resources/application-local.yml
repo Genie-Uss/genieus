@@ -15,7 +15,7 @@ spring:
     import: 'classpath:docker-database.yml'
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:19092,localhost:19093
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
