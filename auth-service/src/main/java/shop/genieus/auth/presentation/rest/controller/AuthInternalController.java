@@ -1,6 +1,7 @@
 package shop.genieus.auth.presentation.rest.controller;
 
 import com.genieus.common.internal.request.AuthClientRequest;
+import com.genieus.common.internal.request.AuthUserClientRequest;
 import com.genieus.common.internal.response.AuthClientResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import shop.genieus.auth.application.in.command.AuthenticationCommandService;
 import shop.genieus.auth.application.in.command.PassportCommandService;
 import shop.genieus.auth.application.in.command.dto.IssuePassportCommand;
+import shop.genieus.auth.application.in.command.dto.RegisterUserCommand;
 import shop.genieus.auth.application.in.command.dto.ValidateAccessTokenCommand;
 import shop.genieus.auth.domain.model.TokenValidationResult;
 
@@ -33,5 +35,13 @@ public class AuthInternalController {
             IssuePassportCommand.from(authenticationResult));
 
     return ResponseEntity.ok().body(AuthClientResponse.from(serializePassport));
+  }
+
+  @PostMapping
+  public ResponseEntity<Void> registerUser(@RequestBody final AuthUserClientRequest request) {
+    authenticationCommandService.registerUser(
+        new RegisterUserCommand(request.email(), request.hashedPassword(), request.role()));
+
+    return ResponseEntity.ok().build();
   }
 }
