@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.auth.application.in.command.dto.LoginCommand;
 import shop.genieus.auth.application.in.command.dto.LogoutCommand;
 import shop.genieus.auth.application.in.command.dto.RefreshCommand;
+import shop.genieus.auth.application.in.command.dto.RegisterUserCommand;
 import shop.genieus.auth.application.in.command.dto.ValidateAccessTokenCommand;
 import shop.genieus.auth.application.out.persistence.AuthCommandPort;
 import shop.genieus.auth.application.out.support.encoder.PasswordEncryptionPort;
@@ -17,6 +18,7 @@ import shop.genieus.auth.domain.model.TokenPair;
 import shop.genieus.auth.domain.model.TokenValidationResult;
 import shop.genieus.auth.domain.model.entity.User;
 import shop.genieus.auth.domain.model.vo.TokenId;
+import shop.genieus.auth.global.exception.AuthException;
 
 @Slf4j
 @Service
@@ -72,6 +74,22 @@ public class AuthenticationCommandService {
 
   public TokenValidationResult validateAccessToken(ValidateAccessTokenCommand command) {
     return validateTokenAndCheckBlacklist(command.token());
+  }
+
+  public void registerUser(RegisterUserCommand command) {
+    if (commandPort.existsByEmail(command.email())) {
+      throw new AuthException("중복된 이메일입니다.");
+    }
+
+    try {
+      User user = User.create(command.email(), command.hashedPassword(), command.roleType());
+      commandPort.save(user);
+    } catch (Exception exception) {
+      throw new AuthException(exception.getMessage());
+    }
+
+    log.info(
+        "인증 서비스에 신규 회원 등록 완료: email: {}, role: {}", command.email(), command.roleType().name());
   }
 
   private TokenPair generateAndPersistTokenPair(Long userId) {

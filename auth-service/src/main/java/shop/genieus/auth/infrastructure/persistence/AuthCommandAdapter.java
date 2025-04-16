@@ -90,4 +90,14 @@ public class AuthCommandAdapter implements AuthCommandPort {
   public Passport savePassport(Passport passport) {
     return passportRedisRepository.savePassport(passport);
   }
+
+  @Override
+  public boolean existsByEmail(String email) {
+    return userJpaRepository.existsByEmail(Email.of(email));
+  }
+
+  @Override
+  public User save(User user) {
+    return userJpaRepository.save(user);
+  }
 }

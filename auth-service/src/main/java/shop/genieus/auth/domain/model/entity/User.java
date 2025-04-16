@@ -51,14 +51,10 @@ public class User extends BaseEntity {
   @Column(name = "is_active")
   private boolean isActive = true;
 
-  public static User create(
-      String email,
-      String password,
-      PasswordEncryptionService passwordEncryptionService,
-      RoleType roleType) {
+  public static User create(String email, String password, RoleType roleType) {
     return User.builder()
         .email(Email.of(email))
-        .password(Password.of(password, passwordEncryptionService))
+        .password(Password.of(password))
         .role(Role.of(roleType))
         .build();
   }
