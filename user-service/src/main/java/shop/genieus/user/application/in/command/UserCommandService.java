@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import shop.genieus.user.application.in.command.dto.CreateUserCommand;
+import shop.genieus.user.application.out.client.UserClientPort;
 import shop.genieus.user.application.out.persistence.UserCommandPort;
 import shop.genieus.user.application.out.support.encoder.PasswordEncryptionPort;
 import shop.genieus.user.domain.model.entity.User;
@@ -19,6 +20,7 @@ import shop.genieus.user.global.exception.UserException;
 @RequiredArgsConstructor
 public class UserCommandService {
   private final UserCommandPort commandPort;
+  private final UserClientPort clientPort;
   private final PasswordEncryptionPort encryptionPort;
 
   public User createUser(CreateUserCommand command) {
@@ -43,7 +45,9 @@ public class UserCommandService {
               command.address());
 
       User savedUser = commandPort.save(user);
-      log.info("회원가입 성공, user: {}", savedUser);
+      clientPort.registerAuthUser(savedUser);
+
+      log.info("회원가입 성공, user email: {}", savedUser.getEmail().getValue());
 
       return savedUser;
     } catch (Exception exception) {

@@ -53,6 +53,8 @@ dependencies {
     // msa
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // tracing & monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -61,7 +63,7 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
     // etc
-    implementation 'com.genieus:genieus-common-lib:1.4.0'
+    implementation 'com.genieus:genieus-common-lib:1.4.1'
 }
 
 dependencyManagement {
