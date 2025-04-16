@@ -24,7 +24,7 @@ public class UserController {
 
   @PostMapping
   public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(
-      @Valid @RequestBody CreateUserRequest request) {
+      @Valid @RequestBody final CreateUserRequest request) {
     User user = commandService.createUser(request.toCommand());
     CreateUserResponse response = CreateUserResponse.from(user);
 
