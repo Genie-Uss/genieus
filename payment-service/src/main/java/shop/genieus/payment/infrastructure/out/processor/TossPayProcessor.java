@@ -1,4 +1,4 @@
-package shop.genieus.payment.infrastructure.processor;
+package shop.genieus.payment.infrastructure.out.processor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

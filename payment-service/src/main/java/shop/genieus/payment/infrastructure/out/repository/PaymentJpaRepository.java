@@ -1,4 +1,4 @@
-package shop.genieus.payment.infrastructure.repository;
+package shop.genieus.payment.infrastructure.out.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import shop.genieus.payment.domain.model.entity.Payment;
