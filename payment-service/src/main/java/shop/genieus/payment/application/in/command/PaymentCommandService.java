@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.payment.application.dto.CreatePaymentCommand;
 import shop.genieus.payment.application.dto.ProcessPaymentCommand;
 import shop.genieus.payment.application.dto.RegisterPaymentCommand;
+import shop.genieus.payment.application.out.event.PaymentEventService;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.application.out.strategy.PaymentStrategy;
@@ -21,6 +22,8 @@ public class PaymentCommandService {
 
     private final PaymentCommandPort paymentCommandPort;
     private final PaymentStrategyFactory paymentStrategyFactory;
+
+    private final PaymentEventService paymentEventService;
 
     @Transactional
     public Payment create(CreatePaymentCommand createPaymentCommand) {
@@ -44,6 +47,8 @@ public class PaymentCommandService {
         Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
         payment.registerPaymentSuccess();
 
+        publishPaymentSuccessEvent(payment);
+
         return payment;
     }
 
@@ -56,5 +61,9 @@ public class PaymentCommandService {
             case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
             case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
         }
+    }
+
+    private void publishPaymentSuccessEvent(Payment payment) {
+        paymentEventService.createPaymentEvent(payment.getOrderId());
     }
 }

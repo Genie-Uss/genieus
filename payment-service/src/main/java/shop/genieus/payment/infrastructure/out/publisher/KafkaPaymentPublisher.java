@@ -18,11 +18,11 @@ public class KafkaPaymentPublisher implements PaymentEventService {
 
     // TODO 봉투에 넣어야 함
     @Override
-    public void CreatePaymentEvent(Long orderId) {
-        log.info("결제 완료 이벤트 발행");
+    public void createPaymentEvent(Long orderId) {
+        log.info("[결제 완료 이벤트] 결제 완료 이벤트 발행 시작");
         try {
-            // payment-create? payment-success?
-            kafkaTemplate.send("payment-create", objectMapper.writeValueAsString(orderId));
+            kafkaTemplate.send("payment", objectMapper.writeValueAsString(orderId));
+            log.info("[결제 완료 이벤트] 결제 완료 이벤트 발행 종료");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
