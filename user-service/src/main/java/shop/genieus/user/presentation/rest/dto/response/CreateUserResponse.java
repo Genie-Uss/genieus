@@ -12,14 +12,17 @@ public record CreateUserResponse(
     String birthdate,
     String phoneNumber,
     String address) {
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+
   public static CreateUserResponse from(User user) {
+
     BirthInfo birthInfo = user.getBirthInfo();
     return new CreateUserResponse(
         user.getId(),
         user.getEmail().getValue(),
         user.getName().getValue(),
         birthInfo.getGender().getKoreanName(),
-        birthInfo.getBirthdate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+        birthInfo.getBirthdate().format(DATE_FORMATTER),
         user.getPhoneNumber().getValue(),
         user.getAddress().getValue());
   }

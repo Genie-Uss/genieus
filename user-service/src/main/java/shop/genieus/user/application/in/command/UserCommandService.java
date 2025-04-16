@@ -10,6 +10,7 @@ import shop.genieus.user.application.out.client.UserClientPort;
 import shop.genieus.user.application.out.persistence.UserCommandPort;
 import shop.genieus.user.application.out.support.encoder.PasswordEncryptionPort;
 import shop.genieus.user.domain.model.entity.User;
+import shop.genieus.user.global.exception.AuthServiceFailureException;
 import shop.genieus.user.global.exception.ExistEmailException;
 import shop.genieus.user.global.exception.PasswordMismatchException;
 import shop.genieus.user.global.exception.UserException;
@@ -50,11 +51,12 @@ public class UserCommandService {
       log.info("회원가입 성공, user email: {}", savedUser.getEmail().getValue());
 
       return savedUser;
+    } catch (AuthServiceFailureException exception) {
+      log.error("인증 서비스 연동 중 오류: {}", exception.getMessage());
+      throw exception;
     } catch (Exception exception) {
-      log.info("회원가입 중 오류: {}", exception.getMessage());
-
-      int createdUserFailCode = 1101;
-      throw new UserException(exception.getMessage(), createdUserFailCode);
+      log.error("회원가입 중 예상치 못한 오류: {}", exception.getMessage());
+      throw new UserException(exception.getMessage());
     }
   }
 }

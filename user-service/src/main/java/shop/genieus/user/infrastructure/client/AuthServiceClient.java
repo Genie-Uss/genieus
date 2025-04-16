@@ -40,6 +40,6 @@ public class AuthServiceClient {
     }
 
     log.error("인증 서비스 처리 중 알 수 없는 오류 발생");
-    throw new RuntimeException("인증 서비스 처리 중 알 수 없는 오류가 발생했습니다.");
+    throw new AuthServiceFailureException();
   }
 }

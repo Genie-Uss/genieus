@@ -3,6 +3,7 @@ package shop.genieus.auth.presentation.rest.controller;
 import com.genieus.common.internal.request.AuthClientRequest;
 import com.genieus.common.internal.request.AuthUserClientRequest;
 import com.genieus.common.internal.response.AuthClientResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,8 @@ public class AuthInternalController {
   }
 
   @PostMapping
-  public ResponseEntity<Void> registerUser(@RequestBody final AuthUserClientRequest request) {
+  public ResponseEntity<Void> registerUser(
+      @Valid @RequestBody final AuthUserClientRequest request) {
     authenticationCommandService.registerUser(
         new RegisterUserCommand(
             request.userId(), request.email(), request.hashedPassword(), request.role()));

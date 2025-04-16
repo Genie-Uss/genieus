@@ -85,13 +85,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     try {
       String content = e.contentUTF8();
       ApiResponse<?> response = objectMapper.readValue(content, ApiResponse.class);
-      log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+      log.error(
+          "{} 예외 발생 - status: {}, message: {}",
+          e.getClass().getSimpleName(),
+          e.status(),
+          e.getMessage());
       return ResponseEntity.status(e.status())
           .body(ApiResponse.fail(response.code(), response.message()));
     } catch (Exception ex) {
       log.error("{} 예외 발생: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
       return ResponseEntity.status(e.status())
-          .body(ApiResponse.fail(e.status(), "Feign 예외 발생 (Body 파싱 실패)"));
+          .body(ApiResponse.fail(e.status(), "서비스 처리 중 오류가 발생했습니다."));
     }
   }
 

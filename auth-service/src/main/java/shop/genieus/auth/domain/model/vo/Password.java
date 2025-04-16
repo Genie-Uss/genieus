@@ -18,12 +18,12 @@ public class Password {
   private String value;
 
   public static Password of(String hashedPassword) {
-    validatePassword(hashedPassword);
+    validateHashedPassword(hashedPassword);
     return new Password(hashedPassword);
   }
 
-  private static void validatePassword(String plainPassword) {
-    if (plainPassword == null || plainPassword.isBlank()) {
+  private static void validateHashedPassword(String hashedPassword) {
+    if (hashedPassword == null || hashedPassword.isBlank()) {
       throw new IllegalArgumentException("비밀번호는 필수 입력값입니다");
     }
   }

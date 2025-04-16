@@ -70,7 +70,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     } catch (Exception ex) {
       log.error("{} 예외 발생: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
       return ResponseEntity.status(e.status())
-          .body(ApiResponse.fail(e.status(), "Feign 예외 발생 (Body 파싱 실패)"));
+          .body(ApiResponse.fail(e.status(), "서비스 처리 중 오류가 발생했습니다."));
     }
   }
 

@@ -86,7 +86,7 @@ public class AuthenticationCommandService {
           User.create(command.id(), command.email(), command.hashedPassword(), command.roleType());
       commandPort.save(user);
     } catch (Exception exception) {
-      throw new AuthException(exception.getMessage());
+      throw new AuthException("사용자 등록 중 오류가 발생했습니다: " + exception.getMessage());
     }
 
     log.info(
