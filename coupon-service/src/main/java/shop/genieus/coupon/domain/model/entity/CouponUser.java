@@ -14,13 +14,16 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
+import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 
 @Entity
 @Table(name = "m_coupon_user")
 @Getter
+@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CouponUser extends BaseEntity {
@@ -51,5 +54,14 @@ public class CouponUser extends BaseEntity {
   public void useCoupon() {
     this.couponUserStatus = CouponUseStatus.USED;
     this.couponUserUsedDate = LocalDateTime.now();
+  }
+
+  public static CouponUser create(IssueCouponCommand dto) {
+    return CouponUser.builder()
+        .userId(dto.userId())
+        .couponUserIssuedDate(dto.issuedDate())
+        .couponUserExpiredDate(dto.expiredDate())
+        .couponUserStatus(dto.status())
+        .build();
   }
 }
