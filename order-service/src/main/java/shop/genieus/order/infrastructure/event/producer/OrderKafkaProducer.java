@@ -5,6 +5,7 @@ import com.genieus.common.event.EventEnvelope;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +40,16 @@ public class OrderKafkaProducer {
       ProducerRecord<String, EventEnvelope<? extends DomainEvent>> record =
           new ProducerRecord<>(orderTopic, key, eventEnvelop);
 
-      record.headers().add(new RecordHeader("traceId", context.traceId().getBytes()));
-      record.headers().add(new RecordHeader("spanId", context.spanId().getBytes()));
+      record
+          .headers()
+          .add(new RecordHeader("traceId", context.traceId().getBytes(StandardCharsets.UTF_8)));
+      record
+          .headers()
+          .add(new RecordHeader("spanId", context.spanId().getBytes(StandardCharsets.UTF_8)));
       if (context.parentId() != null) {
-        record.headers().add(new RecordHeader("parentId", context.parentId().getBytes()));
+        record
+            .headers()
+            .add(new RecordHeader("parentId", context.parentId().getBytes(StandardCharsets.UTF_8)));
       }
 
       CompletableFuture<SendResult<String, EventEnvelope<? extends DomainEvent>>> result =

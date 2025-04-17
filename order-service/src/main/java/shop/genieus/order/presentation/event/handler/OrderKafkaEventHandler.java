@@ -31,7 +31,7 @@ public class OrderKafkaEventHandler {
 
   @EventTypeMapping(topic = "payment-events")
   public void handlePaymentCompleted(PaymentCompletedEvent event) {
-    log.info("[handlePayment] 결제 완료 이벤트 수신: {}", event);
+    log.info("[handlePaymentCompleted] 결제 완료 이벤트 수신: {}", event);
     CompleteOrderCommand command = new CompleteOrderCommand(event.orderId());
     orderCommandService.completeOrder(command);
   }

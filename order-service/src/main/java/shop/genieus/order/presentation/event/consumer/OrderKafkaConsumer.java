@@ -33,6 +33,8 @@ public class OrderKafkaConsumer {
     Span consumerSpan = createConsumerSpan(traceId, spanId);
     try (SpanInScope scope = tracer.withSpan(consumerSpan)) {
       eventRouter.route(topic, payload);
+    } catch (Exception e) {
+      log.error("이벤트 라우팅 중 오류 발생: topic={}, error={}", topic, e.getMessage());
     } finally {
       consumerSpan.end();
     }
