@@ -19,13 +19,12 @@ spring:
   kafka:
     bootstrap-servers: localhost:19092,localhost:19093
     template:
-      default-topic: order
+      default-topic: order-events
     consumer:
       group-id: order-service
       topic:
-        payment: payment
-        order: order
-
+        payment: payment-events
+        order: order-events
 logging:
   level:
     root: info
@@ -33,6 +32,7 @@ logging:
     org.springframework.cloud.gateway: debug
     org.springframework.web.reactive: info
     reactor.netty: warn
+    org.apache.kafka.clients.Metadata: warn
 
 management:
   zipkin:
