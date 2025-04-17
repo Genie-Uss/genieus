@@ -1,4 +1,4 @@
-package shop.genieus.coupon.application.in.command.dto;
+package shop.genieus.coupon.infrastructure.persistence.dto;
 
 import java.time.LocalDateTime;
 import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
