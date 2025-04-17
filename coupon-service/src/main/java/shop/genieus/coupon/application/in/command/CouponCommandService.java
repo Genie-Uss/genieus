@@ -29,9 +29,12 @@ public class CouponCommandService {
     if (!request.couponExpiredDate().validateExpiredDate(request.couponStartDate().getValue())) {
       throw new IllegalArgumentException("발급 만료일자는 시작일자보다 이전일 수 없습니다.");
     }
-
     Coupon coupon = CreateCouponCommand.toEntity(request);
-    return commandPort.createCoupon(coupon);
+    // DB 저장
+    Coupon saved = commandPort.createCoupon(coupon);
+    // Redis 저장
+    commandPort.saveInitialStock(coupon);
+    return saved;
   }
 
   public CouponClientResponse useCoupon(UseCouponRequest request) {
@@ -51,6 +54,7 @@ public class CouponCommandService {
     // 1. 쿠폰 유효성 검사 (쿠폰 발급 기간,
     Coupon coupon = commandPort.findCoupon(couponId);
     // 2. 쿠폰 재고 확인 및 발급
+    // todo. lua script 원자성은 보장되지만 도중에 실패했을 때 롤백은 안되는 것 같다.
     commandPort.createCouponUser(coupon, userId);
   }
 

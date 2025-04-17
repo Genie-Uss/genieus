@@ -35,4 +35,9 @@ public class CouponCommandAdaptor implements CouponCommandPort {
   public void createCouponUser(Coupon coupon, Long userId) {
     redisRepository.createCouponUser(coupon, userId);
   }
+
+  @Override
+  public void saveInitialStock(Coupon coupon) {
+    redisRepository.saveInitialStock(coupon);
+  }
 }

@@ -11,18 +11,16 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
-import shop.genieus.coupon.application.in.command.dto.IssueCouponCommand;
 import shop.genieus.coupon.domain.model.entity.Coupon;
 import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
+import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class RedisCouponRepository {
   private final ObjectMapper objectMapper;
-  private final RedisTemplate<String, Long> redisTemplate;
-
-  // todo.Redis에 재고 세팅 로직은 언제 수행하는 게 좋지? 쿠폰 생길 때?
+  private final RedisTemplate<String, Object> redisTemplate;
 
   public void createCouponUser(Coupon coupon, Long userId) {
     // 1. Lua 스크립트 로드
@@ -70,5 +68,10 @@ public class RedisCouponRepository {
       case -2:
         throw new IllegalArgumentException("쿠폰이 모두 소진되었습니다.");
     }
+  }
+
+  public void saveInitialStock(Coupon coupon) {
+    String stockKey = "coupon:stock:" + coupon.getCouponId();
+    redisTemplate.opsForValue().set(stockKey, Long.valueOf(coupon.getCouponQuantity()));
   }
 }
