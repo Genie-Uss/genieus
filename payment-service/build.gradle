@@ -60,6 +60,8 @@ dependencies {
     implementation 'io.github.openfeign:feign-micrometer'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 
     // json
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'

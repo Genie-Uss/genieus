@@ -1,0 +1,19 @@
+# 유레카를 통해 동적으로 서비스 가져오기
+scrape_configs:
+  - job_name: 'eureka'
+    metrics_path: '/actuator/prometheus'
+    eureka_sd_configs:
+      # 여기로 들어가서 유레카에서 관리하는 서비스를 찾음
+      - server: 'http://username:password@host.docker.internal:8761/eureka'
+        refresh_interval: 30s
+    relabel_configs:
+      # ex)AUTH-SERVICE
+      - source_labels: [ __meta_eureka_app_name ]
+        target_label: job
+      # ex)localhost:8080
+      - source_labels: [ __meta_eureka_app_instance_id ]
+        target_label: instance
+      - source_labels: [ __meta_eureka_app_instance_ip_addr, __meta_eureka_app_instance_metadata_management_port ]
+        separator: ':'
+        target_label: __address__
+# 실제 프로메테우스가 각 서비스로 요청 보내는 url은 http://<__address__><__metrics_path__>

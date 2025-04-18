@@ -106,3 +106,4 @@ src/main/resources/log4j2.xml
 infrastructure/mongo
 infrastructure/redis
 infrastructure/mysql
+infrastructure/grafana

@@ -6,7 +6,8 @@ eureka:
     preferIpAddress: true
     hostname: ${spring.application.name}
     instanceId: ${spring.application.name}:${server.port}
-
+    metadataMap:
+      management.port: ${management.server.port}
 spring:
   cloud:
     config:
@@ -41,6 +42,12 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  server:
+    port: 10021
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
 
 resilience4j:
   circuitbreaker:
@@ -48,6 +55,9 @@ resilience4j:
       default:
         register-health-indicator: true
         sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
         record-exceptions:
           - java.io.IOException
           - feign.RetryableException
@@ -55,11 +65,16 @@ resilience4j:
         ignore-exceptions:
           - shop.genieus.order.global.exception.CustomNotFoundException.PromotionNotFoundException
           - feign.FeignException.FeignClientException
-  timelimiter:
-    configs:
-      default:
-        timeout-duration: 5s
-        cancel-running-future: true
+    instances:
+      productServiceClient:
+        base-config: default
+      promotionServiceClient:
+        base-config: default
+      paymentServiceClient:
+        base-config: default
+      couponServiceClient:
+        base-config: default
+
 order:
   cancel-policy:
     order-pending: 1
