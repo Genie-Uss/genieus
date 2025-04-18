@@ -16,6 +16,12 @@ spring:
   config:
     import: 'classpath:docker-database.yml'
 
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:19093
+    consumer:
+      group-id: promotion-server
+
+
 logging:
   level:
     root: info
