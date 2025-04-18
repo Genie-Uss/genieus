@@ -6,6 +6,8 @@ eureka:
     preferIpAddress: true
     hostname: ${spring.application.name}
     instanceId: ${spring.application.name}:${server.port}
+    metadataMap:
+      management.port: ${management.server.port}
 
 spring:
   cloud:
@@ -29,5 +31,11 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  server:
+    port: 10001
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
 jwt:
   secret: P7Vr8Fjz6Fv9UHs8jJ4wpb1v+3n2Fq0ZaVby/v4M8yQ=

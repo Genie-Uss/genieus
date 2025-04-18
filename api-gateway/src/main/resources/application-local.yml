@@ -22,6 +22,8 @@ eureka:
     preferIpAddress: true
     hostname: ${spring.application.name}
     instanceId: ${spring.application.name}:${server.port}
+    metadataMap:
+      management.port: ${management.server.port}
 
 resilience4j:
   circuitbreaker:
@@ -43,10 +45,12 @@ logging:
     reactor.netty: warn # Netty 내부 로그
 
 management:
+  server:
+    port: 8081
   endpoints:
     web:
       exposure:
-        include: health,info,gateway,metrics
+        include: health,info,gateway,metrics,prometheus
   endpoint:
     health:
       show-details: always
