@@ -29,7 +29,7 @@ public class PromotionProductService {
   public void updateProductDiscountRate(UpdateProductCacheCommand command) {
     String hashField = command.productId() + ":" + command.promotionId();
     promotionQueryPort.updateProductDiscountRate(hashField, command.discountRate());
-    log.info("개별 상품 상시 판매 업데이트 : hashField: {}, rate: {}",
+    log.info("개별 상품 상시 판매 업데이트  : hashField: {}, rate: {}",
         hashField, command.discountRate());
   }
 }

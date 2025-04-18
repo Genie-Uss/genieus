@@ -2,7 +2,6 @@ package shop.genieus.promotion.application.system.event.dto;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
-import shop.genieus.promotion.application.system.dto.UpdateProductCacheCommand;
 
 @Getter
 public class PromotionProductAddEvent extends ApplicationEvent {
