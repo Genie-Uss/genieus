@@ -20,15 +20,19 @@ public class PromotionProductAddEventHandler {
   @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(PromotionProductAddEvent event) {
-    UpdateProductCacheCommand command =
-        new UpdateProductCacheCommand(
-            event.getProductId(),
-            event.getPromotionId(),
-            event.getDiscountRate()
-        );
+    try{
+      UpdateProductCacheCommand command =
+              new UpdateProductCacheCommand(
+                      event.getProductId(),
+                      event.getPromotionId(),
+                      event.getDiscountRate()
+              );
+      promotionProductService.updateProductDiscountRate(command);
+      log.info("개별 상품 업데이트 이벤트 처리 완료, productId: {}, promotionId: {}",
+              event.getProductId(), event.getPromotionId());
 
-    promotionProductService.updateProductDiscountRate(command);
-    log.info("개별 상품 업데이트 이벤트 처리, productId: {}, promotionId: {}",
-        event.getProductId(), event.getPromotionId());
+    } catch (Exception e) {
+      log.error("[PromotionProductAddEvent] 이벤트 처리 실패, error: {}", e.getMessage());
+    }
   }
 }

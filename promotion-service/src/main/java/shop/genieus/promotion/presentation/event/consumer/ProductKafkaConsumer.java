@@ -23,7 +23,7 @@ public class ProductKafkaConsumer {
     private final Tracer tracer;
     private final EventRouter eventRouter;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @KafkaListener(topics = "product-events", containerFactory = "kafkaListenerContainerFactory")
     public void consume(
             @Payload String payload,
