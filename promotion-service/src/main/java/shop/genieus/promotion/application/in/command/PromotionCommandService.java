@@ -64,7 +64,7 @@ public class PromotionCommandService {
         productId, 0, PromotionProductStatus.ON_SALE);
     PromotionProduct promotionProduct = PromotionProduct.create(productDto, promotion);
     log.info("추가할 상품 생성, productId: {}, 할인율: {}, 판매 상태: {}",
-        productId, 0, PromotionProductStatus.READY);
+        productId, 0, PromotionProductStatus.ON_SALE);
     return promotionProduct;
   }
 
