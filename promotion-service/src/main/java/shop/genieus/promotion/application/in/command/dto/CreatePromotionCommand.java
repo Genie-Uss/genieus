@@ -10,9 +10,9 @@ public record CreatePromotionCommand(
     LocalDateTime promotionStartDate,
     LocalDateTime promotionEndDate,
     PromotionStatus promotionStatus,
-    List<PromotionProduct> promotionProducts
+    List<PromotionProductDto> promotionProducts
 ) {
-  public record PromotionProduct(
+  public record PromotionProductDto(
       Long productId,
       Integer promotionProductDiscountRate,
       PromotionProductStatus promotionProductStatus) {}

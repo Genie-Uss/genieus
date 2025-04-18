@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 import shop.genieus.promotion.application.in.command.dto.CreatePromotionCommand;
+import shop.genieus.promotion.application.in.command.dto.CreatePromotionCommand.PromotionProductDto;
 import shop.genieus.promotion.domain.model.vo.PromotionProductStatus;
 import shop.genieus.promotion.domain.model.vo.PromotionStatus;
 
@@ -25,7 +26,7 @@ public record CreatePromotionRequest(
 ) {
 
   public CreatePromotionCommand toCommand() {
-    List<CreatePromotionCommand.PromotionProduct> promotionProductList
+    List<PromotionProductDto> promotionProductDtoList
         = this.promotionProducts().stream()
         .map(PromotionProduct::promotionProductToCommand)
         .toList();
@@ -35,7 +36,7 @@ public record CreatePromotionRequest(
         promotionStartDate(),
         promotionEndDate(),
         promotionStatus(),
-        promotionProductList
+        promotionProductDtoList
     );
   }
 
@@ -48,8 +49,8 @@ public record CreatePromotionRequest(
       Integer promotionProductDiscountRate,
       PromotionProductStatus promotionProductStatus
   ) {
-    public CreatePromotionCommand.PromotionProduct promotionProductToCommand() {
-      return new CreatePromotionCommand.PromotionProduct(
+    public PromotionProductDto promotionProductToCommand() {
+      return new PromotionProductDto(
           productId(),
           promotionProductDiscountRate(),
           promotionProductStatus()
