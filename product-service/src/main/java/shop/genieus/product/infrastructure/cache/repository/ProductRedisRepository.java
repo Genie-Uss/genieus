@@ -17,6 +17,7 @@ import shop.genieus.product.infrastructure.cache.util.ProductLuaScriptProvider;
 @RequiredArgsConstructor
 public class ProductRedisRepository {
 
+  private static final String STATUS_PREFIX = "product:status:";
   private static final String META_PREFIX = "product:meta:";
   private static final String USED_PREFIX = "product:stock:used:";
   private static final String TOTAL_PREFIX = "product:stock:total:";
@@ -72,6 +73,10 @@ public class ProductRedisRepository {
 
   public void setTotalStock(Long id, Long total) {
     longRedisTemplate.opsForValue().setIfAbsent(TOTAL_PREFIX + id, total);
+  }
+
+  public void setStatus(Long id, String status) {
+    stringRedisTemplate.opsForValue().setIfAbsent(STATUS_PREFIX + id, status);
   }
 
   public List<String> atomicDecreaseStock(Map<Long, Integer> productQuantities) {
