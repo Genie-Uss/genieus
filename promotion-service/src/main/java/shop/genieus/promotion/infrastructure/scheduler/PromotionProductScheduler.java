@@ -1,6 +1,5 @@
 package shop.genieus.promotion.infrastructure.scheduler;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

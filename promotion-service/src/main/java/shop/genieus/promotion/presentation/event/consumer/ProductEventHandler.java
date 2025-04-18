@@ -1,6 +1,5 @@
 package shop.genieus.promotion.presentation.event.consumer;
 
-import ch.qos.logback.core.boolex.EventEvaluator;
 import com.genieus.common.event.EventEnvelope;
 import com.genieus.common.event.annotation.EventTypeMapping;
 import com.genieus.common.event.annotation.FallbackMapping;
