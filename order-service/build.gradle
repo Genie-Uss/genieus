@@ -72,7 +72,9 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.github.resilience4j:resilience4j-micrometer'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 
     // QueryDsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
