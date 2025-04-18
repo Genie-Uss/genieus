@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import shop.genieus.product.application.out.cache.ProductCachePort;
 import shop.genieus.product.domain.model.ProductView;
 import shop.genieus.product.domain.model.entity.Product;
+import shop.genieus.product.domain.model.vo.ProductStatus;
 import shop.genieus.product.infrastructure.cache.repository.ProductRedisRepository;
 
 @Slf4j
@@ -84,7 +85,11 @@ public class ProductCacheAdapter implements ProductCachePort {
 
   @Override
   public void setStatus(Long productId, String status) {
-    productRedisRepository.setStatus(productId, status);
+    if (ProductStatus.isValid(status)) {
+      productRedisRepository.setStatus(productId, status);
+    } else {
+      log.info("유효하지 않은 상품 상태입니다: {}", status);
+    }
   }
 
   @Override
