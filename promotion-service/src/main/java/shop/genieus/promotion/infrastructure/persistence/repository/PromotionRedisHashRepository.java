@@ -35,6 +35,10 @@ public class PromotionRedisHashRepository {
     redisTemplate.expireAt(hashKey, Instant.ofEpochSecond(expireAt));
   }
 
+  public void update(String hashKey, Map<String, Integer> data) {
+    redisTemplate.opsForHash().putAll(hashKey, data);
+  }
+
   public Set<String> getHashKeys(String prefix) {
     Set<String> set = redisTemplate.keys(prefix + "*");
     log.info("해시키 조회 : prefix={}, key 개수: {}", prefix, set.size());
