@@ -2,7 +2,6 @@ package shop.genieus.promotion.application.out.persistence;
 
 import shop.genieus.promotion.application.in.command.dto.CreatePromotionCommand;
 import shop.genieus.promotion.domain.model.entity.Promotion;
-import shop.genieus.promotion.domain.model.entity.PromotionProduct;
 
 public interface PromotionCommandPort {
 

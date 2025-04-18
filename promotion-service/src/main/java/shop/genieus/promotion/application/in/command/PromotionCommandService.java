@@ -52,7 +52,7 @@ public class PromotionCommandService {
 
     Promotion promotion = promotionCommandPort.findByName(DEFAULT_PROMOTION_NAME);
     PromotionProduct promotionProduct = makeDefaultPromotionProduct(productId, promotion);
-    promotion.getPromotionProducts().add(promotionProduct);;
+    promotion.getPromotionProducts().add(promotionProduct);
     log.info("프로모션 상품 생성 : productId: {}, promotionId: {}",
         promotionProduct.getProductId(), promotion.getPromotionId());
     return promotionProduct;
