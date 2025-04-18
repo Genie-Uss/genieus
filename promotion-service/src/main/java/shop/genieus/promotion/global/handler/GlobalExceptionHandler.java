@@ -1,6 +1,7 @@
 package shop.genieus.promotion.global.handler;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.genieus.common.auth.exception.UnauthorizedException;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,19 +46,18 @@ public class GlobalExceptionHandler {
     }
 
     String errorMessages = sb.toString();
-    return ResponseEntity.status(BAD_REQUEST).body(ApiResponse.fail(3000, errorMessages));
+    return ResponseEntity.status(BAD_REQUEST).body(ApiResponse.fail(3999, errorMessages));
   }
 
-  @ExceptionHandler(RuntimeException.class)
-  public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("런타임 오류 발생: " + e.getMessage());
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+    return ResponseEntity.badRequest().body(ApiResponse.fail(3999, "잘못된 타입의 요청입니다."));
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handleException(Exception e) {
+  public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("예상치 못한 오류 발생: " + e.getMessage());
+        .body(ApiResponse.fail(3999, e.getMessage()));
   }
 
   @ExceptionHandler(UnauthorizedException.class)
@@ -90,6 +91,12 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(FeignServerException.class)
   protected ResponseEntity<ApiResponse<Void>> handleFeignClientException(FeignServerException e) {
     log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
-    return ResponseEntity.status(e.status()).body(ApiResponse.fail(2000, "서버 오류 발생"));
+    return ResponseEntity.status(e.status()).body(ApiResponse.fail(3999, "서버 오류 발생"));
+  }
+
+  @ExceptionHandler(RuntimeException.class)
+  protected ResponseEntity<ApiResponse<Void>> handleRuntimeException(RuntimeException e) {
+    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(ApiResponse.fail(3999, e.getMessage()));
   }
 }
