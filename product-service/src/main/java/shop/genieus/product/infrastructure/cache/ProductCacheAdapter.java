@@ -1,5 +1,6 @@
 package shop.genieus.product.infrastructure.cache;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import shop.genieus.product.application.out.cache.ProductCachePort;
 import shop.genieus.product.domain.model.ProductView;
 import shop.genieus.product.domain.model.entity.Product;
+import shop.genieus.product.domain.model.vo.ProductStatus;
 import shop.genieus.product.infrastructure.cache.repository.ProductRedisRepository;
 
 @Slf4j
@@ -17,6 +19,7 @@ import shop.genieus.product.infrastructure.cache.repository.ProductRedisReposito
 public class ProductCacheAdapter implements ProductCachePort {
 
   private final ProductRedisRepository productRedisRepository;
+  private final ObjectMapper objectMapper;
 
   @Override
   public ProductView findProductViewById(Long productId) {
@@ -52,6 +55,7 @@ public class ProductCacheAdapter implements ProductCachePort {
     ProductView productView = ProductView.from(product);
     productRedisRepository.saveProductView(productId, productView);
     setTotalStock(productId, (long) product.getProductTotalStock());
+    setStatus(productId, product.getProductStatus().name());
   }
 
   @Override
@@ -77,6 +81,15 @@ public class ProductCacheAdapter implements ProductCachePort {
   @Override
   public void setTotalStock(Long productId, Long totalStock) {
     productRedisRepository.setTotalStock(productId, totalStock);
+  }
+
+  @Override
+  public void setStatus(Long productId, String status) {
+    if (ProductStatus.isValid(status)) {
+      productRedisRepository.setStatus(productId, status);
+    } else {
+      log.info("유효하지 않은 상품 상태입니다: {}", status);
+    }
   }
 
   @Override

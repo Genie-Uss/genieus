@@ -17,5 +17,7 @@ public interface ProductCachePort {
 
   void setTotalStock(Long productId, Long totalStock);
 
+  void setStatus(Long productId, String status);
+
   List<String> decreaseStock(Map<Long, Integer> productQuantities);
 }
