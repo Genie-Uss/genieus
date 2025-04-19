@@ -77,6 +77,12 @@ public class Payment extends BaseEntity {
         paymentMethod = parsePaymentMethod(method);
     }
 
+    public void setPaymentSuccessForTest() {
+        paymentMethod = PaymentMethod.TEST;
+        checkPaymentStatusForRegister();
+        paymentStatus = PaymentStatus.SUCCESS;
+    }
+
     private PaymentMethod parsePaymentMethod(String method) {
         try {
             return PaymentMethod.valueOf(method.toUpperCase());

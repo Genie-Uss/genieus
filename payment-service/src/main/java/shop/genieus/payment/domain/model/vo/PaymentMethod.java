@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum PaymentMethod {
+    TEST("테스트용"),
     CARD("카드"),
     VIRTUAL_ACCOUNT("가상계좌"),
     MOBILE("휴대폰"),

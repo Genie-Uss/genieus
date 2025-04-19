@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import shop.genieus.payment.application.in.command.PaymentCommandService;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
@@ -51,6 +48,15 @@ public class PaymentController {
             @RequestBody RegisterPaymentRequest registerPaymentRequest
     ) {
         paymentCommandService.registerPaymentSuccess(RegisterPaymentRequest.toCommand(registerPaymentRequest));
+
+        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
+    }
+
+    @PostMapping("/test/{orderId}")
+    ResponseEntity<ApiResponse<HttpStatusCode>> registerPaymentSuccess(
+            @PathVariable Long orderId
+    ) {
+        paymentCommandService.registerPaymentSuccessForTest(orderId);
 
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.CREATED));
     }

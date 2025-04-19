@@ -52,6 +52,12 @@ public class PaymentCommandService {
         return payment;
     }
 
+    @Transactional
+    public void registerPaymentSuccessForTest(Long orderId) {
+        Payment payment = findPaymentByOrderId(orderId);
+        payment.setPaymentSuccessForTest();
+    }
+
     private Payment findPaymentByOrderId(Long orderId) {
         return paymentCommandPort.findPaymentByOrderId(orderId);
     }
