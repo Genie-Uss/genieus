@@ -12,13 +12,13 @@ import shop.genieus.coupon.infrastructure.persistence.repository.RedisCouponRepo
 @Component
 @RequiredArgsConstructor
 public class CouponCommandAdaptor implements CouponCommandPort {
-  private final CouponJpaRepository jpaRepository;
+  private final CouponJpaRepository couponJpaRepository;
   private final CouponUserJpaRepository couponUserJpaRepository;
   private final RedisCouponRepository redisRepository;
 
   @Override
   public Coupon createCoupon(Coupon request) {
-    return jpaRepository.save(request);
+    return couponJpaRepository.save(request);
   }
 
   @Override
@@ -28,7 +28,12 @@ public class CouponCommandAdaptor implements CouponCommandPort {
 
   @Override
   public Coupon findCoupon(Long couponId) {
-    return jpaRepository.findByCouponIdAndDeletedAtIsNull(couponId);
+    return couponJpaRepository.findByCouponIdAndDeletedAtIsNull(couponId);
+  }
+
+  @Override
+  public CouponUser findCouponUserCoupon(Long couponId, Long userId) {
+    return couponUserJpaRepository.findCouponByCondition(couponId, userId);
   }
 
   @Override
