@@ -86,19 +86,24 @@ public class ProductRedisRepository {
     }
 
     try {
-      List<String> keys =
-          productQuantities.keySet().stream().map(String::valueOf).collect(Collectors.toList());
-
+      List<String> keys = new ArrayList<>(productQuantities.size());
       List<String> args = new ArrayList<>(5 + productQuantities.size());
+
       args.add(STATUS_PREFIX);
       args.add(TOTAL_PREFIX);
       args.add(USED_PREFIX);
       args.add(META_PREFIX);
       args.add(ProductStatus.ON_SALE.name());
 
-      for (String productIdStr : keys) {
-        Long productId = Long.valueOf(productIdStr);
-        Integer quantity = productQuantities.get(productId);
+      for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {
+        Long productId = entry.getKey();
+        Integer quantity = entry.getValue();
+
+        if (quantity == null || quantity <= 0) {
+          throw new IllegalArgumentException("수량은 1 이상이어야 합니다. id=" + productId);
+        }
+
+        keys.add(String.valueOf(productId));
         args.add(String.valueOf(quantity));
       }
 
