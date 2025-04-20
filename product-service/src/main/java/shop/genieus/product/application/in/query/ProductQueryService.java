@@ -12,7 +12,7 @@ import shop.genieus.product.domain.model.entity.Product;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ProductQueryService {
   private final ProductCachePort productCachePort;
