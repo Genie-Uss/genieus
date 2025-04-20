@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import shop.genieus.product.domain.model.ProductView;
 import shop.genieus.product.domain.model.entity.Product;
+import shop.genieus.product.domain.model.entity.StockEvent;
 
 public interface ProductCachePort {
 
@@ -16,4 +17,6 @@ public interface ProductCachePort {
   void saveProductBatch(List<Product> products);
 
   List<ProductView> validateAndDecreaseStock(Map<Long, Integer> productQuantities);
+
+  void restoreStock(List<StockEvent> restoredQuantities);
 }
