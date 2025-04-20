@@ -16,6 +16,19 @@ spring:
   config:
     import: 'classpath:docker-database.yml'
 
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:19093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: 0
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: payment-server
+      auto-offset-reset: earliest
+
 logging:
   level:
     root: info

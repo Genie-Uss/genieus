@@ -2,59 +2,94 @@ package shop.genieus.payment.application.in.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.payment.application.dto.CreatePaymentCommand;
 import shop.genieus.payment.application.dto.ProcessPaymentCommand;
 import shop.genieus.payment.application.dto.RegisterPaymentCommand;
+import shop.genieus.payment.application.out.event.PaymentEventService;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.application.out.strategy.PaymentStrategy;
 import shop.genieus.payment.application.out.strategy.PaymentStrategyFactory;
 import shop.genieus.payment.domain.model.entity.Payment;
 import shop.genieus.payment.domain.model.vo.PaymentStatus;
+import shop.genieus.payment.global.exception.PaymentErrorCode;
+import shop.genieus.payment.global.exception.PaymentException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentCommandService {
 
-    private final PaymentCommandPort paymentCommandPort;
-    private final PaymentStrategyFactory paymentStrategyFactory;
+  private final PaymentCommandPort paymentCommandPort;
+  private final PaymentStrategyFactory paymentStrategyFactory;
 
-    @Transactional
-    public Payment create(CreatePaymentCommand createPaymentCommand) {
-        Payment payment = Payment.create(createPaymentCommand.toAssembler());
-        return paymentCommandPort.create(payment);
+  private final PaymentEventService paymentEventService;
+
+  @Transactional
+  public Payment create(CreatePaymentCommand createPaymentCommand) {
+    try {
+      Payment payment = Payment.create(createPaymentCommand.toAssembler());
+      return paymentCommandPort.create(payment);
+    } catch (DataAccessException dae) {
+      throw new PaymentException(PaymentErrorCode.PAYMENT_DUPLICATED_ERROR, dae);
+    } catch (RuntimeException e) {
+      throw new PaymentException(PaymentErrorCode.PAYMENT_REQUEST_FAILED, e);
     }
+  }
 
-    @Transactional
-    public PaymentProcessorResult processPayment(ProcessPaymentCommand processPaymentCommand) {
-        Payment payment = findPaymentByOrderId(processPaymentCommand.orderId());
-        payment.setPaymentMethod(processPaymentCommand.paymentMethod());
+  @Transactional
+  public PaymentProcessorResult processPayment(ProcessPaymentCommand processPaymentCommand) {
+    Payment payment = findPaymentByOrderId(processPaymentCommand.orderId());
+    payment.setPaymentMethod(processPaymentCommand.paymentMethod());
 
-        checkPaymentStatus(payment.getPaymentStatus());
+    checkPaymentStatus(payment.getPaymentStatus());
 
-        PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
-        return paymentStrategy.process(payment);
+    PaymentStrategy paymentStrategy =
+        paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
+    return paymentStrategy.process(payment);
+  }
+
+  @Transactional
+  public Payment registerPaymentSuccess(RegisterPaymentCommand registerPaymentCommand) {
+    Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
+    payment.registerPaymentSuccess();
+
+    publishPaymentSuccessEvent(payment);
+
+    return payment;
+  }
+
+  @Transactional
+  public void registerPaymentSuccessForTest(Long orderId) {
+    Payment payment = findPaymentByOrderId(orderId);
+    payment.setPaymentSuccessForTest();
+
+    publishPaymentSuccessEvent(payment);
+  }
+
+  @Transactional
+  public Payment cancel(Long orderId) {
+    Payment payment = findPaymentByOrderId(orderId);
+    payment.cancel();
+
+    return payment;
+  }
+
+  private Payment findPaymentByOrderId(Long orderId) {
+    return paymentCommandPort.findPaymentByOrderId(orderId);
+  }
+
+  private void checkPaymentStatus(PaymentStatus paymentStatus) {
+    switch (paymentStatus) {
+      case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
+      case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
     }
+  }
 
-    @Transactional
-    public Payment registerPayment(RegisterPaymentCommand registerPaymentCommand) {
-        Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
-        payment.registerPaymentSuccess();
-
-        return payment;
-    }
-
-    private Payment findPaymentByOrderId(Long orderId) {
-        return paymentCommandPort.findPaymentByOrderId(orderId);
-    }
-
-    private void checkPaymentStatus(PaymentStatus paymentStatus) {
-        switch (paymentStatus) {
-            case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
-            case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
-        }
-    }
+  private void publishPaymentSuccessEvent(Payment payment) {
+    paymentEventService.createPaymentEvent(payment.getOrderId());
+  }
 }

@@ -36,6 +36,27 @@
 
       codeElement.textContent = urlParams.get("code");
       messageElement.textContent = urlParams.get("message");
+      //
+      // async function notifyServer() {
+      //   const orderId = urlParams.get("orderId");
+      //
+      //   const result = {
+      //     orderId: orderId,
+      //   }
+      //
+      //   const response = fetch("/api/v1/payments/fail", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(result)
+      //   });
+      //
+      //   const json = await response.json();
+      //   console.log("서버 응답:", json);
+      // }
+      //
+      // notifyServer();
     </script>
   </body>
 </html>
