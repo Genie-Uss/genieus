@@ -3,6 +3,7 @@ package shop.genieus.coupon.application.in.command;
 import com.genieus.common.internal.request.UseCouponRequest;
 import com.genieus.common.internal.response.CouponClientResponse;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,13 @@ public class CouponCommandService {
 
   public void cancelCoupon(Long couponId, Long userId) {
     // 취소할 쿠폰 조회
-    CouponUser couponUser = commandPort.findCouponUserCoupon(couponId, userId);
+    CouponUser couponUser = commandPort.findCouponUser(couponId, userId);
+    if (couponUser == null) {
+      throw new IllegalArgumentException("존재하지 않는 쿠폰입니다.");
+    }
+    if (couponUser.getCouponUserExpiredDate().isBefore(LocalDateTime.now())) {
+      throw new IllegalArgumentException("사용 기한이 지난 쿠폰입니다.");
+    }
     // 쿠폰 취소
     couponUser.cancelCoupon();
   }
