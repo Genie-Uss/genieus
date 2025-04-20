@@ -358,6 +358,15 @@ spring:
             - TokenExtractor
             - Authentication
 
+        - id: payment-success-test
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/test/{orderId}
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
         # ================================= 프로모션(promotions)
         - id: promotion-list
           uri: lb://PROMOTION-SERVICE
