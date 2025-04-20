@@ -41,7 +41,7 @@ public class PromotionQueryAdapter implements PromotionQueryPort {
   }
 
   @Override
-  public void saveProductDiscountRate(List<PromotionProduct> promotionProducts) {
+  public void saveProductDiscountRate(List<PromotionProduct> promotionProducts, LocalDateTime updatedAt) {
     /**
      * 6월 3일 ~ 6월 4일 00시 까지 판매, 6월 4일 1시에 스케줄 동작
      * 6월 4일 ~ 6월 4일 23시59분 59초까지 존재
@@ -49,17 +49,28 @@ public class PromotionQueryAdapter implements PromotionQueryPort {
      *
      */
     if(promotionProducts == null || promotionProducts.isEmpty()) {
-      log.error("프로모션 상품이 존재하지 않습니다. 현재 날짜 : {}, 조회 구간 : {}",
-          LocalDateTime.now(), LocalDateTime.now().plusDays(1L));
+      log.error("프로모션 상품이 존재하지 않습니다. 갱신 요청 날짜 : {}, 조회 구간 : {}",
+          updatedAt, updatedAt.plusDays(1L));
       return;
     }
 
-    String nextHashKey = getNextHashKey();
+    String nextHashKey = getNextHashKey(updatedAt);
     Map<String, Integer> rates = makeProductsData(promotionProducts);
-    LocalDateTime dateTime = getDeleteTime();
+    LocalDateTime dateTime = getDeleteTime(updatedAt);
 
     redisRepository.save(nextHashKey, rates, dateTime);
     log.info("Redis 최저가 갱신, HashKey : {}", nextHashKey);
+  }
+
+  @Override
+  public void updateProductDiscountRate(String hashField, Integer discountRate) {
+    Set<String> hashKeys = redisRepository.getHashKeys(HASH_PREFIX);
+
+    for(String hashKey : hashKeys) {
+      Map<String, Integer> map  = redisRepository.get(hashKey);
+      map.put(hashField, discountRate);
+      redisRepository.update(hashKey, map);
+    }
   }
 
   private Map<String, Integer> makeProductsData(List<PromotionProduct> promotionProducts) {
@@ -70,16 +81,16 @@ public class PromotionQueryAdapter implements PromotionQueryPort {
         ));
   }
 
-  private LocalDateTime getDeleteTime() {
-    LocalDate nextDay = LocalDate.now().plusDays(1L);
+  private LocalDateTime getDeleteTime(LocalDateTime updatedAt) {
+    LocalDate nextDay = updatedAt.plusDays(1L).toLocalDate();
     LocalDateTime endDate = nextDay.atTime(23, 59, 59);
     return endDate.plusMinutes(30L);
   }
 
-  private String getNextHashKey() {
+  private String getNextHashKey(LocalDateTime updatedAt) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
 
-    LocalDate nextDay = LocalDate.now().plusDays(1);
+    LocalDate nextDay = updatedAt.plusDays(1).toLocalDate();
     LocalDateTime startDate = nextDay.atStartOfDay();
     LocalDateTime endDate = nextDay.atTime(23, 59, 59);
     return HASH_PREFIX + String.format(startDate.format(formatter))+ ":" + String.format(endDate.format(formatter));
@@ -118,7 +129,7 @@ public class PromotionQueryAdapter implements PromotionQueryPort {
       LocalDateTime startedAt = LocalDateTime.parse(parts[2], formatter);
       LocalDateTime endedAt = LocalDateTime.parse(parts[3], formatter);
       if(startedAt.isAfter(orderedAt) || endedAt.isBefore(orderedAt)) {
-        throw new PromotionException(REDIS_DATE_NOT_FOUND);
+        continue;
       }
       return key;
     }

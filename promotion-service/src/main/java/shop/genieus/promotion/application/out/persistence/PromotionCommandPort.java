@@ -7,4 +7,6 @@ public interface PromotionCommandPort {
 
   Promotion save(CreatePromotionCommand command);
   Promotion findById(Long promotionId);
+  Promotion findByName(String promotionName);
+  boolean existByDefaultPromotionProduct(Long productId);
 }
