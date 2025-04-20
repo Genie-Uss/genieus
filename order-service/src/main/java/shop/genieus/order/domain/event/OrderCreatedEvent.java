@@ -13,6 +13,7 @@ public record OrderCreatedEvent(
     Long userid,
     List<OrderProductDto> orderProducts,
     LocalDateTime orderedAt,
+    LocalDateTime deadlineAt,
     OrderStatus status,
     OrderPriceDto orderPrice)
     implements DomainEvent {
@@ -45,6 +46,7 @@ public record OrderCreatedEvent(
         order.getUserId(),
         order.getOrderProducts().stream().map(OrderProductDto::of).toList(),
         order.getOrderedAt(),
+        order.getOrderDeadlineAt(),
         order.getStatus(),
         OrderPriceDto.of(order.getOrderPrice()));
   }

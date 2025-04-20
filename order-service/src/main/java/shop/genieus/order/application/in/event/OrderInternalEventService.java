@@ -1,0 +1,54 @@
+package shop.genieus.order.application.in.event;
+
+import com.genieus.common.event.order.OrderCanceledEvent;
+import com.genieus.common.event.order.OrderCompletedEvent;
+import com.genieus.common.event.order.OrderExpiredEvent;
+import com.genieus.common.event.order.PaymentRequestedEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import shop.genieus.order.application.out.event.OrderExternalEventPort;
+import shop.genieus.order.application.out.persistence.OrderDelayQueuePort;
+import shop.genieus.order.application.policy.OrderDelaySchedule;
+import shop.genieus.order.application.policy.OrderPolicy;
+import shop.genieus.order.domain.event.OrderCreatedEvent;
+
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class OrderInternalEventService {
+  private final OrderPolicy cancelPolicy;
+  private final OrderDelayQueuePort delayQueuePort;
+  private final OrderExternalEventPort externalEventPort;
+
+  // ------------ BeforeCommit --------
+  public void onOrderCreatedBeforeCommit(OrderCreatedEvent event) {
+    long pendingMinutes = cancelPolicy.getOrderPendingMinutes();
+    OrderDelaySchedule schedule =
+        OrderDelaySchedule.of(event.orderId(), event.orderedAt(), pendingMinutes);
+    delayQueuePort.save(schedule);
+  }
+
+  public void onOrderCanceledBeforeCommit(OrderCanceledEvent event) {
+    delayQueuePort.delete(event.orderId());
+  }
+
+  public void onPaymentRequestedBeforeCommit(PaymentRequestedEvent event) {
+    delayQueuePort.delete(event.orderId());
+  }
+
+  // ------------ AfterCommit --------
+  public void onOrderCanceledAfterCommit(OrderCanceledEvent event) {
+    externalEventPort.sendOrderCanceledEvent(event);
+  }
+
+  public void onOrderExpiredAfterCommit(OrderExpiredEvent event) {
+    externalEventPort.sendOrderExpiredEvent(event);
+  }
+
+  public void onOrderCompletedAfterCommit(OrderCompletedEvent event) {
+    externalEventPort.sendOrderCompletedEvent(event);
+  }
+}

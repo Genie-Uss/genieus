@@ -51,7 +51,7 @@ public class OrderController {
   public ResponseEntity<ApiResponse<Void>> cancelOrder(
       @WithPassport Passport passport, @PathVariable Long orderId) {
     log.info("Cancel order request: {}", orderId);
-    orderCommandService.cancelOrderByUser(new CancelOrderCommand(passport.getUserId(), orderId));
+    orderCommandService.cancelOrder(new CancelOrderCommand(passport.getUserId(), orderId));
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.noContent());
   }
 }

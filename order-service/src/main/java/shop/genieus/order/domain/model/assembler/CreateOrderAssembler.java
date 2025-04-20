@@ -14,6 +14,7 @@ public class CreateOrderAssembler {
   private final Long userId;
   private List<OrderProduct> orderProducts;
   private LocalDateTime orderedAt;
+  private LocalDateTime orderDeadlineAt;
   private Integer totalProductPrice;
   private Integer promotionDiscountAmount;
 
@@ -21,8 +22,9 @@ public class CreateOrderAssembler {
     this.orderProducts = orderProducts;
   }
 
-  public void applyOrderedAt(LocalDateTime orderedAt) {
+  public void applyOrderPeriod(LocalDateTime orderedAt, LocalDateTime orderDeadlineAt) {
     this.orderedAt = orderedAt;
+    this.orderDeadlineAt = orderDeadlineAt;
   }
 
   public void applyTotalProductPrice(Integer totalProductPrice) {

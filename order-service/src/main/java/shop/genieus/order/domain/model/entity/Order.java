@@ -19,7 +19,7 @@ import org.hibernate.annotations.Comment;
 import shop.genieus.order.domain.model.assembler.CreateOrderAssembler;
 import shop.genieus.order.domain.model.vo.OrderPrice;
 import shop.genieus.order.domain.model.vo.OrderStatus;
-import shop.genieus.order.domain.model.vo.Receiver;
+import shop.genieus.order.domain.model.vo.OrderTimeStamp;
 
 @Entity
 @Getter
@@ -40,8 +40,6 @@ public class Order extends BaseEntity {
   @Comment("주문한 유저 식별자")
   private Long userId;
 
-  @Embedded private Receiver receiver;
-
   @Column(name = "coupon_id")
   @Comment("쿠폰 식별자")
   private Long couponId;
@@ -51,31 +49,22 @@ public class Order extends BaseEntity {
   @Comment("주문상태")
   private OrderStatus status;
 
-  @Embedded private OrderPrice orderPrice;
-
   @Column(name = "ordered_at", nullable = false)
   @Comment("주문일시")
   private LocalDateTime orderedAt;
 
-  @Column(name = "payment_requested_at")
-  @Comment("결제요청일시")
-  private LocalDateTime paymentRequestedAt;
+  @Column(name = "order_deadline_at", nullable = false)
+  @Comment("주문만료 기한")
+  private LocalDateTime orderDeadlineAt;
 
-  @Column(name = "canceled_at")
-  @Comment("주문취소일시")
-  private LocalDateTime canceledAt;
+  @Embedded private OrderPrice orderPrice;
 
-  @Column(name = "paid_at")
-  @Comment("결제완료일시")
-  private LocalDateTime paidAt;
+  @Embedded @Builder.Default private OrderTimeStamp orderTimeStamp = new OrderTimeStamp();
 
-  @Column(name = "completed_at")
-  @Comment("주문완료일시")
-  private LocalDateTime completedAt;
-
+  @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   @Comment("주문상품 리스트")
-  private List<OrderProduct> orderProducts;
+  private List<OrderProduct> orderProducts = new ArrayList<>();
 
   public static Order create(CreateOrderAssembler assembler) {
     OrderPrice orderPrice =
@@ -86,7 +75,7 @@ public class Order extends BaseEntity {
             .userId(assembler.getUserId())
             .status(OrderStatus.ORDER_PENDING)
             .orderedAt(assembler.getOrderedAt())
-            .orderProducts(new ArrayList<>())
+            .orderDeadlineAt(assembler.getOrderDeadlineAt())
             .orderPrice(orderPrice)
             .build();
 
@@ -105,26 +94,27 @@ public class Order extends BaseEntity {
   }
 
   public void requestPayment(LocalDateTime paymentRequestedAt) {
-    this.paymentRequestedAt = paymentRequestedAt;
+    this.orderTimeStamp.markPaymentRequestedAt(paymentRequestedAt);
     this.status = OrderStatus.PAYMENT_PENDING;
   }
 
-  public void cancel(LocalDateTime canceledAt) {
-    this.canceledAt = canceledAt;
-    this.status = OrderStatus.ORDER_CANCELLED;
-  }
-
-  public void startDelivery(LocalDateTime deliveryStartedAt) {
-    this.status = OrderStatus.DELIVERY_STARTED;
-  }
-
-  public void completePayment(LocalDateTime paidAt) {
-    this.paidAt = paidAt;
+  public void completePayment(LocalDateTime paymentCompletedAt) {
+    this.orderTimeStamp.markPaymentCompletedAt(paymentCompletedAt);
     this.status = OrderStatus.PAYMENT_COMPLETED;
   }
 
-  public void completeOrder(LocalDateTime completedAt) {
-    this.completedAt = completedAt;
+  public void completeOrder(LocalDateTime orderCompletedAt) {
+    this.orderTimeStamp.markOrderCompletedAt(orderCompletedAt);
     this.status = OrderStatus.ORDER_COMPLETED;
+  }
+
+  public void cancel(LocalDateTime orderCanceledAt) {
+    this.orderTimeStamp.markOrderCanceledAt(orderCanceledAt);
+    this.status = OrderStatus.ORDER_CANCELLED;
+  }
+
+  public void expire(LocalDateTime orderExpiredAt) {
+    this.orderTimeStamp.markOrderExpiredAt(orderExpiredAt);
+    this.status = OrderStatus.ORDER_EXPIRED;
   }
 }
