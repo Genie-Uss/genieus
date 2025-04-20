@@ -33,13 +33,13 @@ public class OrderDelayQueueAdapter implements OrderDelayQueuePort {
   @Override
   public List<Long> popExpiredOrders(long epochSecond) {
     try {
-      List<String> rawIds =
+      List<Long> rawIds =
           redisTemplate.execute(
               popExpiredScript, Collections.singletonList(KEY), String.valueOf(epochSecond));
       if (rawIds.isEmpty()) {
         return List.of();
       }
-      return rawIds.stream().map(Long::valueOf).toList();
+      return rawIds;
     } catch (Exception e) {
       log.error("[popExpiredOrders] pop 중 예외발생: {}, epochSecond: {}", e.getMessage(), epochSecond);
     }
