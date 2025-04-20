@@ -49,17 +49,9 @@ public class Order extends BaseEntity {
   @Comment("주문상태")
   private OrderStatus status;
 
-  @Column(name = "ordered_at", nullable = false)
-  @Comment("주문일시")
-  private LocalDateTime orderedAt;
-
-  @Column(name = "order_deadline_at", nullable = false)
-  @Comment("주문만료 기한")
-  private LocalDateTime orderDeadlineAt;
-
   @Embedded private OrderPrice orderPrice;
 
-  @Embedded @Builder.Default private OrderTimeStamp orderTimeStamp = new OrderTimeStamp();
+  @Embedded private OrderTimeStamp orderTimeStamp;
 
   @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,9 +66,9 @@ public class Order extends BaseEntity {
         Order.builder()
             .userId(assembler.getUserId())
             .status(OrderStatus.ORDER_PENDING)
-            .orderedAt(assembler.getOrderedAt())
-            .orderDeadlineAt(assembler.getOrderDeadlineAt())
             .orderPrice(orderPrice)
+            .orderTimeStamp(
+                OrderTimeStamp.of(assembler.getOrderedAt(), assembler.getOrderDeadlineAt()))
             .build();
 
     assembler.getOrderProducts().forEach(order::addOrderProduct);

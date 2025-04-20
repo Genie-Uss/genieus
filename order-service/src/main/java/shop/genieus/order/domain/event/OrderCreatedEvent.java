@@ -45,8 +45,8 @@ public record OrderCreatedEvent(
         order.getOrderId(),
         order.getUserId(),
         order.getOrderProducts().stream().map(OrderProductDto::of).toList(),
-        order.getOrderedAt(),
-        order.getOrderDeadlineAt(),
+        order.getOrderTimeStamp().getOrderedAt(),
+        order.getOrderTimeStamp().getOrderDeadlineAt(),
         order.getStatus(),
         OrderPriceDto.of(order.getOrderPrice()));
   }

@@ -127,7 +127,8 @@ public class OrderCommandService {
   }
 
   private Coupon getCoupon(PaymentCommand command, Order order) {
-    return clientPort.useCoupon(order.getUserId(), command.couponId(), order.getOrderedAt());
+    return clientPort.useCoupon(
+        order.getUserId(), command.couponId(), order.getOrderTimeStamp().getOrderedAt());
   }
 
   private List<PromotionProduct> getPromotionProducts(

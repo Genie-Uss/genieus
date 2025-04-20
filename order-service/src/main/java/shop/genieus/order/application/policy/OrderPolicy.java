@@ -43,7 +43,7 @@ public class OrderPolicy {
           order.getStatus());
       return false;
     }
-    LocalDateTime deadline = order.getOrderDeadlineAt();
+    LocalDateTime deadline = order.getOrderTimeStamp().getOrderDeadlineAt();
     if (now.isBefore(deadline)) {
       log.info(
           "[expireByOrderDeadline] 만료 스킵 - 아직 기한 전: orderId={}, deadline={}",
