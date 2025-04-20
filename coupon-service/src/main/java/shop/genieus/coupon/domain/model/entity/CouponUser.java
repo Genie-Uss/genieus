@@ -56,6 +56,11 @@ public class CouponUser extends BaseEntity {
     this.couponUserUsedDate = LocalDateTime.now();
   }
 
+  public void cancelCoupon() {
+    this.couponUserStatus = CouponUseStatus.AVAILABLE;
+    this.couponUserUsedDate = null;
+  }
+
   public static CouponUser create(IssueCouponCommand dto) {
     return CouponUser.builder()
         .userId(dto.userId())

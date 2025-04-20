@@ -14,6 +14,14 @@ spring:
       enabled: false
   config:
     import: 'classpath:docker-database.yml'
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:19093
+    template:
+      default-topic: coupon-events
+    consumer:
+      group-id: coupon-service
+      topic:
+        order: order-events
 
 logging:
   level:

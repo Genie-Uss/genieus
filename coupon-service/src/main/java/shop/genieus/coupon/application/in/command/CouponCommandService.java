@@ -29,6 +29,7 @@ public class CouponCommandService {
     if (!request.couponExpiredDate().validateExpiredDate(request.couponStartDate().getValue())) {
       throw new IllegalArgumentException("발급 만료일자는 시작일자보다 이전일 수 없습니다.");
     }
+
     Coupon coupon = CreateCouponCommand.toEntity(request);
     // DB 저장
     Coupon saved = commandPort.createCoupon(coupon);
@@ -48,6 +49,13 @@ public class CouponCommandService {
         coupon.getCouponId(),
         coupon.getCouponDiscountRate().getValue(),
         coupon.getCouponMaxPrice());
+  }
+
+  public void cancelCoupon(Long couponId, Long userId) {
+    // 취소할 쿠폰 조회
+    CouponUser couponUser = commandPort.findCouponUserCoupon(couponId, userId);
+    // 쿠폰 취소
+    couponUser.cancelCoupon();
   }
 
   public void issueCoupon(Long couponId, Long userId) {
