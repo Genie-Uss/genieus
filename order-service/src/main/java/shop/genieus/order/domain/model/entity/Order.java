@@ -109,12 +109,12 @@ public class Order extends BaseEntity {
   }
 
   public void cancel(LocalDateTime orderCanceledAt) {
-    this.orderTimeStamp.markOrderExpiredAt(orderCanceledAt);
+    this.orderTimeStamp.markOrderCanceledAt(orderCanceledAt);
     this.status = OrderStatus.ORDER_CANCELLED;
   }
 
   public void expire(LocalDateTime orderExpiredAt) {
-    this.orderTimeStamp.markOrderCanceledAt(orderExpiredAt);
+    this.orderTimeStamp.markOrderExpiredAt(orderExpiredAt);
     this.status = OrderStatus.ORDER_EXPIRED;
   }
 }

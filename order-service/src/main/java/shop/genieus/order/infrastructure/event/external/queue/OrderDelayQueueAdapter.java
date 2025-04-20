@@ -41,7 +41,7 @@ public class OrderDelayQueueAdapter implements OrderDelayQueuePort {
       }
       return rawIds.stream().map(Long::valueOf).toList();
     } catch (Exception e) {
-      log.error("[popExpiredEvents] pop 중 예외발생: {}, epochSecond: {}", e.getMessage(), epochSecond);
+      log.error("[popExpiredOrders] pop 중 예외발생: {}, epochSecond: {}", e.getMessage(), epochSecond);
     }
     return List.of();
   }

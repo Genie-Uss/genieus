@@ -1,9 +1,9 @@
 package shop.genieus.order.application.in.event;
 
 import com.genieus.common.event.order.OrderCanceledEvent;
+import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.PaymentRequestedEvent;
-import com.genieus.common.event.payment.PaymentCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,7 @@ public class OrderInternalEventService {
     externalEventPort.sendOrderExpiredEvent(event);
   }
 
-  public void onPaymentCompletedAfterCommit(PaymentCompletedEvent event) {
-    externalEventPort.sendPaymentCompletedEvent(event);
+  public void onOrderCompletedAfterCommit(OrderCompletedEvent event) {
+    externalEventPort.sendOrderCompletedEvent(event);
   }
 }

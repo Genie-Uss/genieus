@@ -55,7 +55,7 @@ public class OrderCommandService {
     Order order = Order.create(assembler);
     Order saved = commandPort.save(order);
 
-    internalEventPort.publishOrderCreated(order);
+    internalEventPort.publishOrderCreated(saved);
     return saved;
   }
 
@@ -93,13 +93,13 @@ public class OrderCommandService {
     LocalDateTime paidAt = getCurrentTime();
     Order order = findOrder(command.orderId());
     order.completePayment(paidAt);
-    internalEventPort.publishPaymentCompleted(order);
   }
 
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
     order.completeOrder(completedAt);
+    internalEventPort.publishOrderCompleted(order);
   }
 
   private Order findOrder(Long orderId) {

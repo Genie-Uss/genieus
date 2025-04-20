@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import shop.genieus.order.application.in.command.OrderCommandService;
-import shop.genieus.order.application.in.command.dto.CompletePaymentCommand;
+import shop.genieus.order.application.in.command.dto.CompleteOrderCommand;
 
 @Slf4j
 @Component
@@ -20,8 +20,8 @@ public class OrderExternalEventHandler {
   @EventTypeMapping(topic = "payment-events")
   public void handlePaymentCompleted(PaymentCompletedEvent event) {
     log.info("[handlePaymentCompleted] 결제 완료 이벤트 수신: {}", event);
-    CompletePaymentCommand command = new CompletePaymentCommand(event.orderId());
-    commandService.completePayment(command);
+    CompleteOrderCommand command = new CompleteOrderCommand(event.orderId());
+    commandService.completeOrder(command);
   }
 
   @FallbackMapping(topic = "payment-events", eventType = "PaymentCompletedEvent")

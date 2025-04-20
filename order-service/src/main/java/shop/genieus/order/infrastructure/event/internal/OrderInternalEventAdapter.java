@@ -4,6 +4,7 @@ import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.OrderProductItem;
+import com.genieus.common.event.order.PaymentRequestedEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,7 +39,7 @@ public class OrderInternalEventAdapter implements OrderInternalEventPort {
   }
 
   @Override
-  public void publishPaymentCompleted(Order order) {
+  public void publishOrderCompleted(Order order) {
     OrderCompletedEvent event =
         new OrderCompletedEvent(
             order.getOrderId(),
@@ -61,7 +62,11 @@ public class OrderInternalEventAdapter implements OrderInternalEventPort {
   }
 
   @Override
-  public void publishPaymentRequested(Order order) {}
+  public void publishPaymentRequested(Order order) {
+    PaymentRequestedEvent event =
+        new PaymentRequestedEvent(order.getOrderId(), order.getOrderPrice().getFinalPrice());
+    publisher.publishEvent(event);
+  }
 
   private List<OrderProductItem> toOrderProductItems(List<OrderProduct> orderProducts) {
     return orderProducts.stream()

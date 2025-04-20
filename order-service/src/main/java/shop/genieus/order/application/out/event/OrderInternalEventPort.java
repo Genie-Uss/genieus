@@ -9,7 +9,7 @@ public interface OrderInternalEventPort {
 
   void publishOrderExpired(Order order);
 
-  void publishPaymentCompleted(Order order);
+  void publishOrderCompleted(Order order);
 
   void publishPaymentRequested(Order order);
 }
