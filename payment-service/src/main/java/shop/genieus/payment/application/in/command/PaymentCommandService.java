@@ -2,6 +2,7 @@ package shop.genieus.payment.application.in.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.payment.application.dto.CreatePaymentCommand;
@@ -14,6 +15,8 @@ import shop.genieus.payment.application.out.strategy.PaymentStrategy;
 import shop.genieus.payment.application.out.strategy.PaymentStrategyFactory;
 import shop.genieus.payment.domain.model.entity.Payment;
 import shop.genieus.payment.domain.model.vo.PaymentStatus;
+import shop.genieus.payment.global.exception.PaymentErrorCode;
+import shop.genieus.payment.global.exception.PaymentException;
 
 @Slf4j
 @Service
@@ -27,8 +30,14 @@ public class PaymentCommandService {
 
   @Transactional
   public Payment create(CreatePaymentCommand createPaymentCommand) {
-    Payment payment = Payment.create(createPaymentCommand.toAssembler());
-    return paymentCommandPort.create(payment);
+    try {
+      Payment payment = Payment.create(createPaymentCommand.toAssembler());
+      return paymentCommandPort.create(payment);
+    } catch (DataAccessException dae) {
+      throw new PaymentException(PaymentErrorCode.PAYMENT_DUPLICATED_ERROR, dae);
+    } catch (RuntimeException e) {
+      throw new PaymentException(PaymentErrorCode.PAYMENT_REQUEST_FAILED, e);
+    }
   }
 
   @Transactional
