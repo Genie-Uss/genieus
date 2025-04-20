@@ -16,6 +16,7 @@ public class KafkaPaymentListener {
     private final ObjectMapper objectMapper;
     private final PaymentEventHandler paymentEventListener;
 
+    // TODO 공통 라이브러리로 리팩토링 필요 - 지금 역직렬화 에러 남
     @KafkaListener(
             topics = "order",
             groupId = "payment-server",
