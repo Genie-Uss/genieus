@@ -36,7 +36,7 @@ ext {
 }
 
 dependencies {
-
+    
     // lombok
     compileOnly 'org.projectlombok:lombok'
 
@@ -54,6 +54,8 @@ dependencies {
 
     // database
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 
     // msa
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -65,7 +67,6 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-
 
     // json
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
