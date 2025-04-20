@@ -2,17 +2,21 @@ package shop.genieus.product.presentation.event;
 
 import com.genieus.common.event.annotation.EventTypeMapping;
 import com.genieus.common.event.order.OrderCanceledEvent;
+import com.genieus.common.event.order.OrderCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import shop.genieus.product.application.in.command.ProductCommandService;
+import shop.genieus.product.application.in.command.ProductStockCommandService;
+import shop.genieus.product.application.system.dto.OrderCompletedCommand;
 import shop.genieus.product.presentation.event.mapper.ProductEventMapper;
+
+import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductKafkaEventHandler {
-  private final ProductCommandService commandService;
+  private final ProductStockCommandService commandService;
   private final ProductEventMapper mapper;
 
   @EventTypeMapping(topic = "order-events")
@@ -26,5 +30,13 @@ public class ProductKafkaEventHandler {
     }
 
     log.info("[handleOrderCanceled] 주문 취소 이벤트 컨슘 완료, 주문 아이디: {}", event.orderId());
+  }
+
+  @EventTypeMapping(topic = "order-events")
+  public void handleOrderCompletedEvent(OrderCompletedEvent event) {
+    OrderCompletedCommand command = mapper.toOrderCompletedCommand(event);
+
+    List<String> results = commandService.totalDecreaseStock(command);
+    log.info("[handleOrderCompletedEvent] 총재고 감소 상품 개수: {}", results.size()/2);
   }
 }
