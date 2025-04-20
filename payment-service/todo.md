@@ -21,7 +21,9 @@
     - payment-events
 7. ✅커스텀 이벤트, 이벤트 핸들러 붙이기
 8. ✅주문 취소 이벤트를 소비하여 결제 취소 구현
-9. api-gateway-route
+9. 카프카 리스너 공통 라이브러리로 리팩토링
+   - 지금 역직렬화 에러남
+10. api-gateway-route
 
 ```yaml
 
