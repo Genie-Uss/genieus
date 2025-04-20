@@ -12,7 +12,7 @@ public class ProductException extends RuntimeException {
     this.code = code;
   }
 
-  protected ProductException(String message) {
+  public ProductException(String message) {
     this(message, DEFAULT_CODE);
   }
 
