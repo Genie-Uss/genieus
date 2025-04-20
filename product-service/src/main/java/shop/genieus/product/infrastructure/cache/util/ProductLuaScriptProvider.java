@@ -24,9 +24,7 @@ public class ProductLuaScriptProvider {
         new ResourceScriptSource(new ClassPathResource("redis/restore-stock-script.lua")));
     stockRestoreScript.setResultType(List.class);
     RESTORE_STOCK_SCRIPT = stockRestoreScript;
-  }
 
-  static {
     DefaultRedisScript<List> totalStockDecreaseScript = new DefaultRedisScript<>();
     totalStockDecreaseScript.setScriptSource(
             new ResourceScriptSource(new ClassPathResource("redis/order-completed.lua")));
