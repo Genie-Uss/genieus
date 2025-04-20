@@ -10,7 +10,7 @@ public interface CouponCommandPort {
 
   Coupon findCoupon(Long couponId);
 
-  CouponUser findCouponUserCoupon(Long couponId, Long userId);
+  CouponUser findCouponUser(Long couponId, Long userId);
 
   void createCouponUser(Coupon coupon, Long userId);
 
