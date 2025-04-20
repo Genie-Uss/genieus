@@ -60,7 +60,7 @@ public class ProductStockCommandService {
     }
 
     public List<String> totalDecreaseStock(OrderCompletedCommand command) {
-        validOrderCompletedCommand(command);
+        validateOrderCompletedCommand(command);
 
         Map<Long, Integer> decreaseQuantities =
                 aggregateQuantities(
@@ -70,7 +70,7 @@ public class ProductStockCommandService {
         return productCachePort.totalDecreaseStock(decreaseQuantities, command.completedAt(),command.orderId());
     }
 
-    private void validOrderCompletedCommand(OrderCompletedCommand command) {
+    private void validateOrderCompletedCommand(OrderCompletedCommand command) {
         if(command.completedAt() == null) {
             log.error("주문 날짜는 필수입니다.");
             throw new ProductException("주문 날짜는 필수입니다");

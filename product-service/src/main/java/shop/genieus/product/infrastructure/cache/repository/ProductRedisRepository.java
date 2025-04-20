@@ -140,10 +140,10 @@ public class ProductRedisRepository {
     }
 
     try {
-      List<String> keys = new ArrayList<>(productQuantities.size());
+      List<String> keys = new ArrayList<>();
 
       // 접두사 추가
-      List<String> args = new ArrayList<>(4 + productQuantities.size());
+      List<String> args = new ArrayList<>();
       args.add(TOTAL_PREFIX);
       args.add(USED_PREFIX);
       args.add(STATUS_PREFIX);
@@ -165,7 +165,7 @@ public class ProductRedisRepository {
       }
 
       List<String> results = stringRedisTemplate.execute(
-              ProductLuaScriptProvider.getTotalStockDecreaseScript(), keys, args.toArray()
+              ProductLuaScriptProvider.getTotalStockDecreaseScript(), keys, args.toArray(new String[0])
       );
 
       if (!results.isEmpty()) {

@@ -148,7 +148,12 @@ public class ProductCacheAdapter implements ProductCachePort {
 
   @Override
   public List<String> totalDecreaseStock(Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
-    return productRedisRepository.atomicTotalDecreaseStock(productQuantities, completedAt, orderId);
+    try {
+        return productRedisRepository.atomicTotalDecreaseStock(productQuantities, completedAt, orderId);
+    } catch (ProductException e) {
+        log.error("총재고 감소 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
+        throw e;
+    }
   }
 
   private void setInitialTotalStock(Long productId, Long totalStock) {

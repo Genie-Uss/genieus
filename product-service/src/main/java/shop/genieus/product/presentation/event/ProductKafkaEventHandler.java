@@ -33,10 +33,17 @@ public class ProductKafkaEventHandler {
   }
 
   @EventTypeMapping(topic = "order-events")
-  public void handleOrderCompletedEvent(OrderCompletedEvent event) {
-    OrderCompletedCommand command = mapper.toOrderCompletedCommand(event);
+  public void handleOrderCompleted(OrderCompletedEvent event) {
+    log.info("[handleOrderCompleted] 주문 완료 이벤트 수신 : {}", event);
 
-    List<String> results = commandService.totalDecreaseStock(command);
-    log.info("[handleOrderCompletedEvent] 총재고 감소 상품 개수: {}", results.size()/2);
+    try {
+        OrderCompletedCommand command = mapper.toOrderCompletedCommand(event);
+        List<String> results = commandService.totalDecreaseStock(command);
+        log.info("[handleOrderCompletedEvent] 총재고 감소 상품 개수: {}", results.size()/2);
+    } catch (Exception ex) {
+        log.warn("주문 완료 이벤트 처리 실패: {}", ex.getMessage());
+    }
+
+    log.info("[handleOrderCompletedEvent] 주문 완료 이벤트 컨슘 완료, 주문 아이디: {}", event.orderId());
   }
 }
