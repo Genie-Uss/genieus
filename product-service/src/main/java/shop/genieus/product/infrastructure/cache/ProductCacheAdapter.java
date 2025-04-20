@@ -123,20 +123,24 @@ public class ProductCacheAdapter implements ProductCachePort {
 
     Map<Long, Integer> productQuantities =
         stockEvents.stream()
-            .collect(
-                Collectors.toMap(StockEvent::getProductId, StockEvent::getQuantity, Integer::sum));
+            .collect(Collectors.toMap(StockEvent::productId, StockEvent::quantity, Integer::sum));
 
-    Long orderId = stockEvents.get(0).getOrderId();
-    Long timestamp = stockEvents.get(0).getTimestamp();
+    Long orderId = stockEvents.get(0).orderId();
+    Long timestamp = stockEvents.get(0).timestamp();
+    try {
+      List<String> results =
+          productRedisRepository.atomicRestoreStockWithEvents(
+              productQuantities, orderId, timestamp);
 
-    List<String> results =
-        productRedisRepository.atomicRestoreStockWithEvents(productQuantities, orderId, timestamp);
+      for (int i = 0; i + 1 < results.size(); i += 2) {
+        String productId = results.get(i);
+        String usedStock = results.get(i + 1);
 
-    for (int i = 0; i + 1 < results.size(); i += 2) {
-      String productId = results.get(i);
-      String usedStock = results.get(i + 1);
-
-      log.info("상품 ID {} 재고 복구 완료. 현재 사용량: {}", productId, usedStock);
+        log.info("상품 ID {} 재고 복구 완료. 현재 사용량: {}", productId, usedStock);
+      }
+    } catch (ProductException e) {
+      log.error("재고 복구 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
+      throw e;
     }
   }
 

@@ -24,7 +24,7 @@ local processingQueueKey = ARGV[9]
 local eventType = ARGV[10]
 local eventStatus = ARGV[11]
 local dedupPrefix = ARGV[12]
-local dedupTTL = tonumber(ARGV[13]) * 3600
+local dedupTTL = tonumber(ARGV[13])
 
 -- 결과 및 처리 데이터 초기화
 local results = {}
@@ -66,7 +66,9 @@ for i = 1, #KEYS do
     local currentStatus = redis.call('GET', statusKey)
 
     -- 상태 변경 필요성 확인 (품절->판매중)
-    if currentStatus == soldOutStatus and usedStock <= amount then
+    local totalStock = tonumber(totalStockStr)
+    local newUsed = usedStock - amount
+    if currentStatus == soldOutStatus and newUsed < totalStock then
         table.insert(statusChanges, { statusKey, onSaleStatus })
     end
 
@@ -109,7 +111,7 @@ for i = 1, #KEYS do
         table.insert(results, tostring(newUsed))
     else
         -- 이미 처리된 이벤트인 경우 현재 사용량만 가져옴
-        local currentUsed = redis.call('GET', usedKey)
+        local currentUsed = redis.call('GET', usedKey) or '0'
 
         -- 결과 추가
         table.insert(results, productId)

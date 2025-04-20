@@ -19,7 +19,11 @@ public class ProductKafkaEventHandler {
   public void handleOrderCanceled(OrderCanceledEvent event) {
     log.info("[handleOrderCanceled] 주문 취소 이벤트 수신 : {}", event);
 
-    commandService.restockProducts(mapper.toRestoreStockCommand(event));
+    try {
+      commandService.restockProducts(mapper.toRestoreStockCommand(event));
+    } catch (Exception ex) {
+      log.warn("주문 취소 이벤트 처리 실패: {}", ex.getMessage());
+    }
 
     log.info("[handleOrderCanceled] 주문 취소 이벤트 컨슘 완료, 주문 아이디: {}", event.orderId());
   }

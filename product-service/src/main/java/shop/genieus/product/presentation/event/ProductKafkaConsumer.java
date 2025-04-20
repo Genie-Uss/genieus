@@ -1,7 +1,5 @@
 package shop.genieus.product.presentation.event;
 
-import static io.micrometer.tracing.Tracer.*;
-
 import com.genieus.common.event.util.EventRouter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -27,6 +27,19 @@ public class KafkaTracingAspect {
     String traceId = headers.get("traceId", String.class);
     String spanId = headers.get("spanId", String.class);
 
+    return traceWithSpan(pjp, traceId, spanId);
+  }
+
+  @Around(
+      "@annotation(org.springframework.kafka.annotation.KafkaListener) && "
+          + "execution(* *(@org.springframework.messaging.handler.annotation.Payload (*), ..)) && "
+          + "!args(org.springframework.messaging.Message)")
+  public Object traceKafkaMessageWithPayload(ProceedingJoinPoint pjp) throws Throwable {
+    return traceWithSpan(pjp, null, null);
+  }
+
+  private Object traceWithSpan(ProceedingJoinPoint pjp, String traceId, String spanId)
+      throws Throwable {
     Span span = createConsumerSpan(traceId, spanId);
     try (SpanInScope scope = tracer.withSpan(span)) {
       return pjp.proceed();
