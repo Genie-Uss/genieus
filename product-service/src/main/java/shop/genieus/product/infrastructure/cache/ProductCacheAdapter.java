@@ -1,6 +1,8 @@
 package shop.genieus.product.infrastructure.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -141,6 +143,16 @@ public class ProductCacheAdapter implements ProductCachePort {
     } catch (ProductException e) {
       log.error("재고 복구 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
       throw e;
+    }
+  }
+
+  @Override
+  public List<String> totalDecreaseStock(Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
+    try {
+        return productRedisRepository.atomicTotalDecreaseStock(productQuantities, completedAt, orderId);
+    } catch (ProductException e) {
+        log.error("총재고 감소 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
+        throw e;
     }
   }
 

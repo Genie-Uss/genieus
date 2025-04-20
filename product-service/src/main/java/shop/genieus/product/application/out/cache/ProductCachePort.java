@@ -1,5 +1,6 @@
 package shop.genieus.product.application.out.cache;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import shop.genieus.product.domain.model.ProductView;
@@ -19,4 +20,6 @@ public interface ProductCachePort {
   List<ProductView> validateAndDecreaseStock(Map<Long, Integer> productQuantities);
 
   void restoreStock(List<StockEvent> restoredQuantities);
+
+  List<String> totalDecreaseStock(Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId);
 }

@@ -1,5 +1,7 @@
 package shop.genieus.product.infrastructure.cache.repository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -127,6 +129,53 @@ public class ProductRedisRepository {
     } catch (Exception e) {
       String message = extractRedisErrorMessage(e);
       throw new ProductException("재고 복구 처리 실패: " + message, e);
+    }
+  }
+
+  public List<String> atomicTotalDecreaseStock(Map<Long, Integer> productQuantities,
+                                               LocalDateTime completedAt, Long orderId) {
+
+    if (productQuantities == null || productQuantities.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    try {
+      List<String> keys = new ArrayList<>();
+
+      // 접두사 추가
+      List<String> args = new ArrayList<>();
+      args.add(TOTAL_PREFIX);
+      args.add(USED_PREFIX);
+      args.add(STATUS_PREFIX);
+      args.add(PROCESSING_QUEUE_KEY);
+
+      // 데이터 순회
+      for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {
+        keys.add(String.valueOf(entry.getKey())); // key에 상품ID 추가
+        args.add(String.valueOf(entry.getKey())); // value에 상품ID 추가
+        args.add(String.valueOf(orderId));
+
+        if(entry.getValue() <= 0) {
+          log.error("[atomicTotalDecreaseStock] 차감 수량 에러. productId: {}", entry.getKey());
+          throw new ProductException("차감할 수량은 1이상 이어야합니다.");
+        }
+
+        args.add(String.valueOf(entry.getValue())); // 상품수량
+        args.add(String.valueOf(completedAt.toEpochSecond(ZoneOffset.UTC)));
+      }
+
+      List<String> results = stringRedisTemplate.execute(
+              ProductLuaScriptProvider.getTotalStockDecreaseScript(), keys, args.toArray(new String[0])
+      );
+
+      if (!results.isEmpty()) {
+        log.debug("상품 총재고 업데이트 결과, {}", results);
+      }
+
+      return results;
+    } catch (Exception e) {
+      log.error("상품 총재고 업데이트 에러, {}", e.getMessage());
+      throw new ProductException("상품 총재고 업데이트 에러 발생");
     }
   }
 

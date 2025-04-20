@@ -16,7 +16,8 @@ public class ProductKafkaConsumer {
 
   private final EventRouter eventRouter;
 
-  @KafkaListener(topics = "${spring.kafka.consumer.topic.order}")
+  @KafkaListener(topics = "${spring.kafka.consumer.topic.order}",
+          containerFactory = "kafkaListenerContainerFactory")
   public void consume(@Payload String payload, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
     try {
       eventRouter.route(topic, payload);
