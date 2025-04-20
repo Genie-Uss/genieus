@@ -16,12 +16,16 @@ import shop.genieus.coupon.application.in.command.CouponCommandService;
 public class CouponKafkaEventHandler {
   private final CouponCommandService commandService;
 
-  @EventTypeMapping(topic = "order-events")
+  @EventTypeMapping(topic = "${spring.kafka.consumer.topic.order}")
   public void handleOrderCanceled(OrderCanceledEvent event) {
     log.info("[handleOrderCanceled] 주문 취소 이벤트 수신 : {}", event);
     Long couponId = event.couponId();
     Long userId = event.userid();
     log.info("couponId : {}", couponId);
+    if (couponId == null) {
+      log.info("쿠폰을 사용하지 않은 주문입니다.");
+      return;
+    }
     commandService.cancelCoupon(couponId, userId);
   }
 
