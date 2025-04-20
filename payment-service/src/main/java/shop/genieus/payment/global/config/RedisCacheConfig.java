@@ -25,7 +25,7 @@ public class RedisCacheConfig {
 
     RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
         .defaultCacheConfig()
-        .computePrefixWith(key -> "payment-service::" + key)
+        .computePrefixWith(value -> "payment-service::" + value + "::")
         .serializeKeysWith(
             RedisSerializationContext.SerializationPair.fromSerializer(
                 new StringRedisSerializer()
