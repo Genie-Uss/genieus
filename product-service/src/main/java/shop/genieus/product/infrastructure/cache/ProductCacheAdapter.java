@@ -3,6 +3,7 @@ package shop.genieus.product.infrastructure.cache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -83,8 +84,10 @@ public class ProductCacheAdapter implements ProductCachePort {
 
   @Override
   public List<ProductView> validateAndDecreaseStock(Map<Long, Integer> productQuantities) {
-    List<String> results = productRedisRepository.atomicValidateAndDecreaseStock(productQuantities);
-    List<ProductView> productViews = new ArrayList<>(productQuantities.size());
+    Map<Long, Integer> orderedQuantities = new LinkedHashMap<>(productQuantities);
+
+    List<String> results = productRedisRepository.atomicValidateAndDecreaseStock(orderedQuantities);
+    List<ProductView> productViews = new ArrayList<>(orderedQuantities.size());
 
     for (int i = 0; i + 2 < results.size(); i += 3) {
       String productId = results.get(i);
