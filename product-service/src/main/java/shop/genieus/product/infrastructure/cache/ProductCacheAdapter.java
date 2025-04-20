@@ -1,6 +1,7 @@
 package shop.genieus.product.infrastructure.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import shop.genieus.product.application.out.cache.ProductCachePort;
 import shop.genieus.product.domain.model.ProductView;
 import shop.genieus.product.domain.model.entity.Product;
 import shop.genieus.product.domain.model.vo.ProductStatus;
+import shop.genieus.product.global.exception.ProductException;
+import shop.genieus.product.global.exception.ProductNotFoundException;
 import shop.genieus.product.infrastructure.cache.repository.ProductRedisRepository;
 
 @Slf4j
@@ -54,8 +57,8 @@ public class ProductCacheAdapter implements ProductCachePort {
   public void saveProduct(Long productId, Product product) {
     ProductView productView = ProductView.from(product);
     productRedisRepository.saveProductView(productId, productView);
-    setTotalStock(productId, (long) product.getProductTotalStock());
-    setStatus(productId, product.getProductStatus().name());
+    setInitialTotalStock(productId, (long) product.getProductTotalStock());
+    setInitialStatus(productId, product.getProductStatus().name());
   }
 
   @Override
@@ -74,34 +77,48 @@ public class ProductCacheAdapter implements ProductCachePort {
     productRedisRepository.saveProductViewBatch(productViewMap);
 
     for (Map.Entry<Long, Long> entry : totalStockMap.entrySet()) {
-      setTotalStock(entry.getKey(), entry.getValue());
+      setInitialTotalStock(entry.getKey(), entry.getValue());
     }
   }
 
   @Override
-  public void setTotalStock(Long productId, Long totalStock) {
-    productRedisRepository.setTotalStock(productId, totalStock);
+  public List<ProductView> validateAndDecreaseStock(Map<Long, Integer> productQuantities) {
+    List<String> results = productRedisRepository.atomicValidateAndDecreaseStock(productQuantities);
+    List<ProductView> productViews = new ArrayList<>(productQuantities.size());
+
+    for (int i = 0; i + 2 < results.size(); i += 3) {
+      String productId = results.get(i);
+      String usedStock = results.get(i + 1);
+      String metaInfo = results.get(i + 2);
+
+      log.info("상품 ID {} 재고 차감 완료. 총 사용량: {}", productId, usedStock);
+
+      if (metaInfo.isEmpty()) {
+        log.warn("상품 ID {}의 메타 정보가 없습니다. 이는 정상적이지 않은 상태입니다.", productId);
+        throw new ProductNotFoundException();
+      }
+
+      try {
+        ProductView view = objectMapper.readValue(metaInfo, ProductView.class);
+        productViews.add(view);
+      } catch (Exception e) {
+        log.error("메타 정보 변환 실패: {}", e.getMessage());
+        throw new ProductException("메타 정보 변환 실패: " + productId, e);
+      }
+    }
+
+    return productViews;
   }
 
-  @Override
-  public void setStatus(Long productId, String status) {
+  private void setInitialTotalStock(Long productId, Long totalStock) {
+    productRedisRepository.setInitialTotalStock(productId, totalStock);
+  }
+
+  private void setInitialStatus(Long productId, String status) {
     if (ProductStatus.isValid(status)) {
-      productRedisRepository.setStatus(productId, status);
+      productRedisRepository.setInitialStatus(productId, status);
     } else {
       log.info("유효하지 않은 상품 상태입니다: {}", status);
     }
-  }
-
-  @Override
-  public List<String> decreaseStock(Map<Long, Integer> productQuantities) {
-    List<String> results = productRedisRepository.atomicDecreaseStock(productQuantities);
-
-    for (int i = 0; i + 1 < results.size(); i += 2) {
-      String productId = results.get(i);
-      String usedStock = results.get(i + 1);
-      log.info("상품 ID {} 재고 차감 완료. 총 사용량: {}", productId, usedStock);
-    }
-
-    return results;
   }
 }

@@ -15,9 +15,5 @@ public interface ProductCachePort {
 
   void saveProductBatch(List<Product> products);
 
-  void setTotalStock(Long productId, Long totalStock);
-
-  void setStatus(Long productId, String status);
-
-  List<String> decreaseStock(Map<Long, Integer> productQuantities);
+  List<ProductView> validateAndDecreaseStock(Map<Long, Integer> productQuantities);
 }

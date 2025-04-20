@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 import shop.genieus.product.domain.model.ProductView;
+import shop.genieus.product.domain.model.vo.ProductStatus;
 import shop.genieus.product.global.exception.ProductException;
 import shop.genieus.product.infrastructure.cache.util.ProductLuaScriptProvider;
 
@@ -71,15 +72,15 @@ public class ProductRedisRepository {
     return Optional.ofNullable(longRedisTemplate.opsForValue().get(TOTAL_PREFIX + id)).orElse(0L);
   }
 
-  public void setTotalStock(Long id, Long total) {
+  public void setInitialTotalStock(Long id, Long total) {
     longRedisTemplate.opsForValue().setIfAbsent(TOTAL_PREFIX + id, total);
   }
 
-  public void setStatus(Long id, String status) {
+  public void setInitialStatus(Long id, String status) {
     stringRedisTemplate.opsForValue().setIfAbsent(STATUS_PREFIX + id, status);
   }
 
-  public List<String> atomicDecreaseStock(Map<Long, Integer> productQuantities) {
+  public List<String> atomicValidateAndDecreaseStock(Map<Long, Integer> productQuantities) {
     if (productQuantities == null || productQuantities.isEmpty()) {
       return Collections.emptyList();
     }
@@ -88,25 +89,29 @@ public class ProductRedisRepository {
       List<String> keys =
           productQuantities.keySet().stream().map(String::valueOf).collect(Collectors.toList());
 
-      List<String> args = new ArrayList<>(2 + productQuantities.size());
+      List<String> args = new ArrayList<>(5 + productQuantities.size());
+      args.add(STATUS_PREFIX);
       args.add(TOTAL_PREFIX);
       args.add(USED_PREFIX);
-      productQuantities.values().forEach(qty -> args.add(String.valueOf(qty)));
+      args.add(META_PREFIX);
+      args.add(ProductStatus.ON_SALE.name());
+
+      for (String productIdStr : keys) {
+        Long productId = Long.valueOf(productIdStr);
+        Integer quantity = productQuantities.get(productId);
+        args.add(String.valueOf(quantity));
+      }
 
       List<String> result =
           stringRedisTemplate.execute(
-              ProductLuaScriptProvider.getStockDecreaseScript(), keys, args.toArray());
-
-      if (result != null && !result.isEmpty()) {
-        log.debug("재고 차감 스크립트 실행 결과: {}", result);
-      }
+              ProductLuaScriptProvider.getValidateAndDecreaseScript(),
+              keys,
+              args.toArray(new String[0]));
 
       return result != null ? result : Collections.emptyList();
-
     } catch (Exception e) {
       String message = extractRedisErrorMessage(e);
-      log.error("재고 차감 중 오류 발생: {}", message);
-      throw new ProductException("재고 차감 실패: " + message, e);
+      throw new ProductException("재고 처리 실패: " + message, e);
     }
   }
 

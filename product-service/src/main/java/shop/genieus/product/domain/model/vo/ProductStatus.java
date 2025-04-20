@@ -1,5 +1,6 @@
 package shop.genieus.product.domain.model.vo;
 
+import java.util.Arrays;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,4 +15,9 @@ public enum ProductStatus {
   ;
 
   private final String description;
+
+  public static boolean isValid(String name) {
+    return Arrays.stream(ProductStatus.values())
+        .anyMatch(status -> status.name().equalsIgnoreCase(name));
+  }
 }
