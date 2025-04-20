@@ -66,7 +66,7 @@ dependencies {
 
 
     // common library
-    implementation 'com.genieus:genieus-common-lib:1.5.1'
+    implementation 'com.genieus:genieus-common-lib:1.6.0'
 }
 
 dependencyManagement {
