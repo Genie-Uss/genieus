@@ -1,12 +1,12 @@
 package shop.genieus.order.application.out.persistence;
 
-import java.util.Set;
+import java.util.List;
 import shop.genieus.order.application.policy.OrderDelaySchedule;
 
 public interface OrderDelayQueuePort {
   void save(OrderDelaySchedule schedule);
 
-  Set<Long> findExpiredEvents(long untilEpochSeconds);
+  List<Long> popExpiredOrders(long epochSecond);
 
   void delete(Long orderId);
 }

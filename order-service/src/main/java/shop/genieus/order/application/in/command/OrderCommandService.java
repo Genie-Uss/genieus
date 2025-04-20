@@ -7,11 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.order.application.in.command.dto.*;
-import shop.genieus.order.application.in.event.OrderEventPublisher;
 import shop.genieus.order.application.out.client.OrderClientPort;
+import shop.genieus.order.application.out.event.OrderInternalEventPort;
 import shop.genieus.order.application.out.persistence.OrderCommandPort;
 import shop.genieus.order.application.out.util.OrderTimePort;
-import shop.genieus.order.application.policy.OrderCancelPolicy;
+import shop.genieus.order.application.policy.OrderPolicy;
 import shop.genieus.order.domain.model.assembler.CreateOrderAssembler;
 import shop.genieus.order.domain.model.assembler.OrderProductAssembler;
 import shop.genieus.order.domain.model.entity.Order;
@@ -26,16 +26,18 @@ import shop.genieus.order.domain.service.OrderPriceCalculator;
 @Transactional
 @RequiredArgsConstructor
 public class OrderCommandService {
-  private final OrderTimePort orderTimePort;
-  private final OrderClientPort orderClientPort;
-  private final OrderCommandPort orderCommandPort;
-  private final OrderCancelPolicy orderCancelPolicy;
-  private final OrderEventPublisher orderEventPublisher;
+  private final OrderTimePort timePort;
+  private final OrderPolicy orderPolicy;
+  private final OrderClientPort clientPort;
+  private final OrderCommandPort commandPort;
+  private final OrderInternalEventPort internalEventPort;
 
   public Order create(CreateOrderCommand command) {
-    LocalDateTime orderedAt = getCurrentTime();
     CreateOrderAssembler assembler = command.toAssembler();
-    assembler.applyOrderedAt(orderedAt);
+
+    LocalDateTime orderedAt = getCurrentTime();
+    LocalDateTime orderDeadLineAt = orderPolicy.calculateOrderExpiration(orderedAt);
+    assembler.applyOrderPeriod(orderedAt, orderDeadLineAt);
 
     List<OrderProductAssembler> productAssemblers = command.toProductAssembler();
     List<PromotionProduct> promotions = getPromotionProducts(productAssemblers, orderedAt);
@@ -51,40 +53,47 @@ public class OrderCommandService {
     OrderPriceCalculator.calculate(assembler);
 
     Order order = Order.create(assembler);
-    Order saved = orderCommandPort.save(order);
+    Order saved = commandPort.save(order);
 
-    orderEventPublisher.publishOrderCreated(order);
+    internalEventPort.publishOrderCreated(order);
     return saved;
   }
 
   public Order requestPayment(PaymentCommand command) {
-    LocalDateTime paymentRequested = getCurrentTime();
+    LocalDateTime paymentRequestedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
     processCouponForPayment(command, order);
-    order.requestPayment(paymentRequested);
+    order.requestPayment(paymentRequestedAt);
     createPayment(order);
+    internalEventPort.publishPaymentRequested(order);
     return order;
   }
 
-  public void cancelOrderByUser(CancelOrderCommand command) {
+  public void cancelOrder(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
-    orderCancelPolicy.cancelOrderByUser(order, command.userId(), canceledAt);
-    orderEventPublisher.publishOrderCanceled(order);
+    orderPolicy.cancelOrder(order, command.userId(), canceledAt);
+    internalEventPort.publishOrderCanceled(order);
   }
 
-  public void cancelOrderBySystem(CancelOrderCommand command) {
-    LocalDateTime canceledAt = getCurrentTime();
-    Order order = findOrder(command.orderId());
-    orderCancelPolicy.cancelOrderBySystem(order, canceledAt);
-    orderEventPublisher.publishOrderCanceled(order);
+  public void expireOrders(ExpireOrderCommand command) {
+    LocalDateTime expiredAt = getCurrentTime();
+    List<Order> orders = findOrders(command.orderIds());
+
+    orders.forEach(
+        order -> {
+          boolean expired = orderPolicy.expireByOrderDeadline(order, expiredAt);
+          if (expired) {
+            internalEventPort.publishOrderExpired(order);
+          }
+        });
   }
 
   public void completePayment(CompletePaymentCommand command) {
     LocalDateTime paidAt = getCurrentTime();
     Order order = findOrder(command.orderId());
     order.completePayment(paidAt);
-    orderEventPublisher.publishOrderCompleted(order);
+    internalEventPort.publishPaymentCompleted(order);
   }
 
   public void completeOrder(CompleteOrderCommand command) {
@@ -94,11 +103,15 @@ public class OrderCommandService {
   }
 
   private Order findOrder(Long orderId) {
-    return orderCommandPort.findById(orderId);
+    return commandPort.findById(orderId);
+  }
+
+  private List<Order> findOrders(List<Long> orderIds) {
+    return commandPort.findAll(orderIds);
   }
 
   private LocalDateTime getCurrentTime() {
-    return orderTimePort.now();
+    return timePort.now();
   }
 
   private void processCouponForPayment(PaymentCommand command, Order order) {
@@ -110,20 +123,20 @@ public class OrderCommandService {
   }
 
   private void createPayment(Order order) {
-    orderClientPort.createPayment(order);
+    clientPort.createPayment(order);
   }
 
   private Coupon getCoupon(PaymentCommand command, Order order) {
-    return orderClientPort.useCoupon(order.getUserId(), command.couponId(), order.getOrderedAt());
+    return clientPort.useCoupon(order.getUserId(), command.couponId(), order.getOrderedAt());
   }
 
   private List<PromotionProduct> getPromotionProducts(
       List<OrderProductAssembler> productAssemblers, LocalDateTime orderedAt) {
-    return orderClientPort.verifyPromotion(productAssemblers, orderedAt);
+    return clientPort.verifyPromotion(productAssemblers, orderedAt);
   }
 
   private List<Product> getProducts(List<OrderProductAssembler> productAssemblers) {
-    return orderClientPort.useStock(productAssemblers);
+    return clientPort.useStock(productAssemblers);
   }
 
   private void applyPromotionDiscounts(

@@ -1,13 +1,18 @@
 package shop.genieus.order.global.config;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scripting.support.ResourceScriptSource;
 
 @Configuration
 public class RedisConfig {
@@ -31,5 +36,14 @@ public class RedisConfig {
     template.setValueSerializer(new GenericToStringSerializer<>(Long.class));
     template.setEnableTransactionSupport(false);
     return template;
+  }
+
+  @Bean
+  public RedisScript<List> popExpiredScript() {
+    DefaultRedisScript<List> script = new DefaultRedisScript<>();
+    script.setScriptSource(
+        new ResourceScriptSource(new ClassPathResource("redis/pop_expired.lua")));
+    script.setResultType(List.class);
+    return script;
   }
 }

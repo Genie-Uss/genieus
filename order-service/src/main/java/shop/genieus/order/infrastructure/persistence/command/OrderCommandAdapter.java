@@ -2,6 +2,7 @@ package shop.genieus.order.infrastructure.persistence.command;
 
 import static shop.genieus.order.global.exception.CustomNotFoundException.*;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import shop.genieus.order.application.out.persistence.OrderCommandPort;
@@ -21,5 +22,10 @@ public class OrderCommandAdapter implements OrderCommandPort {
   @Override
   public Order findById(Long orderId) {
     return orderJpaRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+  }
+
+  @Override
+  public List<Order> findAll(List<Long> orderIds) {
+    return orderJpaRepository.findAllById(orderIds);
   }
 }
