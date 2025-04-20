@@ -16,7 +16,6 @@ public class PassportAuditorAware implements AuditorAware<Long> {
       Passport passport = PassportContext.getPassport();
 
       if (passport == null) {
-        log.debug("패스포트 컨텍스트에서 패스포트를 찾을 수 없습니다.");
         return Optional.of(DEFAULT_AUDITOR);
       }
 
