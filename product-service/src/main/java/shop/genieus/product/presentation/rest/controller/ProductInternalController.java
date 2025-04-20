@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.genieus.product.application.in.command.ProductCommandService;
 import shop.genieus.product.application.in.command.dto.ListProductCommand;
-import shop.genieus.product.application.in.command.dto.StockValidationResult;
+import shop.genieus.product.domain.model.ProductView;
 import shop.genieus.product.domain.model.entity.Product;
 import shop.genieus.product.presentation.rest.mapper.ProductInternalMapper;
 
@@ -33,9 +33,9 @@ public class ProductInternalController {
 
   @PostMapping("/stock")
   public List<ProductClientResponse> useStock(@RequestBody StockRequest stockRequest) {
-    List<StockValidationResult> stockValidationResultList =
+    List<ProductView> stockValidationResultList =
         productCommandService.checkStockAvailability(mapper.toValidateStockCommand(stockRequest));
 
-    return mapper.toClientResponseListFromValidationResultList(stockValidationResultList);
+    return mapper.toClientResponseListFromProductViewList(stockValidationResultList);
   }
 }

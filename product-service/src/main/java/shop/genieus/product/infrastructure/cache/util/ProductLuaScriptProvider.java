@@ -8,17 +8,17 @@ import org.springframework.scripting.support.ResourceScriptSource;
 
 public class ProductLuaScriptProvider {
 
-  private static final RedisScript<List> STOCK_DECREASE_SCRIPT;
+  private static final RedisScript<List> VALIDATE_AND_DECREASE_SCRIPT;
 
   static {
     DefaultRedisScript<List> stockDecreaseScript = new DefaultRedisScript<>();
     stockDecreaseScript.setScriptSource(
-        new ResourceScriptSource(new ClassPathResource("redis/stock-decrease.lua")));
+        new ResourceScriptSource(new ClassPathResource("redis/validate-and-decrease-script.lua")));
     stockDecreaseScript.setResultType(List.class);
-    STOCK_DECREASE_SCRIPT = stockDecreaseScript;
+    VALIDATE_AND_DECREASE_SCRIPT = stockDecreaseScript;
   }
 
-  public static RedisScript<List> getStockDecreaseScript() {
-    return STOCK_DECREASE_SCRIPT;
+  public static RedisScript<List> getValidateAndDecreaseScript() {
+    return VALIDATE_AND_DECREASE_SCRIPT;
   }
 }
