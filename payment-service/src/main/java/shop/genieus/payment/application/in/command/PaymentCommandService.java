@@ -20,56 +20,67 @@ import shop.genieus.payment.domain.model.vo.PaymentStatus;
 @RequiredArgsConstructor
 public class PaymentCommandService {
 
-    private final PaymentCommandPort paymentCommandPort;
-    private final PaymentStrategyFactory paymentStrategyFactory;
+  private final PaymentCommandPort paymentCommandPort;
+  private final PaymentStrategyFactory paymentStrategyFactory;
 
-    private final PaymentEventService paymentEventService;
+  private final PaymentEventService paymentEventService;
 
-    @Transactional
-    public Payment create(CreatePaymentCommand createPaymentCommand) {
-        Payment payment = Payment.create(createPaymentCommand.toAssembler());
-        return paymentCommandPort.create(payment);
+  @Transactional
+  public Payment create(CreatePaymentCommand createPaymentCommand) {
+    Payment payment = Payment.create(createPaymentCommand.toAssembler());
+    return paymentCommandPort.create(payment);
+  }
+
+  @Transactional
+  public PaymentProcessorResult processPayment(ProcessPaymentCommand processPaymentCommand) {
+    Payment payment = findPaymentByOrderId(processPaymentCommand.orderId());
+    payment.setPaymentMethod(processPaymentCommand.paymentMethod());
+
+    checkPaymentStatus(payment.getPaymentStatus());
+
+    PaymentStrategy paymentStrategy =
+        paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
+    return paymentStrategy.process(payment);
+  }
+
+  @Transactional
+  public Payment registerPaymentSuccess(RegisterPaymentCommand registerPaymentCommand) {
+    Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
+    payment.registerPaymentSuccess();
+
+    publishPaymentSuccessEvent(payment);
+
+    return payment;
+  }
+
+  @Transactional
+  public void registerPaymentSuccessForTest(Long orderId) {
+    Payment payment = findPaymentByOrderId(orderId);
+    payment.setPaymentSuccessForTest();
+
+    publishPaymentSuccessEvent(payment);
+  }
+
+  @Transactional
+  public Payment cancel(Long orderId) {
+    Payment payment = findPaymentByOrderId(orderId);
+    payment.cancel();
+
+    return payment;
+  }
+
+  private Payment findPaymentByOrderId(Long orderId) {
+    return paymentCommandPort.findPaymentByOrderId(orderId);
+  }
+
+  private void checkPaymentStatus(PaymentStatus paymentStatus) {
+    switch (paymentStatus) {
+      case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
+      case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
     }
+  }
 
-    @Transactional
-    public PaymentProcessorResult processPayment(ProcessPaymentCommand processPaymentCommand) {
-        Payment payment = findPaymentByOrderId(processPaymentCommand.orderId());
-        payment.setPaymentMethod(processPaymentCommand.paymentMethod());
-
-        checkPaymentStatus(payment.getPaymentStatus());
-
-        PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
-        return paymentStrategy.process(payment);
-    }
-
-    @Transactional
-    public Payment registerPaymentSuccess(RegisterPaymentCommand registerPaymentCommand) {
-        Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
-        payment.registerPaymentSuccess();
-
-        publishPaymentSuccessEvent(payment);
-
-        return payment;
-    }
-
-    @Transactional
-    public void registerPaymentSuccessForTest(Long orderId) {
-        Payment payment = findPaymentByOrderId(orderId);
-        payment.setPaymentSuccessForTest();
-    }
-
-    private Payment findPaymentByOrderId(Long orderId) {
-        return paymentCommandPort.findPaymentByOrderId(orderId);
-    }
-
-    private void checkPaymentStatus(PaymentStatus paymentStatus) {
-        switch (paymentStatus) {
-            case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
-            case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
-        }
-    }
-
-    private void publishPaymentSuccessEvent(Payment payment) {
-        paymentEventService.createPaymentEvent(payment.getOrderId());
-    }
+  private void publishPaymentSuccessEvent(Payment payment) {
+    paymentEventService.createPaymentEvent(payment.getOrderId());
+  }
 }

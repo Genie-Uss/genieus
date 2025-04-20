@@ -10,16 +10,17 @@ import shop.genieus.payment.infrastructure.out.repository.PaymentJpaRepository;
 @RequiredArgsConstructor
 public class PaymentCommandAdapter implements PaymentCommandPort {
 
-    private final PaymentJpaRepository paymentJpaRepository;
+  private final PaymentJpaRepository paymentJpaRepository;
 
-    @Override
-    public Payment create(Payment payment) {
-        return paymentJpaRepository.save(payment);
-    }
+  @Override
+  public Payment create(Payment payment) {
+    return paymentJpaRepository.save(payment);
+  }
 
-    @Override
-    public Payment findPaymentByOrderId(Long orderId) {
-        return paymentJpaRepository.getPaymentByOrderId(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
-    }
+  @Override
+  public Payment findPaymentByOrderId(Long orderId) {
+    return paymentJpaRepository
+        .getPaymentByOrderId(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+  }
 }
