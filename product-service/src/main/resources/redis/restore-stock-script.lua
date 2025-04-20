@@ -56,10 +56,10 @@ for i = 1, #KEYS do
     local usedKey = usedPrefix .. productId
     local usedStock = tonumber(redis.call('GET', usedKey) or '0')
 
-    -- 사용한 재고보다 많이 복구하려는 경우 방지
-    if amount > usedStock then
-        return redis.error_reply(ERR_OVER_RESTORE .. productId)
-    end
+--     -- 사용한 재고보다 많이 복구하려는 경우 방지
+--     if amount > usedStock then
+--         return redis.error_reply(ERR_OVER_RESTORE .. productId)
+--     end
 
     -- 상태 키 및 현재 상태 확인
     local statusKey = statusPrefix .. productId
