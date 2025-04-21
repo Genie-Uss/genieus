@@ -90,9 +90,11 @@ jobs:
           host: ${{ secrets.BASTION_HOST }}
           username: ${{ secrets.BASTION_USER }}
           key: ${{ secrets.BASTION_SSH_KEY }}
-          proxy_host: ${{ secrets.PRIVATE_HOST }}
-          proxy_username: ${{ secrets.PRIVATE_USER }}
-          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
+          #          proxy_host: ${{ secrets.PRIVATE_HOST }}
+          #          proxy_username: ${{ secrets.PRIVATE_USER }}
+          #          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
+          debug: true          # ← 추가
+          script_stop: true    # 스크립트 실패 시 즉시 중단
           script: |
             # EC2에서 서비스 디렉토리로 이동 (.env 포함돼 있어야 함)
             cd /home/ubuntu/projects
