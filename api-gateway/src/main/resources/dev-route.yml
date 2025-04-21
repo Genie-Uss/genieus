@@ -10,7 +10,7 @@ spring:
           filters:
             - RewritePath=/eureka/(?<segment>.*), /$\{segment}
 
-            # ================================= 상품(products)
+          # ================================= 상품(products)
         - id: product-list
           uri: lb://PRODUCT-SERVICE
           predicates:
