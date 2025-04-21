@@ -1,6 +1,43 @@
-config:
-  import: optional:configserver:http://${CONFIG_HOST}:${CONFIG_PORT}
-cloud:
-  config:
-    profile: dev
-  # label: main
+spring:
+  application:
+    name: ${AUTH_HOST}
+server:
+  port: ${AUTH_PORT}
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@${EUREKA_HOST}:${EUREKA_PORT}/eureka/
+  instance:
+    preferIpAddress: true
+    hostname: ${spring.application.name}
+    instanceId: ${spring.application.name}:${server.port}
+    metadataMap:
+      management.port: ${management.server.port}
+
+logging:
+  level:
+    root: info
+    shop.genieus: debug
+    org.springframework.cloud.gateway: debug
+    org.springframework.web.reactive: info
+    reactor.netty: warn
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  server:
+    port: ${MANAGEMENT_AUTH_PORT}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+jwt:
+  secret: ${JWT_SECRET}

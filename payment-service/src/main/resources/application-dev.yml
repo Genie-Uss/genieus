@@ -1,6 +1,50 @@
-config:
-  import: optional:configserver:http://${CONFIG_HOST}:${CONFIG_PORT}
-cloud:
-  config:
-    profile: dev
-  # label: main
+spring:
+  application:
+    name: ${PAYMENT_HOST}
+server:
+  port: ${PAYMENT_PORT}
+  cloud:
+    config:
+      enabled: false
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    template:
+      default-topic: payment-events
+    consumer:
+      group-id: payment-service
+      topic:
+        promotion: promotion-events
+        order: order-events
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@${EUREKA_HOST}:${EUREKA_PORT}/eureka/
+  instance:
+    preferIpAddress: true
+    hostname: ${spring.application.name}
+    instanceId: ${spring.application.name}:${server.port}
+    metadataMap:
+      management.port: ${management.server.port}
+
+logging:
+  level:
+    root: info
+    shop.genieus: debug
+    org.springframework.cloud.gateway: debug
+    org.springframework.web.reactive: info
+    reactor.netty: warn
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  server:
+    port: ${MANAGEMENT_PAYMENT_PORT}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus

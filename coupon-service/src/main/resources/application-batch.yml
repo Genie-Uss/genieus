@@ -10,7 +10,7 @@ eureka:
 spring:
   config:
     activate:
-      on-profile: batch
+      on-profile: batch-dev
     import: 'classpath:docker-database.yml'
 
   batch:
