@@ -13,21 +13,21 @@ jobs:
     strategy:
       matrix:
         service:
-          - name: "eureka"
+          - name: "service-registry"
             folder: "service-registry"
-          - name: "auth"
+          - name: "auth-service"
             folder: "auth-service"
-          - name: "coupon"
+          - name: "coupon-service"
             folder: "coupon-service"
-          - name: "product"
+          - name: "product-service"
             folder: "product-service"
-          - name: "promotion"
+          - name: "promotion-service"
             folder: "promotion-service"
-          - name: "order"
+          - name: "order-service"
             folder: "order-service"
-          - name: "user"
+          - name: "user-service"
             folder: "user-service"
-          - name: "payment"
+          - name: "payment-service"
             folder: "payment-service"
 
     steps:
@@ -68,23 +68,23 @@ jobs:
       - name: Build, Tag and Push Docker Image to ECR
         run: |
           cd ${{ matrix.service.folder }}
-          docker build -t genieus-${{ matrix.service.name }} .
-          docker tag genieus-${{ matrix.service.name }}:latest ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
-          docker push ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest      
+          docker build -t ${{ matrix.service.name }} .
+          docker tag ${{ matrix.service.name }}:latest ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest      
 
       # 7. EC2에 SSH 접속하여 배포 수행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         env:
           SERVICE_PORT: ${{
-            matrix.service.name == 'eureka' && secrets.EUREKA_PORT ||
-            matrix.service.name == 'auth' && secrets.AUTH_PORT ||
-            matrix.service.name == 'product' && secrets.PRODUCT_PORT ||
-            matrix.service.name == 'user' && secrets.USER_PORT ||
-            matrix.service.name == 'coupon' && secrets.COUPON_PORT ||
-            matrix.service.name == 'promotion' && secrets.PROMOTION_PORT ||
-            matrix.service.name == 'order' && secrets.ORDER_PORT ||
-            matrix.service.name == 'payment' && secrets.PAYMENT_PORT || '7070'}}
+            matrix.service.name == 'service-registry' && secrets.EUREKA_PORT ||
+            matrix.service.name == 'auth-service' && secrets.AUTH_PORT ||
+            matrix.service.name == 'product-service' && secrets.PRODUCT_PORT ||
+            matrix.service.name == 'user-service' && secrets.USER_PORT ||
+            matrix.service.name == 'coupon-service' && secrets.COUPON_PORT ||
+            matrix.service.name == 'promotion-service' && secrets.PROMOTION_PORT ||
+            matrix.service.name == 'order-service' && secrets.ORDER_PORT ||
+            matrix.service.name == 'payment-service' && secrets.PAYMENT_PORT || '7070'}}
         with:
           host: ${{ secrets.PRIVATE_HOST }}
           username: ${{ secrets.PRIVATE_USER }}
@@ -106,11 +106,11 @@ jobs:
             docker rm ${{ matrix.service.name }} || true
             
             # 최신 Docker 이미지 Pull
-            docker pull ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
             
             # .env 파일을 주입하여 docker run 실행
             docker run -d --name ${{ matrix.service.name }} \
               --env-file .env \
               --network shared-net \
               -p ${{ env.SERVICE_PORT }}:${{ env.SERVICE_PORT }} \
-              ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
+              ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
