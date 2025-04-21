@@ -67,6 +67,9 @@ jobs:
 
       # 5. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
+        env:
+          COMMON_GITHUB_USER: ${{ secrets.COMMON_GITHUB_USER }}
+          COMMON_GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }}
         run: |
           cd ${{ matrix.service.folder }}
           chmod +x gradlew
