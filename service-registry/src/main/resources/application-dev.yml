@@ -40,3 +40,4 @@ logging:
     org.springframework.cloud.netflix.eureka: debug  # Spring Cloud Netflix Eureka Wrapper
     # 필요할 경우만 trace
     # com.netflix.discovery: trace
+  config: classpath:logback-dev.xml
