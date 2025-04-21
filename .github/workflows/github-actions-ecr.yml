@@ -70,35 +70,47 @@ jobs:
           cd ${{ matrix.service.folder }}
           docker build -t genieus-${{ matrix.service.name }} .
           docker tag genieus-${{ matrix.service.name }}:latest ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
-          docker push ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest      
 
       # 7. EC2에 SSH 접속하여 배포 수행
       - name: Deploy to EC2
+        if: ${{ contains(env.services_to_build, matrix.service.folder) }}
         uses: appleboy/ssh-action@v0.1.6
+        env:
+          SERVICE_PORT: ${{
+            matrix.service.name == 'eureka' && secrets.EUREKA_PORT ||
+            matrix.service.name == 'gateway' && secrets.GATEWAY_PORT ||
+            matrix.service.name == 'auth' && secrets.AUTH_PORT ||
+            matrix.service.name == 'product' && secrets.PRODUCT_PORT ||
+            matrix.service.name == 'user' && secrets.USER_PORT ||
+            matrix.service.name == 'coupon' && secrets.COUPON_PORT ||
+            matrix.service.name == 'promotion' && secrets.PROMOTION_PORT ||
+            matrix.service.name == 'order' && secrets.ORDER_PORT ||
+            matrix.service.name == 'payment' && secrets.PAYMENT_PORT || '7070'}}
         with:
-          host: ${{ secrets.BASTION_HOST }}              # 퍼블릭 EC2 IP
-          username: ${{ secrets.BASTION_USER }}          # ex. ubuntu
-          key: ${{ secrets.BASTION_SSH_KEY }}            # 퍼블릭 인스턴스 SSH key
-          proxy_host: ${{ secrets.PRIVATE_HOST }}        # 프라이빗 인스턴스 내부 IP
-          proxy_username: ${{ secrets.PRIVATE_USER }}    # ex. ubuntu
-          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}      # 퍼블릭 인스턴스에 저장된 프라이빗 인스턴스 키
+          host: ${{ secrets.BASTION_HOST }}
+          username: ${{ secrets.BASTION_USER }}
+          key: ${{ secrets.BASTION_SSH_KEY }}
+          proxy_host: ${{ secrets.PRIVATE_HOST }}
+          proxy_username: ${{ secrets.PRIVATE_USER }}
+          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
           script: |
             # EC2에서 서비스 디렉토리로 이동 (.env 포함돼 있어야 함)
             cd /home/ubuntu/projects
-
+            
             # ECR 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
+            
             # 기존 컨테이너 종료 및 제거
             docker stop ${{ matrix.service.name }} || true
             docker rm ${{ matrix.service.name }} || true
-
+            
             # 최신 Docker 이미지 Pull
             docker pull ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
-
+            
             # .env 파일을 주입하여 docker run 실행
             docker run -d --name ${{ matrix.service.name }} \
               --env-file .env \
               --network shared-net \
-              -p ${{ secrets[format('{0}_PORT', upper(matrix.service.name))] }}:${{ secrets[format('{0}_PORT', upper(matrix.service.name))] }} \
+              -p ${{ env.SERVICE_PORT }}:${{ env.SERVICE_PORT }} \
               ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
