@@ -64,3 +64,7 @@ management:
   tracing:
     sampling:
       probability: 1.0
+web:
+  client:
+    url:
+      auth: http://AUTH-SERVICE
