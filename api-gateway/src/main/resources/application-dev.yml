@@ -1,10 +1,11 @@
+server:
+  port: ${GATEWAY_PORT}
+
 spring:
   application:
     name: ${GATEWAY_HOST}
   config:
     import: 'classpath:dev-route.yml'
-server:
-  port: ${GATEWAY_PORT}
   cloud:
     config:
       enabled: false
