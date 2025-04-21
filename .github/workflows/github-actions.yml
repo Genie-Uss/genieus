@@ -91,9 +91,9 @@ jobs:
       - name: Build Docker Image
         run: |
           cd ${{ matrix.service.folder }}
-          docker build -t ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest .
+          docker build -t ${{ secrets.ECR_REGISTRY }}/genieus-shop-ecr:genieus-${{ matrix.service.name }}:latest .
 
       # 9. Docker 이미지 ECR에 Push
       - name: Push Docker Image to ECR
         run: |
-          docker push ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/genieus-shop-ecr:genieus-${{ matrix.service.name }}:latest
