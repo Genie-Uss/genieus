@@ -1,0 +1,96 @@
+# ✅ GitHub Actions: 변경된 서비스만 ECR로 Push + EC2에서 Pull & Run (with .env)
+name: CI/CD with GitHub Actions, Docker, and ECR
+
+on:
+  push:
+    branches: [ "feature/profile-setting" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        service:
+          - name: "eureka"
+            folder: "service-registry"
+          - name: "gateway"
+            folder: "api-gateway"
+          - name: "auth"
+            folder: "auth-service"
+          - name: "coupon"
+            folder: "coupon-service"
+          - name: "product"
+            folder: "product-service"
+          - name: "promotion"
+            folder: "promotion-service"
+          - name: "order"
+            folder: "order-service"
+          - name: "user"
+            folder: "user-service"
+          - name: "payment"
+            folder: "payment-service"
+
+    steps:
+      # 1. Git 저장소 체크아웃
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # 2. 변경된 서비스 폴더 감지
+      - name: Detect Changed Services
+        id: detect_changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          SERVICES_TO_BUILD=""
+          for FILE in $CHANGED_FILES; do
+            FOLDER=$(echo "$FILE" | cut -d'/' -f1)
+            if [[ ! "$SERVICES_TO_BUILD" =~ "$FOLDER" ]]; then
+              SERVICES_TO_BUILD="$SERVICES_TO_BUILD $FOLDER"
+            fi
+          done
+          echo "services_to_build=$SERVICES_TO_BUILD" >> $GITHUB_ENV
+
+      # 3. 변경되지 않은 서비스는 Skip
+      - name: Skip Unchanged Services
+        if: ${{ !contains(env.services_to_build, matrix.service.folder) }}
+        run: |
+          echo "Skipping ${{ matrix.service.name }}"
+          exit 0
+
+      # 4. JDK 17 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 5. Gradle 빌드 (테스트 제외)
+      - name: Build with Gradle
+        run: |
+          cd ${{ matrix.service.folder }}
+          chmod +x gradlew
+          ./gradlew clean build -x test --no-daemon
+
+      # 6. AWS 자격증명 구성
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # 7. ECR 로그인
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 8. Docker 이미지 빌드 (서비스 디렉토리 내에서)
+      - name: Build Docker Image
+        run: |
+          cd ${{ matrix.service.folder }}
+          docker build -t ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest .
+
+      # 9. Docker 이미지 ECR에 Push
+      - name: Push Docker Image to ECR
+        run: |
+          docker push ${{ secrets.ECR_REGISTRY }}/genieus-${{ matrix.service.name }}:latest
