@@ -89,9 +89,9 @@ jobs:
           host: ${{ secrets.BASTION_HOST }}
           username: ${{ secrets.BASTION_USER }}
           key: ${{ secrets.BASTION_SSH_KEY }}
-          #          proxy_host: ${{ secrets.PRIVATE_HOST }}
-          #          proxy_username: ${{ secrets.PRIVATE_USER }}
-          #          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
+          proxy_host: ${{ secrets.PRIVATE_HOST }}
+          proxy_username: ${{ secrets.PRIVATE_USER }}
+          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
           debug: true          # ← 추가
           script_stop: true    # 스크립트 실패 시 즉시 중단
           script: |
