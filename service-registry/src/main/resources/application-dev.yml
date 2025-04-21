@@ -1,17 +1,31 @@
+spring:
+  application:
+    name: ${EUREKA_HOST}
+
 server:
   port: ${EUREKA_PORT}
+  servlet:
+    context-path: /eureka
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false
+
 management:
   zipkin:
     tracing:
       endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
-        include: health
-
-eureka:
-  server:
-    enable-self-preservation: true
+        include: health,prometheus
 
 security:
   user:
@@ -21,8 +35,8 @@ security:
 logging:
   level:
     root: info
-    com.netflix.discovery: debug # Eureka 클라이언트 디버깅 (등록/갱신 확인)
-    com.netflix.eureka: debug # Eureka 서버 디버깅 (인스턴스 상태 추적)
-    org.springframework.cloud.netflix.eureka: debug # Spring Cloud Eureka 설정 디버깅
-    # 필요할 경우만 trace (예: 등록 누락 등 이슈 추적 시 사용)
+    com.netflix.discovery: info # Eureka 클라이언트 로깅
+    com.netflix.eureka: info # Eureka 서버 자체 로깅
+    org.springframework.cloud.netflix.eureka: debug # Spring Cloud Netflix Eureka Wrapper
+    # 필요할 경우만 trace
     # com.netflix.discovery: trace

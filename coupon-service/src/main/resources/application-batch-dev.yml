@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: batch
+  cloud:
+    discovery:
+      enabled: false
+  batch:
+    job:
+      enabled: false # 자동 job 실행 비활성화
+    jdbc:
+      initialize-schema: always
+
+# 웹 서버를 아예 띄우지 않음
+server:
+  port: -1
+
+management:
+  tracing:
+    enabled: false
