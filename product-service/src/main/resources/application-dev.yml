@@ -1,11 +1,8 @@
+server:
+  port: ${PRODUCT_PORT}
 spring:
   application:
     name: ${PRODUCT_HOST}
-server:
-  port: ${PRODUCT_PORT}
-  cloud:
-    config:
-      enabled: false
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     template:
@@ -15,6 +12,9 @@ server:
       topic:
         promotion: promotion-events
         order: order-events
+  cloud:
+    config:
+      enabled: false
 
 eureka:
   client:

@@ -1,8 +1,8 @@
+server:
+  port: ${PROMOTION_PORT}
 spring:
   application:
     name: ${PROMOTION_HOST}
-server:
-  port: ${PROMOTION_HOST}
   cloud:
     config:
       enabled: false
@@ -38,7 +38,7 @@ management:
     sampling:
       probability: 1.0
   server:
-    port: ${MANAGEMENT_PROMOTION_HOST}
+    port: ${MANAGEMENT_PROMOTION_PORT}
   endpoints:
     web:
       exposure:

@@ -1,11 +1,11 @@
 spring:
   application:
     name: ${USER_HOST}
-server:
-  port: ${USER_PORT}
   cloud:
     config:
       enabled: false
+server:
+  port: ${USER_PORT}
 
 eureka:
   client:
