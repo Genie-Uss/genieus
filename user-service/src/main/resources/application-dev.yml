@@ -1,12 +1,28 @@
+server:
+  port: ${USER_PORT}
+
 spring:
   application:
     name: ${USER_HOST}
   cloud:
     config:
       enabled: false
-server:
-  port: ${USER_PORT}
 
+  # === database ===
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+      
 eureka:
   client:
     serviceUrl:
