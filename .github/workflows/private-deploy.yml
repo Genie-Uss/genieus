@@ -86,12 +86,12 @@ jobs:
             matrix.service.name == 'order' && secrets.ORDER_PORT ||
             matrix.service.name == 'payment' && secrets.PAYMENT_PORT || '7070'}}
         with:
-          host: ${{ secrets.BASTION_HOST }}
-          username: ${{ secrets.BASTION_USER }}
-          key: ${{ secrets.BASTION_SSH_KEY }}
-          proxy_host: ${{ secrets.PRIVATE_HOST }}
-          proxy_username: ${{ secrets.PRIVATE_USER }}
-          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
+          host: ${{ secrets.PRIVATE_HOST }}
+          username: ${{ secrets.PRIVATE_USER }}
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          proxy_host: ${{ secrets.BASTION_HOST }}
+          proxy_username: ${{ secrets.BASTION_USER }}
+          proxy_key: ${{ secrets.BASTION_SSH_KEY }}
           debug: true          # ← 추가
           script_stop: true    # 스크립트 실패 시 즉시 중단
           script: |
