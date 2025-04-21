@@ -22,11 +22,11 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
-      
+
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@${EUREKA_HOST}:${EUREKA_PORT}/eureka/
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
   instance:
     preferIpAddress: true
     hostname: ${spring.application.name}

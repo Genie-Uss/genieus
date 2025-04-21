@@ -4,8 +4,6 @@ spring:
 
 server:
   port: ${EUREKA_PORT}
-  servlet:
-    context-path: /eureka
 
 eureka:
   client:
