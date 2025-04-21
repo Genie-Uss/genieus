@@ -4,6 +4,8 @@ name: CI/CD with GitHub Actions, Docker, and ECR
 on:
   push:
     branches: [ "feature/profile-setting" ]
+    paths-ignore:
+      - "api-gateway/**"
 
 jobs:
   build-and-deploy:
@@ -13,8 +15,6 @@ jobs:
         service:
           - name: "eureka"
             folder: "service-registry"
-          - name: "gateway"
-            folder: "api-gateway"
           - name: "auth"
             folder: "auth-service"
           - name: "coupon"
@@ -78,7 +78,6 @@ jobs:
         env:
           SERVICE_PORT: ${{
             matrix.service.name == 'eureka' && secrets.EUREKA_PORT ||
-            matrix.service.name == 'gateway' && secrets.GATEWAY_PORT ||
             matrix.service.name == 'auth' && secrets.AUTH_PORT ||
             matrix.service.name == 'product' && secrets.PRODUCT_PORT ||
             matrix.service.name == 'user' && secrets.USER_PORT ||
@@ -90,9 +89,9 @@ jobs:
           host: ${{ secrets.BASTION_HOST }}
           username: ${{ secrets.BASTION_USER }}
           key: ${{ secrets.BASTION_SSH_KEY }}
-          #          proxy_host: ${{ secrets.PRIVATE_HOST }}
-          #          proxy_username: ${{ secrets.PRIVATE_USER }}
-          #          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
+          proxy_host: ${{ secrets.PRIVATE_HOST }}
+          proxy_username: ${{ secrets.PRIVATE_USER }}
+          proxy_key: ${{ secrets.PRIVATE_SSH_KEY }}
           debug: true          # ← 추가
           script_stop: true    # 스크립트 실패 시 즉시 중단
           script: |
@@ -100,7 +99,7 @@ jobs:
             cd /home/ubuntu/projects
             
             # ECR 로그인
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            DOCKER_CONFIG=/dev/null aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
             
             # 기존 컨테이너 종료 및 제거
             docker stop ${{ matrix.service.name }} || true
