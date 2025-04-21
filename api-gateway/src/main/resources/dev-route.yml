@@ -2,7 +2,15 @@ spring:
   cloud:
     gateway:
       routes:
-        # ================================= 상품(products)
+        # ================================= 유레카
+        - id: eureka
+          uri: http://${EUREKA_HOST}:${EUREKA_PORT}
+          predicates:
+            - Path=/eureka/**
+          filters:
+            - RewritePath=/eureka/(?<segment>.*), /$\{segment}
+
+            # ================================= 상품(products)
         - id: product-list
           uri: lb://PRODUCT-SERVICE
           predicates:

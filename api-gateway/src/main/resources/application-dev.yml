@@ -49,6 +49,7 @@ logging:
     org.springframework.cloud.gateway: debug # Gateway 라우팅 관련
     org.springframework.web.reactive: info # WebFlux 처리 흐름
     reactor.netty: warn # Netty 내부 로그
+  config: classpath:logback-dev.xml
 
 management:
   server:
