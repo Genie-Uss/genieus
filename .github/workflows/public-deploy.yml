@@ -4,8 +4,8 @@ name: CI/CD with GitHub Actions, Docker, and ECR
 on:
   push:
     branches: [ "feature/profile-setting" ]
-    paths:
-      - "api-gateway/**"
+#    paths:
+#      - "api-gateway/**"
 
 jobs:
   build-and-deploy:
