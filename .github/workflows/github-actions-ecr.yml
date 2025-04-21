@@ -74,7 +74,6 @@ jobs:
 
       # 7. EC2에 SSH 접속하여 배포 수행
       - name: Deploy to EC2
-        if: ${{ contains(env.services_to_build, matrix.service.folder) }}
         uses: appleboy/ssh-action@v0.1.6
         env:
           SERVICE_PORT: ${{
