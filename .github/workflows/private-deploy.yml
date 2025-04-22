@@ -4,8 +4,6 @@ name: CI/CD with GitHub Actions, Docker, and ECR
 on:
   push:
     branches: [ "feature/profile-setting" ]
-    paths-ignore:
-      - "api-gateway/**"
 
 jobs:
   build-and-deploy:
@@ -15,6 +13,8 @@ jobs:
         service:
           - name: "service-registry"
             folder: "service-registry"
+          - name: "api-gateway"
+            folder: "api-gateway"
           - name: "auth-service"
             folder: "auth-service"
           - name: "coupon-service"
@@ -78,6 +78,7 @@ jobs:
         env:
           SERVICE_PORT: ${{
             matrix.service.name == 'service-registry' && secrets.EUREKA_PORT ||
+            matrix.service.name == 'api-gateway' && secrets.GATEWAY_PORT ||
             matrix.service.name == 'auth-service' && secrets.AUTH_PORT ||
             matrix.service.name == 'product-service' && secrets.PRODUCT_PORT ||
             matrix.service.name == 'user-service' && secrets.USER_PORT ||
@@ -104,6 +105,9 @@ jobs:
             # 기존 컨테이너 종료 및 제거
             docker stop ${{ matrix.service.name }} || true
             docker rm ${{ matrix.service.name }} || true
+            
+            # 사용하지 않는 이미지 정리
+            docker image prune -af || true
             
             # 최신 Docker 이미지 Pull
             docker pull ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
