@@ -7,6 +7,7 @@ end
 -- 2. 재고 확인
 local stock = tonumber(redis.call("GET", KEYS[2]))
 if not stock or stock <= 0 then
+    redis.call("DEL", KEYS[1])
     return -2
 end
 
