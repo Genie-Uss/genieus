@@ -23,10 +23,10 @@ jobs:
   deploy-service:
     runs-on: ubuntu-22.04
     env:
-      SERVICE_NAME: ${{ github.event.inputs.target_service }}
       COMMON_GITHUB_USER: ${{ secrets.COMMON_GITHUB_USER }}
       COMMON_GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }}
-      SERVICE_PORT: ${ {
+      SERVICE_NAME: ${{ github.event.inputs.target_service }}
+      SERVICE_PORT: ${{
         github.event.inputs.target_service == 'service-registry' && secrets.EUREKA_PORT ||
         github.event.inputs.target_service == 'api-gateway' && secrets.GATEWAY_PORT ||
         github.event.inputs.target_service == 'auth-service' && secrets.AUTH_PORT ||
