@@ -1,7 +1,4 @@
 spring:
-  config:
-    activate:
-      on-profile: batch-dev
   cloud:
     discovery:
       enabled: false
@@ -10,6 +7,23 @@ spring:
       enabled: false # 자동 job 실행 비활성화
     jdbc:
       initialize-schema: always
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 300000       # 5분
+      max-lifetime: 3600000      # 1시간
+      leak-detection-threshold: 2000
+      connection-test-query: SELECT 1
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
 
 # 웹 서버를 아예 띄우지 않음
 server:
