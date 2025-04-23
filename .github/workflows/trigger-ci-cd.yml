@@ -24,6 +24,18 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       SERVICE_NAME: ${{ github.event.inputs.target_service }}
+      COMMON_GITHUB_USER: ${{ secrets.COMMON_GITHUB_USER }}
+      COMMON_GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }}
+      SERVICE_PORT: ${ {
+        github.event.inputs.target_service == 'service-registry' && secrets.EUREKA_PORT ||
+        github.event.inputs.target_service == 'api-gateway' && secrets.GATEWAY_PORT ||
+        github.event.inputs.target_service == 'auth-service' && secrets.AUTH_PORT ||
+        github.event.inputs.target_service == 'product-service' && secrets.PRODUCT_PORT ||
+        github.event.inputs.target_service == 'user-service' && secrets.USER_PORT ||
+        github.event.inputs.target_service == 'coupon-service' && secrets.COUPON_PORT ||
+        github.event.inputs.target_service == 'promotion-service' && secrets.PROMOTION_PORT ||
+        github.event.inputs.target_service == 'order-service' && secrets.ORDER_PORT ||
+        github.event.inputs.target_service == 'payment-service' && secrets.PAYMENT_PORT || '7070'}}
 
     steps:
       # 1. Git 저장소 체크아웃
@@ -41,11 +53,8 @@ jobs:
 
       # 3. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
-        env:
-          COMMON_GITHUB_USER: ${{ secrets.COMMON_GITHUB_USER }}
-          COMMON_GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }}
         run: |
-          cd $SERVICE_NAME
+          cd ${{env.SERVICE_NAME}}
           chmod +x gradlew
           ./gradlew clean build -x test --no-daemon
 
@@ -64,25 +73,14 @@ jobs:
       # 6. Docker 이미지 빌드 및 ECR 푸시
       - name: Build, Tag and Push Docker Image to ECR
         run: |
-          cd $SERVICE_NAME
-          docker build -t $SERVICE_NAME .
-          docker tag $SERVICE_NAME:latest ${{ secrets.ECR_REGISTRY }}/$SERVICE_NAME:latest
-          docker push ${{ secrets.ECR_REGISTRY }}/$SERVICE_NAME:latest
+          cd ${{env.SERVICE_NAME}}
+          docker build -t ${{env.SERVICE_NAME}} .
+          docker tag ${{env.SERVICE_NAME}}:latest ${{ secrets.ECR_REGISTRY }}/${{env.SERVICE_NAME}}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/${{env.SERVICE_NAME}}:latest
 
       # 7. EC2에 SSH 접속하여 배포 수행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
-        env:
-          SERVICE_PORT: ${ {
-            github.event.inputs.target_service == 'service-registry' && secrets.EUREKA_PORT ||
-            github.event.inputs.target_service == 'api-gateway' && secrets.GATEWAY_PORT ||
-            github.event.inputs.target_service == 'auth-service' && secrets.AUTH_PORT ||
-            github.event.inputs.target_service == 'product-service' && secrets.PRODUCT_PORT ||
-            github.event.inputs.target_service == 'user-service' && secrets.USER_PORT ||
-            github.event.inputs.target_service == 'coupon-service' && secrets.COUPON_PORT ||
-            github.event.inputs.target_service == 'promotion-service' && secrets.PROMOTION_PORT ||
-            github.event.inputs.target_service == 'order-service' && secrets.ORDER_PORT ||
-            github.event.inputs.target_service == 'payment-service' && secrets.PAYMENT_PORT || '7070'}}
         with:
           host: ${{ secrets.PRIVATE_HOST }}
           username: ${{ secrets.PRIVATE_USER }}
@@ -93,10 +91,6 @@ jobs:
           debug: true          # ← 추가
           script_stop: true    # 스크립트 실패 시 즉시 중단
           script: |
-            # 서비스명 및 포트 환경변수 재정의
-            SERVICE_NAME=${{ env.SERVICE_NAME }}
-            SERVICE_PORT=${{ env.SERVICE_PORT }}
-
             # EC2에서 서비스 디렉토리로 이동 (.env 포함돼 있어야 함)
             cd /home/ubuntu/projects
 
@@ -104,18 +98,18 @@ jobs:
             DOCKER_CONFIG=/dev/null aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
             # 기존 컨테이너 종료 및 제거
-            docker stop $SERVICE_NAME || true
-            docker rm $SERVICE_NAME || true
+            docker stop ${{env.SERVICE_NAME}} || true
+            docker rm ${{env.SERVICE_NAME}}|| true
 
             # 사용하지 않는 이미지 정리
             docker image prune -af || true
 
             # 최신 Docker 이미지 Pull
-            docker pull ${{ secrets.ECR_REGISTRY }}/$SERVICE_NAME:latest
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{env.SERVICE_NAME}}:latest
 
             # .env 파일을 주입하여 docker run 실행
-            docker run -d --name $SERVICE_NAME \
+            docker run -d --name ${{env.SERVICE_NAME}} \
               --env-file .env \
               --network shared-net \
-              -p $SERVICE_PORT:$SERVICE_PORT \
-              ${{ secrets.ECR_REGISTRY }}/$SERVICE_NAME:latest
+              -p ${{env.SERVICE_PORT}}:${{env.SERVICE_PORT}} \
+              ${{ secrets.ECR_REGISTRY }}/${{env.SERVICE_NAME}}:latest
