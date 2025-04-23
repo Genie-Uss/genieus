@@ -37,6 +37,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle
+        env:
+          COMMON_GITHUB_USER: ${{ secrets.COMMON_GITHUB_USER }}
+          COMMON_GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }}
         run: |
           cd $SERVICE_NAME
           chmod +x gradlew
