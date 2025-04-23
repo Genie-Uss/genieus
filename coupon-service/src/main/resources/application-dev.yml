@@ -57,6 +57,7 @@ logging:
     org.springframework.cloud.gateway: debug
     org.springframework.web.reactive: info
     reactor.netty: warn
+  config: classpath:logback-dev.xml
 
 management:
   zipkin:
