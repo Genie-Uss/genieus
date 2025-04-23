@@ -80,6 +80,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
+      IllegalArgumentException exc, HttpServletRequest request) {
+    ApiResponse<Void> response = ApiResponse.fail(DEFAULT_ERROR_CODE, exc.getMessage());
+    logError(exc, DEFAULT_ERROR_CODE);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
   @ExceptionHandler(FeignClientException.class)
   protected ResponseEntity<ApiResponse<Void>> handleFeignClientException(FeignClientException e) {
     try {

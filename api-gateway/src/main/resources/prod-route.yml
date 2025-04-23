@@ -1,0 +1,403 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        # ================================= 상품(products)
+        - id: product-list
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products
+            - Method=GET
+          filters:
+
+        - id: product-detail
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/{productId}
+            - Method=GET
+          filters:
+
+        - id: product-create
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: product-update
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/{productId}
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: product-delete
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/{productId}
+            - Method=DELETE
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: product-recovery
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/{productId}/recovery
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        # ================================= 판매 상품(products)
+        - id: sales-product-create
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/sales
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: sales-product-update
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/sales/{salesProductId}
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: sales-product-delete
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/sales/{salesProductId}
+            - Method=DELETE
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: sales-product-stock-update
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/sales/{salesProductId}/stock
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: sales-product-status-update
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/sales/{salesProductId}/status
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: sales-product-recovery
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/sales/{salesProductId}/recovery
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        # ================================= 인증(auth)
+        - id: auth-login
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/login
+            - Method=POST
+          filters:
+
+        - id: auth-refresh
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/refresh
+            - Method=POST
+          filters:
+
+        - id: auth-logout
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/logout
+            - Method=POST
+          filters:
+            - TokenExtractor
+
+        # ================================= 사용자(users)
+        - id: user-signup
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users
+            - Method=POST
+          filters:
+
+        - id: user-detail
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users/{userId}
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: user-update
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users/{userId}
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: user-delete
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users/{userId}
+            - Method=DELETE
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: user-list
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        # ================================= 주문(orders)
+        - id: order-list
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: order-detail
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/{orderId}
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: order-create
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: order-update
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/{orderId}
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: order-cancel
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/{orderId}/cancel
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: order-delete
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/{orderId}
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: order-payment
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/{orderId}/payment
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-cancel
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/{paymentId}/cancel
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        # ================================= 쿠폰(coupons)
+        - id: coupon-list
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-detail
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons/{couponId}
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-create
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-delete
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons/{couponId}
+            - Method=DELETE
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-apply
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons/{couponId}
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-end
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons/{couponId}/end
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-stop
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons/{couponId}/stop
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: coupon-withdraw
+          uri: lb://COUPON-SERVICE
+          predicates:
+            - Path=/api/v1/coupons/{couponUserId}/withdraw
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        # ================================= 결제(payments)
+        - id: payment-list
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-detail
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/{paymentId}
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-create
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: payment-delete
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/{paymentId}
+            - Method=PATCH
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        # ================================= 프로모션(promotions)
+        - id: promotion-list
+          uri: lb://PROMOTION-SERVICE
+          predicates:
+            - Path=/api/v1/promotions
+            - Method=GET
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: promotion-detail
+          uri: lb://PROMOTION-SERVICE
+          predicates:
+            - Path=/api/v1/promotions/{promotionId}
+            - Method=GET
+          filters:
+
+        - id: promotion-create
+          uri: lb://PROMOTION-SERVICE
+          predicates:
+            - Path=/api/v1/promotions
+            - Method=POST
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: promotion-update
+          uri: lb://PROMOTION-SERVICE
+          predicates:
+            - Path=/api/v1/promotions/{promotionId}
+            - Method=PUT
+          filters:
+            - TokenExtractor
+            - Authentication
+
+        - id: promotion-delete
+          uri: lb://PROMOTION-SERVICE
+          predicates:
+            - Path=/api/v1/promotions/{promotionId}
+            - Method=DELETE
+          filters:
+            - TokenExtractor
+            - Authentication

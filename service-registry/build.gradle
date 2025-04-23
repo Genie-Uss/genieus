@@ -22,9 +22,6 @@ repositories {
 }
 
 dependencies {
-    // spring
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-
     // msa
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
 
