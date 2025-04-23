@@ -32,7 +32,7 @@ public class CouponCommandAdaptor implements CouponCommandPort {
   }
 
   @Override
-  public CouponUser findCouponUserCoupon(Long couponId, Long userId) {
+  public CouponUser findCouponUser(Long couponId, Long userId) {
     return couponUserJpaRepository.findCouponByCondition(couponId, userId);
   }
 

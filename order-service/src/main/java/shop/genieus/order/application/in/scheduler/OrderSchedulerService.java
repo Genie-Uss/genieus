@@ -20,7 +20,6 @@ public class OrderSchedulerService {
   private final OrderCommandService commandService;
 
   public void popExpiredOrders() {
-    log.debug("만료된 주문 조회 시작");
     long epochSecond = timePort.getEpochSecond();
     List<Long> expiredIds;
     try {
@@ -30,14 +29,11 @@ public class OrderSchedulerService {
       return;
     }
     if (expiredIds.isEmpty()) {
-      log.debug("만료된 주문 없음");
       return;
     }
-    log.info("만료된 주문 처리 실행: {} 건", expiredIds.size());
     ExpireOrderCommand command = ExpireOrderCommand.of(expiredIds);
     try {
       commandService.expireOrders(command);
-      log.info("만료된 주문 처리 완료: {}", expiredIds);
     } catch (Exception e) {
       log.error("주문 만료 처리 중 오류 발생: {}", e.getMessage(), e);
     }

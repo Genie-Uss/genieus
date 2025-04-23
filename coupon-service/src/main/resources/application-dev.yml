@@ -22,6 +22,14 @@ spring:
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 300000       # 5분
+      max-lifetime: 3600000      # 1시간
+      leak-detection-threshold: 2000
+      connection-test-query: SELECT 1
   data:
     redis:
       host: ${REDIS_HOST}
