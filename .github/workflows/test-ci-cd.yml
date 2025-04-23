@@ -3,7 +3,7 @@ name: CI/CD with GitHub Actions, Docker, and ECR
 
 on:
   push:
-    branches: [ "feature/profile-setting" ]
+    branches: [ "test_all" ]
 
 jobs:
   build-and-deploy:
