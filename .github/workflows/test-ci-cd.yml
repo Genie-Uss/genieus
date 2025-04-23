@@ -1,0 +1,120 @@
+# GitHub Actions: 모든 서비스를 ECR로 Push + EC2에서 Pull & Run (with .env)
+name: CI/CD with GitHub Actions, Docker, and ECR
+
+on:
+  push:
+    branches: [ "test_all" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        service:
+          - name: "service-registry"
+            folder: "service-registry"
+          - name: "api-gateway"
+            folder: "api-gateway"
+          - name: "auth-service"
+            folder: "auth-service"
+          - name: "coupon-service"
+            folder: "coupon-service"
+          - name: "product-service"
+            folder: "product-service"
+          - name: "promotion-service"
+            folder: "promotion-service"
+          - name: "order-service"
+            folder: "order-service"
+          - name: "user-service"
+            folder: "user-service"
+          - name: "payment-service"
+            folder: "payment-service"
+
+    steps:
+      # 1. Git 저장소 체크아웃
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. JDK 17 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Gradle 빌드 (테스트 제외)
+      - name: Build with Gradle
+        env:
+          COMMON_GITHUB_USER: ${{ secrets.COMMON_GITHUB_USER }}
+          COMMON_GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }}
+        run: |
+          cd ${{ matrix.service.folder }}
+          chmod +x gradlew
+          ./gradlew clean build -x test --no-daemon
+
+      # 4. AWS 자격증명 구성
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # 5. ECR 로그인
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 6. Docker 이미지 빌드 및 ECR 푸시
+      - name: Build, Tag and Push Docker Image to ECR
+        run: |
+          cd ${{ matrix.service.folder }}
+          docker build -t ${{ matrix.service.name }} .
+          docker tag ${{ matrix.service.name }}:latest ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest      
+
+      # 7. EC2에 SSH 접속하여 배포 수행
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        env:
+          SERVICE_PORT: ${{
+            matrix.service.name == 'service-registry' && secrets.EUREKA_PORT ||
+            matrix.service.name == 'api-gateway' && secrets.GATEWAY_PORT ||
+            matrix.service.name == 'auth-service' && secrets.AUTH_PORT ||
+            matrix.service.name == 'product-service' && secrets.PRODUCT_PORT ||
+            matrix.service.name == 'user-service' && secrets.USER_PORT ||
+            matrix.service.name == 'coupon-service' && secrets.COUPON_PORT ||
+            matrix.service.name == 'promotion-service' && secrets.PROMOTION_PORT ||
+            matrix.service.name == 'order-service' && secrets.ORDER_PORT ||
+            matrix.service.name == 'payment-service' && secrets.PAYMENT_PORT || '7070'}}
+        with:
+          host: ${{ secrets.PRIVATE_HOST }}
+          username: ${{ secrets.PRIVATE_USER }}
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          proxy_host: ${{ secrets.BASTION_HOST }}
+          proxy_username: ${{ secrets.BASTION_USER }}
+          proxy_key: ${{ secrets.BASTION_SSH_KEY }}
+          debug: true          # ← 추가
+          script_stop: true    # 스크립트 실패 시 즉시 중단
+          script: |
+            # EC2에서 서비스 디렉토리로 이동 (.env 포함돼 있어야 함)
+            cd /home/ubuntu/projects
+            
+            # ECR 로그인
+            DOCKER_CONFIG=/dev/null aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            
+            # 기존 컨테이너 종료 및 제거
+            docker stop ${{ matrix.service.name }} || true
+            docker rm ${{ matrix.service.name }} || true
+            
+            # 사용하지 않는 이미지 정리
+            docker image prune -af || true
+            
+            # 최신 Docker 이미지 Pull
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
+            
+            # .env 파일을 주입하여 docker run 실행
+            docker run -d --name ${{ matrix.service.name }} \
+              --env-file .env \
+              --network shared-net \
+              -p ${{ env.SERVICE_PORT }}:${{ env.SERVICE_PORT }} \
+              ${{ secrets.ECR_REGISTRY }}/${{ matrix.service.name }}:latest
