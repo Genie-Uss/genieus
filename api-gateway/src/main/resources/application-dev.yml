@@ -1,6 +1,70 @@
-config:
-  import: optional:configserver:http://${CONFIG_HOST}:${CONFIG_PORT}
-cloud:
+server:
+  port: ${GATEWAY_PORT}
+
+spring:
+  application:
+    name: ${GATEWAY_HOST}
   config:
-    profile: dev
-  # label: main
+    import: 'classpath:dev-route.yml'
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
+  instance:
+    preferIpAddress: true
+    hostname: ${spring.application.name}
+    instanceId: ${spring.application.name}:${server.port}
+    metadataMap:
+      management.port: ${management.server.port}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      defaultService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 5
+        registerHealthIndicator: true
+
+logging:
+  level:
+    root: info # 전체 기본 로그 레벨
+    shop.genieus: debug # 사용자 정의 패키지
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
+    org.springframework.cloud.gateway: debug # Gateway 라우팅 관련
+    org.springframework.web.reactive: info # WebFlux 처리 흐름
+    reactor.netty: warn # Netty 내부 로그
+  config: classpath:logback-dev.xml
+
+management:
+  server:
+    port: ${MANAGEMENT_GATEWAY_PORT}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,metrics,prometheus
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+web:
+  client:
+    url:
+      auth: http://AUTH-SERVICE

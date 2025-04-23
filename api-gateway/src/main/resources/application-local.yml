@@ -60,3 +60,7 @@ management:
   tracing:
     sampling:
       probability: 1.0
+web:
+  client:
+    url:
+      auth: ${AUTH_WEB_CLIENT_URL}

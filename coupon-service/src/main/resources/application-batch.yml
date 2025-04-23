@@ -1,16 +1,7 @@
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://username:password@localhost:8761/eureka/
-  instance:
-    preferIpAddress: true
-    hostname: ${spring.application.name}
-    instanceId: ${spring.application.name}:${server.port}
-
 spring:
   config:
     activate:
-      on-profile: batch
+      on-profile: batch-dev
     import: 'classpath:docker-database.yml'
 
   batch:

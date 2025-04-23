@@ -1,6 +1,7 @@
 package shop.genieus.gateway.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,8 +14,9 @@ import shop.genieus.gateway.constants.AppConstants.ApiPath.Internal;
 @Slf4j
 @Component
 public class AuthServiceClient {
-  private final String authServiceUrl = "http://AUTH-SERVICE";
   private final WebClient.Builder webClientBuilder;
+  @Value("${web.client.url.auth}")
+  private String AUTH_SERVICE_URL;
 
   public AuthServiceClient(WebClient.Builder webClientBuilder) {
     this.webClientBuilder = webClientBuilder;
@@ -26,7 +28,7 @@ public class AuthServiceClient {
     return webClientBuilder
         .build()
         .post()
-        .uri(authServiceUrl + Internal.AUTH_ISSUE_PASSPORT)
+        .uri(AUTH_SERVICE_URL + Internal.AUTH_ISSUE_PASSPORT)
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(new AuthClientRequest(token, uri, method))
         .retrieve()

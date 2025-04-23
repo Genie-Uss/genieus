@@ -1,6 +1,65 @@
-config:
-  import: optional:configserver:http://${CONFIG_HOST}:${CONFIG_PORT}
-cloud:
-  config:
-    profile: dev
-  # label: main
+server:
+  port: ${USER_PORT}
+
+spring:
+  application:
+    name: ${USER_HOST}
+  cloud:
+    config:
+      enabled: false
+
+  # === database ===
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 300000       # 5분
+      max-lifetime: 3600000      # 1시간
+      leak-detection-threshold: 2000
+      connection-test-query: SELECT 1
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
+  instance:
+    preferIpAddress: true
+    hostname: ${spring.application.name}
+    instanceId: ${spring.application.name}:${server.port}
+    metadataMap:
+      management.port: ${management.server.port}
+
+logging:
+  level:
+    root: info
+    shop.genieus: debug
+    org.springframework.cloud.gateway: debug
+    org.springframework.web.reactive: info
+    reactor.netty: warn
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  server:
+    port: ${MANAGEMENT_USER_PORT}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
