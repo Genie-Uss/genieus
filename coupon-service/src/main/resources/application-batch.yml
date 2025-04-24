@@ -29,6 +29,12 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: none
+
+# Zipkin 비활성화
+management:
+  tracing:
+    enabled: false
+
 logging:
   level:
     root: info
