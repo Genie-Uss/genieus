@@ -76,6 +76,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.zipkin.brave:brave-instrumentation-kafka-clients'
 
+    // log
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+
     // QueryDsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
