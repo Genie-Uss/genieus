@@ -1,28 +1,17 @@
 <configuration>
-  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-  <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
   <property name="SERVICE_NAME" value="order-service"/>
 
-  <appender name="JSON_CONSOLE" class="net.logstash.logback.appender.LogstashConsoleAppender">
+  <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
       <providers>
-        <timestamp>
-          <fieldName>timestamp</fieldName>
-        </timestamp>
-        <pattern>
-          <pattern>
-            {
-            "level": "%level",
-            "thread": "%thread",
-            "logger": "%logger",
-            "message": "%message",
-            "traceId": "%X{traceId}",
-            "spanId": "%X{spanId}",
-            "service": "${SERVICE_NAME}"
-            }
-          </pattern>
-        </pattern>
+        <timestamp/>
+        <logLevel/>
+        <threadName/>
+        <loggerName/>
+        <message/>
+        <mdc/>
+        <customFields>{"service":"${SERVICE_NAME}"}</customFields>
       </providers>
     </encoder>
   </appender>
@@ -30,4 +19,5 @@
   <root level="INFO">
     <appender-ref ref="JSON_CONSOLE"/>
   </root>
+
 </configuration>
