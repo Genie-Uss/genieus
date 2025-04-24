@@ -1,3 +1,6 @@
+# 웹 서버를 아예 띄우지 않음
+server:
+  port: -1
 spring:
   cloud:
     discovery:
@@ -24,11 +27,3 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
-
-# 웹 서버를 아예 띄우지 않음
-server:
-  port: -1
-
-management:
-  tracing:
-    enabled: false
