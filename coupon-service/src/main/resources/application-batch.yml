@@ -29,6 +29,10 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: none
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - org.springframework.cloud.client.discovery.composite.CompositeDiscoveryClientAutoConfiguration
 
 # Zipkin 비활성화
 management:
