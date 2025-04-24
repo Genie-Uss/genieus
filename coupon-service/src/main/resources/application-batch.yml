@@ -6,8 +6,6 @@ spring:
     discovery:
       enabled: false
   batch:
-    job:
-      enabled: false  # 자동 job 실행 비활성화
     jdbc:
       initialize-schema: always
   datasource:
