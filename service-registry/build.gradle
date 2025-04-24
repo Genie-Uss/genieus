@@ -30,6 +30,9 @@ dependencies {
     implementation 'io.github.openfeign:feign-micrometer'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+    // log
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 }
 
 dependencyManagement {

@@ -62,7 +62,9 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-    
+
+    // log
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
     // etc
     implementation 'com.genieus:genieus-common-lib:1.4.1'
