@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"batch-dev", "batch-local"})
+@Profile("batch")
 @RequiredArgsConstructor
 public class BatchJobRunner implements CommandLineRunner {
 
@@ -26,6 +26,6 @@ public class BatchJobRunner implements CommandLineRunner {
 
     jobLauncher.run(couponSaveJob, parameters);
 
-    System.exit(0); // jenkins에서 job이 마무리되어도 로딩 중인 이슈 방지
+    // System.exit(0); // jenkins에서 job이 마무리되어도 로딩 중인 이슈 방지
   }
 }
