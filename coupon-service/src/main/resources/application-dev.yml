@@ -15,6 +15,9 @@ spring:
   cloud:
     config:
       enabled: false
+  batch:
+    job:
+      enabled: false  # 자동 job 실행 비활성화
 
   # === database ===
   datasource:

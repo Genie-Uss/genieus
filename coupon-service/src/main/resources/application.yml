@@ -2,7 +2,7 @@ spring:
   application:
     name: coupon-service
   profiles:
-    active: dev
+    active: local
 
 server:
   port: 10010
