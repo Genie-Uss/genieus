@@ -53,11 +53,9 @@ eureka:
 
 logging:
   level:
-    root: info
-    shop.genieus: debug
-    org.springframework.cloud.gateway: debug
-    org.springframework.web.reactive: info
-    reactor.netty: warn
+    root: WARN
+    shop.genieus: DEBUG
+  config: classpath:logback-dev.xml
 
 management:
   zipkin:
