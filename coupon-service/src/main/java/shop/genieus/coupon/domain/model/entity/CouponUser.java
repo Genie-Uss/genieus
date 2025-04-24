@@ -57,8 +57,22 @@ public class CouponUser extends BaseEntity {
   }
 
   public void cancelCoupon() {
+    validateUsableExpiredDate();
     this.couponUserStatus = CouponUseStatus.AVAILABLE;
     this.couponUserUsedDate = null;
+  }
+
+  // 쿠폰 사용 및 취소 전 만료 여부 확인
+  public void validateUsableExpiredDate() {
+    if (this.getCouponUserExpiredDate().isBefore(LocalDateTime.now())) {
+      throw new IllegalArgumentException("사용 기한이 지난 쿠폰입니다.");
+    }
+  }
+
+  public void validateUsableStatus() {
+    if (!this.getCouponUserStatus().equals(CouponUseStatus.AVAILABLE)) {
+      throw new IllegalArgumentException("사용 불가능한 쿠폰입니다.");
+    }
   }
 
   public static CouponUser create(IssueCouponCommand dto) {

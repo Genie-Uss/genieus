@@ -3,7 +3,6 @@ package shop.genieus.coupon.application.in.command;
 import com.genieus.common.internal.request.UseCouponRequest;
 import com.genieus.common.internal.response.CouponClientResponse;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import shop.genieus.coupon.application.in.command.dto.CreateCouponCommand;
 import shop.genieus.coupon.application.out.persistence.CouponCommandPort;
 import shop.genieus.coupon.domain.model.entity.Coupon;
 import shop.genieus.coupon.domain.model.entity.CouponUser;
-import shop.genieus.coupon.domain.model.vo.CouponUseStatus;
 
 @Service
 @Transactional
@@ -58,9 +56,6 @@ public class CouponCommandService {
     if (couponUser == null) {
       throw new IllegalArgumentException("존재하지 않는 쿠폰입니다.");
     }
-    if (couponUser.getCouponUserExpiredDate().isBefore(LocalDateTime.now())) {
-      throw new IllegalArgumentException("사용 기한이 지난 쿠폰입니다.");
-    }
     // 쿠폰 취소
     couponUser.cancelCoupon();
   }
@@ -69,7 +64,6 @@ public class CouponCommandService {
     // 1. 쿠폰 유효성 검사 (쿠폰 발급 기간,
     Coupon coupon = commandPort.findCoupon(couponId);
     // 2. 쿠폰 재고 확인 및 발급
-    // todo. lua script 원자성은 보장되지만 도중에 실패했을 때 롤백은 안되는 것 같다.
     commandPort.createCouponUser(coupon, userId);
   }
 
@@ -78,12 +72,8 @@ public class CouponCommandService {
     if (couponUser == null) {
       throw new IllegalArgumentException("존재하지 않는 쿠폰입니다.");
     }
-    if (!couponUser.getCouponUserStatus().equals(CouponUseStatus.AVAILABLE)) {
-      throw new IllegalArgumentException("사용 불가능한 쿠폰입니다.");
-    }
-    if (couponUser.getCouponUserExpiredDate().isBefore(request.orderedAt())) {
-      throw new IllegalArgumentException("사용 기한이 지난 쿠폰입니다.");
-    }
+    couponUser.validateUsableStatus();
+    couponUser.validateUsableExpiredDate();
     return couponUser;
   }
 }
