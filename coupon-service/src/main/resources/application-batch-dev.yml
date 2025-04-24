@@ -23,7 +23,18 @@ spring:
       max-lifetime: 3600000      # 1시간
       leak-detection-threshold: 2000
       connection-test-query: SELECT 1
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
+logging:
+  level:
+    root: info
+    shop.genieus: debug
+    org.springframework.cloud.gateway: debug
+    org.springframework.web.reactive: info
+    reactor.netty: warn
