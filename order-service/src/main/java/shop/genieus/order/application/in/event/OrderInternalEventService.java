@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.order.application.out.event.OrderExternalEventPort;
 import shop.genieus.order.application.out.persistence.OrderDelayQueuePort;
+import shop.genieus.order.application.out.util.OrderTimePort;
 import shop.genieus.order.application.policy.OrderDelaySchedule;
-import shop.genieus.order.application.policy.OrderPolicy;
 import shop.genieus.order.domain.event.OrderCreatedEvent;
 
 @Slf4j
@@ -19,15 +19,14 @@ import shop.genieus.order.domain.event.OrderCreatedEvent;
 @Transactional
 @RequiredArgsConstructor
 public class OrderInternalEventService {
-  private final OrderPolicy cancelPolicy;
+  private final OrderTimePort timePort;
   private final OrderDelayQueuePort delayQueuePort;
   private final OrderExternalEventPort externalEventPort;
 
   // ------------ BeforeCommit --------
   public void onOrderCreatedBeforeCommit(OrderCreatedEvent event) {
-    long pendingMinutes = cancelPolicy.getOrderPendingMinutes();
-    OrderDelaySchedule schedule =
-        OrderDelaySchedule.of(event.orderId(), event.orderedAt(), pendingMinutes);
+    long epochSecond = timePort.toEpochSecond(event.deadlineAt());
+    OrderDelaySchedule schedule = new OrderDelaySchedule(event.orderId(), epochSecond);
     delayQueuePort.save(schedule);
   }
 

@@ -6,4 +6,6 @@ public interface OrderTimePort {
   LocalDateTime now();
 
   long getEpochSecond();
+
+  long toEpochSecond(LocalDateTime time);
 }
