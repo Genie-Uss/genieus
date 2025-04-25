@@ -16,7 +16,7 @@ public class OrderCommandService implements PaymentEventHandler {
 
     @Transactional
     public void handle(Long orderId) {
-        log.warn("[이벤트 수신 - 주문 번호]: {}", orderId);
+        log.info("[이벤트 수신 - 주문 번호]: {}", orderId);
         Payment payment = paymentCommandService.cancel(orderId);
         log.info("[주문 상태]: {}", payment.getPaymentId());
         log.info("[주문 상태]: {}", payment.getPaymentStatus());

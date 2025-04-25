@@ -19,7 +19,7 @@ public class PaymentCacheAdapter implements PaymentCachePort {
       value = "payment"
   )
   public Payment putPaymentCache(Payment payment) {
-    log.info("[캐시 생성] 주문 번호: {}", payment.getOrderId());
+    log.info("[결제 객체 캐시 생성] 주문 번호: {}", payment.getOrderId());
     return payment;
   }
 
@@ -29,6 +29,6 @@ public class PaymentCacheAdapter implements PaymentCachePort {
       value = "payment"
   )
   public void removePaymentCache(Long orderId) {
-    log.info("[캐시 삭제] 주문 번호: {}", orderId);
+    log.info("[결제 객체 캐시 삭제] 주문 번호: {}", orderId);
   }
 }
