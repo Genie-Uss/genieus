@@ -24,7 +24,7 @@ public class ProductKafkaEventHandler {
     log.info("[handleOrderCanceled] 주문 취소 이벤트 수신 : {}", event);
 
     try {
-      commandService.restockProducts(mapper.toRestoreStockCommand(event));
+      commandService.restoreTotalProductStock(mapper.toRestoreTotalStockCommand(event));
     } catch (Exception ex) {
       log.warn("주문 취소 이벤트 처리 실패: {}", ex.getMessage());
     }
@@ -37,7 +37,7 @@ public class ProductKafkaEventHandler {
     log.info("[handleOrderExpired] 주문 만료 이벤트 수신 : {}", event);
 
     try {
-      commandService.restockProducts(mapper.toRestoreStockCommand(event));
+      commandService.restoreUsedProductStock(mapper.toRestoreUsedStockCommand(event));
     } catch (Exception ex) {
       log.warn("주문 만료 이벤트 처리 실패: {}", ex.getMessage());
     }
