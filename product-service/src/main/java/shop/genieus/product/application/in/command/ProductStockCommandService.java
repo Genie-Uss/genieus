@@ -7,13 +7,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import shop.genieus.product.application.in.command.dto.RestoreStockItem;
-import shop.genieus.product.application.in.command.dto.RestoreTotalStockCommand;
-import shop.genieus.product.application.in.command.dto.RestoreUsedStockCommand;
-import shop.genieus.product.application.in.command.dto.ValidateProductCommand;
+import shop.genieus.product.application.in.command.dto.*;
 import shop.genieus.product.application.out.cache.ProductCachePort;
 import shop.genieus.product.application.out.support.time.ProductTimePort;
-import shop.genieus.product.application.system.dto.OrderCompletedCommand;
 import shop.genieus.product.domain.model.ProductView;
 import shop.genieus.product.domain.model.entity.StockEvent;
 import shop.genieus.product.global.exception.ProductException;
@@ -73,14 +69,14 @@ public class ProductStockCommandService {
   public List<String> totalDecreaseStock(OrderCompletedCommand command) {
     validateOrderCompletedCommand(command);
 
-    Map<Long, Integer> decreaseQuantities =
-        aggregateQuantities(
-            command.orderProductItems(),
-            OrderCompletedCommand.OrderProductItem::productId,
-            OrderCompletedCommand.OrderProductItem::quantity);
+    List<StockEvent> events = createTotalDecreaseStockEvent(command);
 
-    return productCachePort.totalDecreaseStock(
-        decreaseQuantities, command.completedAt(), command.orderId());
+    try {
+      return productCachePort.totalDecreaseStock(events);
+    } catch (Exception e) {
+      log.error("상품 재고 차감 중 오류 발생: orderId={}, 에러={}", command.orderId(), e.getMessage());
+      throw e;
+    }
   }
 
   private void validateOrderCompletedCommand(OrderCompletedCommand command) {
@@ -118,5 +114,22 @@ public class ProductStockCommandService {
                 StockEvent.createIncreaseEvent(
                     entry.getKey(), orderId, entry.getValue(), timestamp))
         .toList();
+  }
+
+  private List<StockEvent> createTotalDecreaseStockEvent(OrderCompletedCommand command) {
+    Map<Long, Integer> aggregateQuantities =
+            aggregateQuantities(
+                    command.orderProductItems(),
+                    OrderCompletedCommand.OrderProductItem::productId,
+                    OrderCompletedCommand.OrderProductItem::quantity);
+    Long orderId = command.orderId();
+    long timestamp = productTimePort.convertToMillis(command.completedAt());
+
+    return aggregateQuantities.entrySet().stream()
+            .map(
+                    entry ->
+                            StockEvent.createDecreaseEvent(
+                                    entry.getKey(), orderId, entry.getValue(), timestamp))
+            .toList();
   }
 }

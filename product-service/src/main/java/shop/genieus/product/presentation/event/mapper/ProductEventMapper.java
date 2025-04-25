@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import shop.genieus.product.application.in.command.dto.RestoreStockItem;
 import shop.genieus.product.application.in.command.dto.RestoreTotalStockCommand;
 import shop.genieus.product.application.in.command.dto.RestoreUsedStockCommand;
-import shop.genieus.product.application.system.dto.OrderCompletedCommand;
+import shop.genieus.product.application.in.command.dto.OrderCompletedCommand;
 
 @Component
 public class ProductEventMapper {

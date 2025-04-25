@@ -1,12 +1,7 @@
 package shop.genieus.product.infrastructure.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -155,13 +150,27 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public List<String> totalDecreaseStock(
-      Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
+  public List<String> totalDecreaseStock(List<StockEvent> stockEvents) {
+    if (stockEvents == null || stockEvents.isEmpty()) {
+      log.warn("[totalDecreaseStock] stockEvents is null or empty");
+      return Collections.emptyList();
+    }
+
+    Map<Long, Integer> productQuantities =
+            stockEvents.stream()
+                    .collect(Collectors.toMap(
+                            StockEvent::productId,
+                            StockEvent::quantity)
+                    );
+
+    Long orderId = stockEvents.get(0).orderId();
+    Long timestamp = stockEvents.get(0).timestamp();
+
     try {
       return productRedisRepository.atomicTotalDecreaseStock(
-          productQuantities, completedAt, orderId);
+          productQuantities, timestamp, orderId);
     } catch (ProductException e) {
-      log.error("총재고 감소 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
+      log.error("상품 재고 차감 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
       throw e;
     }
   }

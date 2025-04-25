@@ -1,7 +1,5 @@
 package shop.genieus.product.infrastructure.cache.repository;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -156,14 +154,24 @@ public class ProductRedisRepository {
   }
 
   public List<String> atomicTotalDecreaseStock(
-      Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
+      Map<Long, Integer> productQuantities, Long timestamp, Long orderId) {
 
     if (productQuantities == null || productQuantities.isEmpty()) {
       return Collections.emptyList();
     }
 
+    String deduplicationKey = generateDedupKey(orderId, timestamp);
+    boolean isDuplicate = stringRedisTemplate.hasKey(deduplicationKey);
+
+    if (isDuplicate) {
+      log.info("이미 재고 완료 처리된 주문입니다.");
+      return Collections.emptyList();
+    }
+
     try {
       List<String> keys = new ArrayList<>();
+      keys.add(deduplicationKey);
+      keys.add(EVENT_ID_COUNTER_KEY);
 
       // 접두사 추가
       List<String> args = new ArrayList<>();
@@ -171,10 +179,10 @@ public class ProductRedisRepository {
       args.add(USED_PREFIX);
       args.add(STATUS_PREFIX);
       args.add(PROCESSING_QUEUE_KEY);
+      args.add(String.valueOf(TimeUnit.HOURS.toSeconds(DEDUP_TTL_HOURS)));
 
       // 데이터 순회
       for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {
-        keys.add(String.valueOf(entry.getKey())); // key에 상품ID 추가
         args.add(String.valueOf(entry.getKey())); // value에 상품ID 추가
         args.add(String.valueOf(orderId));
 
@@ -184,7 +192,7 @@ public class ProductRedisRepository {
         }
 
         args.add(String.valueOf(entry.getValue())); // 상품수량
-        args.add(String.valueOf(completedAt.toEpochSecond(ZoneOffset.UTC)));
+        args.add(String.valueOf(timestamp));
       }
 
       List<String> results =
@@ -194,13 +202,14 @@ public class ProductRedisRepository {
               args.toArray(new String[0]));
 
       if (!results.isEmpty()) {
-        log.debug("상품 총재고 업데이트 결과, {}", results);
+        log.info("상품 재고 차감 업데이트 결과, {}", results);
       }
 
       return results;
     } catch (Exception e) {
-      log.error("상품 총재고 업데이트 에러, {}", e.getMessage());
-      throw new ProductException("상품 총재고 업데이트 에러 발생");
+      String message = extractRedisErrorMessage(e);
+      log.error("상품 재고 차감 업데이트 에러, {}", message);
+      throw new ProductException("상품 재고 차감 업데이트 에러 발생");
     }
   }
 
