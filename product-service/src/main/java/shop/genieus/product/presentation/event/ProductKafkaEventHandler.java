@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import shop.genieus.product.application.in.command.ProductStockCommandService;
-import shop.genieus.product.application.system.dto.OrderCompletedCommand;
+import shop.genieus.product.application.in.command.dto.OrderCompletedCommand;
 import shop.genieus.product.presentation.event.mapper.ProductEventMapper;
 
 @Slf4j
@@ -52,7 +52,7 @@ public class ProductKafkaEventHandler {
     try {
       OrderCompletedCommand command = mapper.toOrderCompletedCommand(event);
       List<String> results = commandService.totalDecreaseStock(command);
-      log.info("[handleOrderCompletedEvent] 총재고 감소 상품 개수: {}", results.size() / 2);
+      log.info("[handleOrderCompletedEvent] 재고 차감 상품 개수: {}", results.size());
     } catch (Exception ex) {
       log.warn("주문 완료 이벤트 처리 실패: {}", ex.getMessage());
     }
