@@ -171,7 +171,6 @@ public class ProductRedisRepository {
     try {
       List<String> keys = new ArrayList<>();
       keys.add(deduplicationKey);
-      keys.add(String.valueOf(TimeUnit.HOURS.toSeconds(DEDUP_TTL_HOURS)));
       keys.add(EVENT_ID_COUNTER_KEY);
 
       // 접두사 추가
@@ -180,6 +179,7 @@ public class ProductRedisRepository {
       args.add(USED_PREFIX);
       args.add(STATUS_PREFIX);
       args.add(PROCESSING_QUEUE_KEY);
+      args.add(String.valueOf(TimeUnit.HOURS.toSeconds(DEDUP_TTL_HOURS)));
 
       // 데이터 순회
       for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {

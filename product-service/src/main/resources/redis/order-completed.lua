@@ -1,7 +1,7 @@
--- KEYS: 중복키, 중복키만료시간, 이벤트카운터
--- KEYS: dedupKey, dudupTTL, eventIdCounterKey
+-- KEYS: 중복키, 이벤트카운터
+-- KEYS: dedupKey, eventIdCounterKey
 
--- ARGV: 총재고접두사, 사용재고접두사, 판매상태접두사, 이벤트처리큐접두사
+-- ARGV: 총재고접두사, 사용재고접두사, 판매상태접두사, 이벤트처리큐접두사, 중복키만료시간
 -- ARGV: productId1, orderId1, quantity1, timestamp1,
 --       productId2, orderId2, quantity2, timestamp2,
 --       ...
@@ -10,14 +10,14 @@ local totalPrefix = ARGV[1]
 local usedPrefix = ARGV[2]
 local statusPrefix = ARGV[3]
 local eventQueuePrefix = ARGV[4]
+local dedupTTL = ARGV[5]
 
 local dedupKey = KEYS[1]
-local dedupTTL = KEYS[2]
-local eventIdCounter = KEYS[3]
+local eventIdCounter = KEYS[2]
 
 -- item으로 변환
 local items = {}
-for i = 5, #ARGV, 4 do
+for i = 6, #ARGV, 4 do
     table.insert(items, {
         productId = ARGV[i],
         orderId = ARGV[i+1],
@@ -113,6 +113,6 @@ end
 
 -- 중복 처리 방지를 위한 키 설정
 redis.call('SET', dedupKey, "DONE")
-redis.call('EXPIRE', dedupKey, dedupTTL)
+redis.call('EXPIRE', dedupKey, tonumber(dedupTTL))
 
 return results
