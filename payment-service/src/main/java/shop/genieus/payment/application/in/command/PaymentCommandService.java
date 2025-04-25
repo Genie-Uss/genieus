@@ -37,9 +37,10 @@ public class PaymentCommandService {
 
       return paymentCachePort.putPaymentCache(savedPayment);
     } catch (DataAccessException dae) {
+      log.warn(dae.getMessage());
       throw new PaymentException(PaymentErrorCode.PAYMENT_DUPLICATED_ERROR, dae);
     } catch (RuntimeException e) {
-      log.error("[결제 요청 실패] 원인: {}", e.getMessage());
+      log.warn("[결제 요청 실패] 원인: {}", e.getMessage());
       throw new PaymentException(PaymentErrorCode.PAYMENT_REQUEST_FAILED, e);
     }
   }
@@ -51,8 +52,7 @@ public class PaymentCommandService {
 
     checkPaymentStatus(payment.getPaymentStatus());
 
-    PaymentStrategy paymentStrategy =
-        paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
+    PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
     return paymentStrategy.process(payment);
   }
 
@@ -92,8 +92,8 @@ public class PaymentCommandService {
 
   private void checkPaymentStatus(PaymentStatus paymentStatus) {
     switch (paymentStatus) {
-      case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
-      case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
+      case SUCCESS -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_PAID);
+      case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
     }
   }
 
