@@ -9,7 +9,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 
 @Configuration
 public class RedisConfig {
@@ -40,13 +39,13 @@ public class RedisConfig {
   }
 
   @Bean
-  public RedisTemplate<String, IssueCouponCommand> CouponredisTemplate(
+  public RedisTemplate<String, String> stringRedisTemplate(
       RedisConnectionFactory redisConnectionFactory) {
 
-    RedisTemplate<String, IssueCouponCommand> CouponredisTemplate = new RedisTemplate<>();
-    CouponredisTemplate.setConnectionFactory(redisConnectionFactory);
-    CouponredisTemplate.setKeySerializer(new StringRedisSerializer());
-    CouponredisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-    return CouponredisTemplate;
+    RedisTemplate<String, String> template = new RedisTemplate<>();
+    template.setConnectionFactory(redisConnectionFactory);
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setValueSerializer(new StringRedisSerializer());
+    return template;
   }
 }
