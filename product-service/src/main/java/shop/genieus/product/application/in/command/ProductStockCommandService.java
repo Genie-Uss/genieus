@@ -71,7 +71,12 @@ public class ProductStockCommandService {
 
     List<StockEvent> events = createTotalDecreaseStockEvent(command);
 
-    return productCachePort.totalDecreaseStock(events);
+    try {
+      return productCachePort.totalDecreaseStock(events);
+    } catch (Exception e) {
+      log.error("상품 재고 차감 중 오류 발생: orderId={}, 에러={}", command.orderId(), e.getMessage());
+      throw e;
+    }
   }
 
   private void validateOrderCompletedCommand(OrderCompletedCommand command) {
