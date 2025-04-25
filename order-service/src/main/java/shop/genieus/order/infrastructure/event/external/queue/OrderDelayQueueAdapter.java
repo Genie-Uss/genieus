@@ -1,6 +1,5 @@
 package shop.genieus.order.infrastructure.event.external.queue;
 
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class OrderDelayQueueAdapter implements OrderDelayQueuePort {
   public void save(OrderDelaySchedule schedule) {
     try {
       Long orderId = schedule.orderId();
-      double score = schedule.scheduledAt().atZone(ZoneOffset.UTC).toEpochSecond();
+      double score = schedule.epochSecond();
       redisTemplate.opsForZSet().add(KEY, orderId, score);
     } catch (Exception e) {
       log.error("[save] 저장 중 예외발생: {}, schedule: {}", e.getMessage(), schedule);

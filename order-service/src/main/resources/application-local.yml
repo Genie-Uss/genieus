@@ -28,12 +28,8 @@ spring:
         order: order-events
 logging:
   level:
-    root: info
+    root: warn
     shop.genieus: debug
-    org.springframework.cloud.gateway: debug
-    org.springframework.web.reactive: info
-    reactor.netty: warn
-    org.apache.kafka.clients.Metadata: warn
 
 management:
   zipkin:
@@ -63,7 +59,7 @@ resilience4j:
           - feign.RetryableException
           - feign.FeignException.FeignServerException
         ignore-exceptions:
-          - shop.genieus.order.global.exception.CustomNotFoundException.PromotionNotFoundException
+          - shop.genieus.order.global.exception.CustomNotFoundException
           - feign.FeignException.FeignClientException
     instances:
       productServiceClient:
@@ -77,6 +73,6 @@ resilience4j:
 
 order:
   cancel-policy:
-    order-pending: 1
+    order-pending: 2
   scheduler:
     poll-interval: 30000
