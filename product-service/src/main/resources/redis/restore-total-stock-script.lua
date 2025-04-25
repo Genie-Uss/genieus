@@ -115,7 +115,7 @@ for _, op in ipairs(eventOperations) do
 end
 
 -- 3단계: 중복 처리 방지를 위한 키 설정
-redis.call('SET', dedupKey, "0")
+redis.call('SET', dedupKey, "DONE")
 redis.call('EXPIRE', dedupKey, dedupTTL)
 
 return { resultString }
