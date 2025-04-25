@@ -17,9 +17,10 @@ public class PaymentEventHandler {
 
   @EventTypeMapping(topic = "order-events", eventType = "OrderCanceledEvent")
   public void handleOrderCanceledEvent(OrderCanceledEvent orderCanceledEvent) {
-    log.warn("[이벤트 수신 - 주문 번호]: {}", orderCanceledEvent.orderId());
+    log.info("[이벤트 수신 - 주문 번호]: {}", orderCanceledEvent.orderId());
     Payment payment = paymentCommandService.cancel(orderCanceledEvent.orderId());
     log.info(
-        "[결제 취소 완료] paymentId={}, status={}", payment.getPaymentId(), payment.getPaymentStatus());
+        "[결제 취소 완료] paymentId={}, status={}", payment.getPaymentId(), payment.getPaymentStatus()
+    );
   }
 }
