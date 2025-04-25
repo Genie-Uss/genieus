@@ -3,8 +3,7 @@ package shop.genieus.coupon.infrastructure.persistence.repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 
@@ -12,8 +11,7 @@ import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 @RequiredArgsConstructor
 public class CouponRedisReader implements ItemReader<IssueCouponCommand> {
 
-  @Qualifier("stringRedisTemplate")
-  private final RedisTemplate<String, String> redisTemplate;
+  private final StringRedisTemplate redisTemplate;
 
   private final ObjectMapper objectMapper;
 
