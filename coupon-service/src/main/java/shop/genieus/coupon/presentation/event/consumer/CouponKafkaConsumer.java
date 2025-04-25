@@ -8,6 +8,7 @@ import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Profile("dev")
 @RequiredArgsConstructor
 public class CouponKafkaConsumer {
 
