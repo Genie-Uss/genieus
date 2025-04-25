@@ -7,6 +7,10 @@ local ERR_NONPOSITIVE_QTY = 'Quantity must be positive for product: '
 local ERR_TOTAL_NOT_SET = 'Total stock not set for product: '
 local ERR_MISSING_QTY = 'Quantity argument missing for product: '
 
+-- 고정 파라미터 개수 정의
+local FIXED_ARGC = 9  -- statusPrefix부터 dedupTTL까지의 고정 파라미터 개수
+local PRODUCT_KEY_START_INDEX = 4  -- 상품ID가 시작되는 KEYS 인덱스
+
 -- 키 정의
 local dedupKey = KEYS[1]
 local eventIdCounterKey = KEYS[2]
@@ -28,9 +32,9 @@ local resultString = "[총 재고 복구 결과]"
 local eventOperations = {}
 
 -- 1단계: 모든 상품의 유효성 검증 및 처리할 작업 수집
-for i = 4, #KEYS do
+for i = PRODUCT_KEY_START_INDEX, #KEYS do
     local productId = KEYS[i]
-    local quantityIndex = i + 6
+    local quantityIndex = FIXED_ARGC + (i - PRODUCT_KEY_START_INDEX + 1)
 
     -- 수량 유효성 검사
     local quantityStr = ARGV[quantityIndex]
