@@ -77,8 +77,9 @@ for _, statusChange in ipairs(statusChanges) do
     local statusKey = statusChange[1]
     local newStatus = statusChange[2]
 
-    -- 상태 변경
-    redis.call('SET', statusKey, newStatus)
+    if redis.call('GET', statusKey) == soldOutStatus then
+        redis.call('SET', statusKey, newStatus)
+    end
 end
 
 return { resultString }

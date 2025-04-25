@@ -10,7 +10,7 @@ public class ProductLuaScriptProvider {
 
   private static final RedisScript<List> VALIDATE_AND_DECREASE_SCRIPT;
   private static final RedisScript<List> DECREASE_USED_STOCK_SCRIPT;
-  private static final RedisScript<List> DECREASE_TOTAL_STOCK_SCRIPT;
+  private static final RedisScript<List> RESTORE_TOTAL_STOCK_SCRIPT;
   private static final RedisScript<List> TOTAL_STOCK_DECREASE_SCRIPT;
 
   static {
@@ -26,11 +26,11 @@ public class ProductLuaScriptProvider {
     decreaseUsedStockScript.setResultType(List.class);
     DECREASE_USED_STOCK_SCRIPT = decreaseUsedStockScript;
 
-    DefaultRedisScript<List> decreaseTotalStockScript = new DefaultRedisScript<>();
-    decreaseTotalStockScript.setScriptSource(
-        new ResourceScriptSource(new ClassPathResource("redis/decrease-total-stock-script.lua")));
-    decreaseTotalStockScript.setResultType(List.class);
-    DECREASE_TOTAL_STOCK_SCRIPT = decreaseTotalStockScript;
+    DefaultRedisScript<List> restoreTotalStockScript = new DefaultRedisScript<>();
+    restoreTotalStockScript.setScriptSource(
+        new ResourceScriptSource(new ClassPathResource("redis/restore-total-stock-script.lua")));
+    restoreTotalStockScript.setResultType(List.class);
+    RESTORE_TOTAL_STOCK_SCRIPT = restoreTotalStockScript;
 
     DefaultRedisScript<List> totalStockDecreaseScript = new DefaultRedisScript<>();
     totalStockDecreaseScript.setScriptSource(
@@ -47,8 +47,8 @@ public class ProductLuaScriptProvider {
     return DECREASE_USED_STOCK_SCRIPT;
   }
 
-  public static RedisScript<List> getDecreaseTotalStockScript() {
-    return DECREASE_TOTAL_STOCK_SCRIPT;
+  public static RedisScript<List> getRestoreTotalStockScript() {
+    return RESTORE_TOTAL_STOCK_SCRIPT;
   }
 
   public static RedisScript<List> getTotalStockDecreaseScript() {

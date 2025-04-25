@@ -121,7 +121,7 @@ public class ProductRedisRepository {
       return result != null ? result.get(0) : "";
     } catch (Exception e) {
       String message = extractRedisErrorMessage(e);
-      throw new ProductException("재고 복구 처리 실패: " + message, e);
+      throw new ProductException("예약 재고 차감 처리 실패: " + message, e);
     }
   }
 
@@ -144,7 +144,7 @@ public class ProductRedisRepository {
 
       List<String> result =
           stringRedisTemplate.execute(
-              ProductLuaScriptProvider.getDecreaseTotalStockScript(),
+              ProductLuaScriptProvider.getRestoreTotalStockScript(),
               args.keys,
               args.args.toArray(new String[0]));
 

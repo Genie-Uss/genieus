@@ -50,7 +50,7 @@ public class ProductStockCommandService {
             command.items(), RestoreStockItem::productId, RestoreStockItem::quantity);
 
     try {
-      productCachePort.decreaseUsedStock(restoredQuantities);
+      productCachePort.restoreUsedStock(restoredQuantities);
       log.info("예약 재고 취소 성공");
     } catch (Exception e) {
       log.error("예약된 재고 취소 중 오류 발생: orderId={}, 상세={}", command.orderId(), e.getMessage());
@@ -62,7 +62,7 @@ public class ProductStockCommandService {
     List<StockEvent> events = createStockEvents(command);
 
     try {
-      productCachePort.decreaseTotalStock(events);
+      productCachePort.restoreTotalStock(events);
       log.info("총 재고 복구 성공");
     } catch (Exception e) {
       log.error("총 재고 복구 중 오류 발생: orderId={}, 상세={}", command.orderId(), e.getMessage());

@@ -117,14 +117,14 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public void decreaseUsedStock(Map<Long, Integer> restoredQuantities) {
-    if (restoredQuantities == null || restoredQuantities.isEmpty()) {
+  public void restoreUsedStock(Map<Long, Integer> releasedQuantities) {
+    if (releasedQuantities == null || releasedQuantities.isEmpty()) {
       return;
     }
 
     try {
       String resultLines =
-          productRedisRepository.atomicDecreaseUsedProductStock(restoredQuantities);
+          productRedisRepository.atomicDecreaseUsedProductStock(releasedQuantities);
       log.info(resultLines);
     } catch (ProductException e) {
       throw e;
@@ -132,7 +132,7 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public void decreaseTotalStock(List<StockEvent> stockEvents) {
+  public void restoreTotalStock(List<StockEvent> stockEvents) {
     if (stockEvents == null || stockEvents.isEmpty()) {
       return;
     }
