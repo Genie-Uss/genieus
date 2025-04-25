@@ -2,7 +2,6 @@ package shop.genieus.order.infrastructure.time;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import shop.genieus.order.application.out.util.OrderTimePort;
@@ -19,6 +18,11 @@ public class OrderTimeAdapter implements OrderTimePort {
 
   @Override
   public long getEpochSecond() {
-    return LocalDateTime.now(clock).toInstant(ZoneOffset.UTC).getEpochSecond();
+    return now().atZone(clock.getZone()).toEpochSecond();
+  }
+
+  @Override
+  public long toEpochSecond(LocalDateTime dateTime) {
+    return dateTime.atZone(clock.getZone()).toEpochSecond();
   }
 }
