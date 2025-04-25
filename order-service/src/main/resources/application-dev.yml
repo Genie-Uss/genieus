@@ -89,7 +89,7 @@ resilience4j:
           - feign.RetryableException
           - feign.FeignException.FeignServerException
         ignore-exceptions:
-          - shop.genieus.order.global.exception.CustomNotFoundException.PromotionNotFoundException
+          - shop.genieus.order.global.exception.CustomNotFoundException
           - feign.FeignException.FeignClientException
     instances:
       productServiceClient:
