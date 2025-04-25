@@ -19,7 +19,10 @@ public interface ProductCachePort {
 
   List<ProductView> validateAndDecreaseStock(Map<Long, Integer> productQuantities);
 
-  void restoreStock(List<StockEvent> restoredQuantities);
+  void decreaseUsedStock(Map<Long, Integer> restoredQuantities);
 
-  List<String> totalDecreaseStock(Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId);
+  void decreaseTotalStock(List<StockEvent> restoredQuantities);
+
+  List<String> totalDecreaseStock(
+      Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId);
 }

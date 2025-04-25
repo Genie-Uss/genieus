@@ -1,7 +1,6 @@
 package shop.genieus.product.infrastructure.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,7 +117,22 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public void restoreStock(List<StockEvent> stockEvents) {
+  public void decreaseUsedStock(Map<Long, Integer> restoredQuantities) {
+    if (restoredQuantities == null || restoredQuantities.isEmpty()) {
+      return;
+    }
+
+    try {
+      String resultLines =
+          productRedisRepository.atomicDecreaseUsedProductStock(restoredQuantities);
+      log.info(resultLines);
+    } catch (ProductException e) {
+      throw e;
+    }
+  }
+
+  @Override
+  public void decreaseTotalStock(List<StockEvent> stockEvents) {
     if (stockEvents == null || stockEvents.isEmpty()) {
       return;
     }
@@ -130,29 +144,25 @@ public class ProductCacheAdapter implements ProductCachePort {
     Long orderId = stockEvents.get(0).orderId();
     Long timestamp = stockEvents.get(0).timestamp();
     try {
-      List<String> results =
+      String results =
           productRedisRepository.atomicRestoreStockWithEvents(
               productQuantities, orderId, timestamp);
 
-      for (int i = 0; i + 1 < results.size(); i += 2) {
-        String productId = results.get(i);
-        String usedStock = results.get(i + 1);
-
-        log.info("상품 ID {} 재고 복구 완료. 현재 사용량: {}", productId, usedStock);
-      }
+      log.info(results);
     } catch (ProductException e) {
-      log.error("재고 복구 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
       throw e;
     }
   }
 
   @Override
-  public List<String> totalDecreaseStock(Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
+  public List<String> totalDecreaseStock(
+      Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
     try {
-        return productRedisRepository.atomicTotalDecreaseStock(productQuantities, completedAt, orderId);
+      return productRedisRepository.atomicTotalDecreaseStock(
+          productQuantities, completedAt, orderId);
     } catch (ProductException e) {
-        log.error("총재고 감소 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
-        throw e;
+      log.error("총재고 감소 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
+      throw e;
     }
   }
 
