@@ -12,7 +12,7 @@ public class PromotionProductScheduler {
 
   private final PromotionProductService promotionProductService;
 
-  @Scheduled(cron = "0 */3 * * * *")
+  @Scheduled(cron = "0 0 * * * *")
   public void updateRedisDisCountRate() {
     LocalDateTime date = LocalDateTime.now();
     promotionProductService.findMaxDiscountRateProductsByDate(date);

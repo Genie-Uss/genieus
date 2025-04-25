@@ -42,14 +42,8 @@ public class PromotionQueryAdapter implements PromotionQueryPort {
 
   @Override
   public void saveProductDiscountRate(List<PromotionProduct> promotionProducts, LocalDateTime updatedAt) {
-    /**
-     * 6월 3일 ~ 6월 4일 00시 까지 판매, 6월 4일 1시에 스케줄 동작
-     * 6월 4일 ~ 6월 4일 23시59분 59초까지 존재
-     * 현재 날짜(4일) + 하루 날짜 기준 00시~23시59분59초 까지 제작
-     *
-     */
     if(promotionProducts == null || promotionProducts.isEmpty()) {
-      log.error("프로모션 상품이 존재하지 않습니다. 갱신 요청 날짜 : {}, 조회 구간 : {}",
+      log.warn("프로모션 상품이 존재하지 않습니다. 갱신 요청 날짜 : {}, 조회 구간 : {}",
           updatedAt, updatedAt.plusDays(1L));
       return;
     }
