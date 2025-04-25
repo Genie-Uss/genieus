@@ -1,6 +1,5 @@
 package shop.genieus.promotion.infrastructure.client.adapter;
 
-import com.genieus.common.internal.client.ProductInternalClient;
 import com.genieus.common.internal.response.ProductClientResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
