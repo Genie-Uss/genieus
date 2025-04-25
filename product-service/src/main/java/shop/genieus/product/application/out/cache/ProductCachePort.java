@@ -1,6 +1,5 @@
 package shop.genieus.product.application.out.cache;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import shop.genieus.product.domain.model.ProductView;
