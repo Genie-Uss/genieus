@@ -23,6 +23,5 @@ public interface ProductCachePort {
 
   void restoreTotalStock(List<StockEvent> releasedQuantities);
 
-  List<String> totalDecreaseStock(
-      Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId);
+  List<String> totalDecreaseStock(List<StockEvent> releasedQuantities);
 }
