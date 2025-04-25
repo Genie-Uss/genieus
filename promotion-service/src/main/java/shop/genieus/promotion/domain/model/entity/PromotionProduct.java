@@ -35,7 +35,7 @@ public class PromotionProduct extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long promotionProductId;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   @Comment("상품 아이디")
   private Long productId;
 
