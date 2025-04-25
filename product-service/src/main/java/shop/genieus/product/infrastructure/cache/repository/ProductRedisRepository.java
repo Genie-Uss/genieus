@@ -287,7 +287,7 @@ public class ProductRedisRepository {
   }
 
   private String generateDedupKey(Long orderId, Long timestamp) {
-    return DEDUP_KEY_PREFIX + ":" + orderId + ":" + timestamp;
+    return DEDUP_KEY_PREFIX + orderId + ":" + timestamp;
   }
 
   private record ScriptArguments(List<String> keys, List<String> args) {}
