@@ -19,7 +19,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:19092,localhost:19093
     consumer:
-      group-id: promotion-server
+      group-id: promotion-service
 
 
 logging:
