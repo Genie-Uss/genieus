@@ -7,11 +7,13 @@ import com.genieus.common.event.annotation.FallbackMapping;
 import com.genieus.common.event.order.OrderCanceledEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import shop.genieus.coupon.application.in.command.CouponCommandService;
 
 @Slf4j
 @Component
+@Profile("dev")
 @RequiredArgsConstructor
 public class CouponKafkaEventHandler {
   private final CouponCommandService commandService;
