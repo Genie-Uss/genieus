@@ -18,8 +18,13 @@ public class TodayLowestRateRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        LocalDateTime checkDay = LocalDateTime.now().minusDays(1);
-        promotionProductService.findMaxDiscountRateProductsByDate(checkDay);
-        log.info("당일 최저가 갱신 완료");
+        try {
+            LocalDateTime checkDay = LocalDateTime.now().minusDays(1);
+            promotionProductService.findMaxDiscountRateProductsByDate(checkDay);
+            log.info("당일 최저가 갱신 완료");
+
+        } catch (Exception e) {
+            log.info("당일 최저가 갱신 실패");
+        }
     }
 }
