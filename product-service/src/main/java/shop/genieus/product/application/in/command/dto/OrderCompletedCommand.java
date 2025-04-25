@@ -1,4 +1,4 @@
-package shop.genieus.product.application.system.dto;
+package shop.genieus.product.application.in.command.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
