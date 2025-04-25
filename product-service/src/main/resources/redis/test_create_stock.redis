@@ -1,0 +1,2 @@
+SET product:stock:total:400 500
+SET product:stock:used:400 500

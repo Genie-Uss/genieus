@@ -28,7 +28,7 @@ public class ProductRedisRepository {
   private static final String TOTAL_PREFIX = "product:stock:total:";
   private static final String EVENT_ID_COUNTER_KEY = "event_id_counter";
   private static final String PROCESSING_QUEUE_KEY = "product:event:stock:queue";
-  private static final String RESTORE_DEDUP_KEY_PREFIX = "dedup:restore:";
+  private static final String DEDUP_KEY_PREFIX = "dedup:restore:";
 
   private static final int DEDUP_TTL_HOURS = 24;
   private static final long META_TTL_HOURS = 24;
@@ -108,32 +108,55 @@ public class ProductRedisRepository {
     }
   }
 
-  public List<String> atomicRestoreStockWithEvents(
+  public String atomicDecreaseUsedProductStock(Map<Long, Integer> productQuantities) {
+    try {
+      ScriptArguments args = createDecreaseUsedProductStockArgs(productQuantities);
+
+      List<String> result =
+          stringRedisTemplate.execute(
+              ProductLuaScriptProvider.getDecreaseUsedStockScript(),
+              args.keys,
+              args.args.toArray(new String[0]));
+
+      return result != null ? result.get(0) : "";
+    } catch (Exception e) {
+      String message = extractRedisErrorMessage(e);
+      throw new ProductException("예약 재고 차감 처리 실패: " + message, e);
+    }
+  }
+
+  public String atomicRestoreStockWithEvents(
       Map<Long, Integer> productQuantities, Long orderId, Long timestamp) {
 
     if (productQuantities == null || productQuantities.isEmpty()) {
-      return Collections.emptyList();
+      return "복구할 재고가 존재하지 않습니다.";
+    }
+    String deduplicationKey = generateDedupKey(orderId, timestamp);
+    boolean isDuplicate = stringRedisTemplate.hasKey(deduplicationKey);
+
+    if (isDuplicate) {
+      return "이미 재고 복구가 처리되어 있습니다.";
     }
 
     try {
       ScriptArguments args =
-          createRestoreStockWithEventsArgs(productQuantities, orderId, timestamp);
+          createRestoreStockWithEventsArgs(productQuantities, orderId, timestamp, deduplicationKey);
 
       List<String> result =
           stringRedisTemplate.execute(
-              ProductLuaScriptProvider.getRestoreStockWithEventsScript(),
+              ProductLuaScriptProvider.getRestoreTotalStockScript(),
               args.keys,
               args.args.toArray(new String[0]));
 
-      return result != null ? result : Collections.emptyList();
+      return result != null ? result.get(0) : "재고 복구 결과가 존재하지 않습니다.";
     } catch (Exception e) {
       String message = extractRedisErrorMessage(e);
       throw new ProductException("재고 복구 처리 실패: " + message, e);
     }
   }
 
-  public List<String> atomicTotalDecreaseStock(Map<Long, Integer> productQuantities,
-                                               LocalDateTime completedAt, Long orderId) {
+  public List<String> atomicTotalDecreaseStock(
+      Map<Long, Integer> productQuantities, LocalDateTime completedAt, Long orderId) {
 
     if (productQuantities == null || productQuantities.isEmpty()) {
       return Collections.emptyList();
@@ -155,7 +178,7 @@ public class ProductRedisRepository {
         args.add(String.valueOf(entry.getKey())); // value에 상품ID 추가
         args.add(String.valueOf(orderId));
 
-        if(entry.getValue() <= 0) {
+        if (entry.getValue() <= 0) {
           log.error("[atomicTotalDecreaseStock] 차감 수량 에러. productId: {}", entry.getKey());
           throw new ProductException("차감할 수량은 1이상 이어야합니다.");
         }
@@ -164,9 +187,11 @@ public class ProductRedisRepository {
         args.add(String.valueOf(completedAt.toEpochSecond(ZoneOffset.UTC)));
       }
 
-      List<String> results = stringRedisTemplate.execute(
-              ProductLuaScriptProvider.getTotalStockDecreaseScript(), keys, args.toArray(new String[0])
-      );
+      List<String> results =
+          stringRedisTemplate.execute(
+              ProductLuaScriptProvider.getTotalStockDecreaseScript(),
+              keys,
+              args.toArray(new String[0]));
 
       if (!results.isEmpty()) {
         log.debug("상품 총재고 업데이트 결과, {}", results);
@@ -182,7 +207,6 @@ public class ProductRedisRepository {
   private ScriptArguments createValidateAndDecreaseStockArgs(Map<Long, Integer> productQuantities) {
     List<String> keys = new ArrayList<>(productQuantities.size());
     List<String> args = new ArrayList<>(5 + productQuantities.size());
-
     args.add(STATUS_PREFIX);
     args.add(TOTAL_PREFIX);
     args.add(USED_PREFIX);
@@ -194,15 +218,33 @@ public class ProductRedisRepository {
     return new ScriptArguments(keys, args);
   }
 
+  private ScriptArguments createDecreaseUsedProductStockArgs(Map<Long, Integer> stockQuantities) {
+
+    List<String> keys = new ArrayList<>(stockQuantities.size());
+    List<String> args = new ArrayList<>(4 + stockQuantities.size());
+
+    args.add(USED_PREFIX);
+    args.add(STATUS_PREFIX);
+    args.add(ProductStatus.SOLD_OUT.name());
+    args.add(ProductStatus.ON_SALE.name());
+
+    addProductQuantitiesToArgs(stockQuantities, keys, args);
+
+    return new ScriptArguments(keys, args);
+  }
+
   private ScriptArguments createRestoreStockWithEventsArgs(
-      Map<Long, Integer> productQuantities, Long orderId, Long timestamp) {
+      Map<Long, Integer> productQuantities, Long orderId, Long timestamp, String dedupKey) {
 
     List<String> keys = new ArrayList<>(productQuantities.size());
-    List<String> args = new ArrayList<>(13 + productQuantities.size());
+    keys.add(dedupKey);
+    keys.add(EVENT_ID_COUNTER_KEY);
+    keys.add(PROCESSING_QUEUE_KEY);
+
+    List<String> args = new ArrayList<>(9 + productQuantities.size());
 
     args.add(STATUS_PREFIX);
     args.add(TOTAL_PREFIX);
-    args.add(USED_PREFIX);
 
     args.add(ProductStatus.SOLD_OUT.name());
     args.add(ProductStatus.ON_SALE.name());
@@ -210,12 +252,9 @@ public class ProductRedisRepository {
     args.add(String.valueOf(orderId));
     args.add(String.valueOf(timestamp));
 
-    args.add(EVENT_ID_COUNTER_KEY);
-    args.add(PROCESSING_QUEUE_KEY);
     args.add(StockEventType.INCREASE.name());
     args.add(StockEventStatus.PENDING.name());
 
-    args.add(RESTORE_DEDUP_KEY_PREFIX);
     args.add(String.valueOf(TimeUnit.HOURS.toSeconds(DEDUP_TTL_HOURS)));
 
     addProductQuantitiesToArgs(productQuantities, keys, args);
@@ -245,6 +284,10 @@ public class ProductRedisRepository {
       root = root.getCause();
     }
     return Optional.ofNullable(root.getMessage()).orElse(e.getMessage());
+  }
+
+  private String generateDedupKey(Long orderId, Long timestamp) {
+    return DEDUP_KEY_PREFIX + orderId + ":" + timestamp;
   }
 
   private record ScriptArguments(List<String> keys, List<String> args) {}
