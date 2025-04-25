@@ -63,4 +63,4 @@ management:
 web:
   client:
     url:
-      auth: http://AUTH-SERVICE
+      auth: ${AUTH_WEB_CLIENT_URL}
