@@ -8,6 +8,8 @@ import shop.genieus.payment.domain.assembler.CreatePaymentAssembler;
 import shop.genieus.payment.domain.model.vo.Money;
 import shop.genieus.payment.domain.model.vo.PaymentMethod;
 import shop.genieus.payment.domain.model.vo.PaymentStatus;
+import shop.genieus.payment.global.exception.PaymentErrorCode;
+import shop.genieus.payment.global.exception.PaymentException;
 
 @Entity
 @Table(name = "m_payment")
@@ -85,7 +87,7 @@ public class Payment extends BaseEntity {
     try {
       return PaymentMethod.valueOf(method.toUpperCase());
     } catch (Exception e) {
-      throw new IllegalArgumentException("Invalid payment method: " + paymentMethod);
+      throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_METHOD);
     }
   }
 
@@ -98,13 +100,12 @@ public class Payment extends BaseEntity {
 
   private void checkPaymentStatusForRegister() {
     switch (this.paymentStatus) {
-      case SUCCESS -> throw new IllegalArgumentException("완료된 결제를 시도할 수 없습니다.");
-      case REFUNDED -> throw new IllegalArgumentException("환불된 결제를 시도할 수 없습니다.");
+      case SUCCESS -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_PAID);
+      case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
     }
   }
 
   private void checkIsRefundable() {
-    // TODO 일단 결제 완료 후 7일 이내 환불 정책으로 했는데, 배송 시작 기간 받아야 함?
     if (this.paymentPaidAt.isBefore(LocalDateTime.now().minusDays(7))) {
       throw new IllegalArgumentException("결제 완료 후 7일이 지난 결제는 취소할 수 없습니다.");
     }
@@ -112,9 +113,9 @@ public class Payment extends BaseEntity {
 
   private void checkPaymentStatusForCancel() {
     switch (this.paymentStatus) {
-      case PENDING -> throw new IllegalArgumentException("결제 진행 중인 경우 환불할 수 없습니다.");
-      case FAILED -> throw new IllegalArgumentException("실패한 결제를 환불할 수 없습니다.");
-      case REFUNDED -> throw new IllegalArgumentException("이미 환불한 결제입니다.");
+      case PENDING -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_CANCEL_PENDING);
+      case FAILED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_CANCEL_FAILED);
+      case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_CANCEL_REFUNDED);
     }
   }
 }
