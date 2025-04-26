@@ -22,7 +22,7 @@ public class CouponKafkaEventHandler {
   public void handleOrderCanceled(OrderCanceledEvent event) {
     log.info("[handleOrderCanceled] 주문 취소 이벤트 수신 : {}", event);
     Long couponId = event.couponId();
-    Long userId = event.userid();
+    Long userId = event.userId();
     log.info("couponId : {}", couponId);
     if (couponId == null) {
       log.info("쿠폰을 사용하지 않은 주문입니다.");
