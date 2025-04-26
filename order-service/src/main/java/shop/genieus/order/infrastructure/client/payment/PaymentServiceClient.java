@@ -24,17 +24,17 @@ public class PaymentServiceClient {
 
   public void createPaymentFallback(CreatePaymentRequest request, Throwable ex) {
     if (ex instanceof FeignClientException) {
-      log.error("결제 서비스 응답 오류: {}", ex.getMessage());
+      log.info("결제 서비스 응답 오류: {}", ex.getMessage());
       throw (FeignClientException) ex;
     }
 
     if (ex instanceof FeignServerException || ex instanceof RetryableException) {
-      log.error("결제 서비스 서버 오류: {}", ex.getMessage());
+      log.warn("결제 서비스 서버 오류: {}", ex.getMessage());
       throw new PaymentServiceFailureException();
     }
 
     if (ex instanceof CallNotPermittedException) {
-      log.error("서킷브레이커 OPEN 상태 - 결제 서비스 호출 차단됨: {}", ex.getMessage());
+      log.warn("서킷브레이커 OPEN 상태 - 결제 서비스 호출 차단됨: {}", ex.getMessage());
       throw new PaymentServiceFailureException();
     }
 

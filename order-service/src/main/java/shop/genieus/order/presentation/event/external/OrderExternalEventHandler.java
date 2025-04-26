@@ -19,7 +19,6 @@ public class OrderExternalEventHandler {
 
   @EventTypeMapping(topic = "payment-events")
   public void handlePaymentCompleted(PaymentCompletedEvent event) {
-    log.info("[handlePaymentCompleted] 결제 완료 이벤트 수신: {}", event);
     CompleteOrderCommand command = new CompleteOrderCommand(event.orderId());
     commandService.completeOrder(command);
   }

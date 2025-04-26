@@ -3,7 +3,7 @@ package shop.genieus.order.application.in.event;
 import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
-import com.genieus.common.event.order.PaymentRequestedEvent;
+import com.genieus.common.event.order.OrderPaymentRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class OrderInternalEventService {
     delayQueuePort.delete(event.orderId());
   }
 
-  public void onPaymentRequestedBeforeCommit(PaymentRequestedEvent event) {
+  public void onPaymentRequestedBeforeCommit(OrderPaymentRequestedEvent event) {
     delayQueuePort.delete(event.orderId());
   }
 

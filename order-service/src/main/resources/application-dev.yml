@@ -57,6 +57,7 @@ eureka:
 logging:
   level:
     root: WARN
+    com.genieus: DEBUG
     shop.genieus: DEBUG
   config: classpath:logback-dev.xml
 
@@ -103,6 +104,6 @@ resilience4j:
 
 order:
   cancel-policy:
-    order-pending: 1
+    order-pending: 2
   scheduler:
-    poll-interval: 30000
+    poll-interval: 60000

@@ -46,7 +46,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // 공통 라이브러리
-    implementation 'com.genieus:genieus-common-lib:1.6.0'
+    implementation 'com.genieus:genieus-common-lib:1.6.2'
 
     // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
