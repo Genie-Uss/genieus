@@ -1,5 +1,8 @@
 package shop.genieus.coupon.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +12,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 
 @Configuration
 public class RedisConfig {
@@ -40,13 +42,10 @@ public class RedisConfig {
   }
 
   @Bean
-  public RedisTemplate<String, IssueCouponCommand> CouponredisTemplate(
-      RedisConnectionFactory redisConnectionFactory) {
-
-    RedisTemplate<String, IssueCouponCommand> CouponredisTemplate = new RedisTemplate<>();
-    CouponredisTemplate.setConnectionFactory(redisConnectionFactory);
-    CouponredisTemplate.setKeySerializer(new StringRedisSerializer());
-    CouponredisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-    return CouponredisTemplate;
+  public ObjectMapper objectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 지원 추가
+    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 배열 대신 문자열로 저장
+    return objectMapper;
   }
 }
