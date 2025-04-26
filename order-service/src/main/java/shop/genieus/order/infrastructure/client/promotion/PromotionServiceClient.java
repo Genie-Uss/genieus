@@ -28,17 +28,17 @@ public class PromotionServiceClient {
   public List<Promotion> verifyPromotionFallback(VerifyPromotionRequest request, Throwable ex) {
 
     if (ex instanceof FeignClientException) {
-      log.error("프로모션 서비스 응답 오류: {}", ex.getMessage());
+      log.info("프로모션 서비스 응답 오류: {}", ex.getMessage());
       throw (FeignClientException) ex;
     }
 
     if (ex instanceof FeignServerException || ex instanceof RetryableException) {
-      log.error("프로모션 서비스 서버 오류: {}", ex.getMessage());
+      log.warn("프로모션 서비스 서버 오류: {}", ex.getMessage());
       throw new PromotionServiceFailureException();
     }
 
     if (ex instanceof CallNotPermittedException) {
-      log.error("서킷브레이커 OPEN 상태 - 프로모션 서비스 호출 차단됨: {}", ex.getMessage());
+      log.warn("서킷브레이커 OPEN 상태 - 프로모션 서비스 호출 차단됨: {}", ex.getMessage());
       throw new PromotionServiceFailureException();
     }
 

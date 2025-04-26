@@ -25,17 +25,17 @@ public class CouponServiceClient {
 
   public CouponClientResponse useCouponFallback(UseCouponRequest request, Throwable ex) {
     if (ex instanceof FeignClientException) {
-      log.error("쿠폰 서비스 응답 오류: {}", ex.getMessage());
+      log.info("쿠폰 서비스 응답 오류: {}", ex.getMessage());
       throw (FeignClientException) ex;
     }
 
     if (ex instanceof FeignServerException || ex instanceof RetryableException) {
-      log.error("쿠폰 서비스 서버 오류: {}", ex.getMessage());
+      log.warn("쿠폰 서비스 서버 오류: {}", ex.getMessage());
       throw new CouponServiceFailureException();
     }
 
     if (ex instanceof CallNotPermittedException) {
-      log.error("서킷브레이커 OPEN 상태 - 쿠폰 서비스 호출 차단됨: {}", ex.getMessage());
+      log.warn("서킷브레이커 OPEN 상태 - 쿠폰 서비스 호출 차단됨: {}", ex.getMessage());
       throw new CouponServiceFailureException();
     }
 

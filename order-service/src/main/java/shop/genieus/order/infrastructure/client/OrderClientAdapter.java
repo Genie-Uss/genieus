@@ -68,21 +68,21 @@ public class OrderClientAdapter implements OrderClientPort {
 
   private static void validatePromotion(List<PromotionClientResponse> response) {
     if (response == null || response.isEmpty()) {
-      log.warn("프로모션 서비스의 응답이 비어 있음");
+      log.warn("프로모션 서비스의 응답이 비어있음");
       throw new PromotionNotFoundException();
     }
   }
 
   private static void validateProduct(List<ProductClientResponse> response) {
     if (response == null || response.isEmpty()) {
-      log.warn("상품 서비스의 응답이 비어 있음");
+      log.warn("상품 서비스의 응답이 비어있음");
       throw new ProductNotFoundException();
     }
   }
 
   private static void validateCoupon(CouponClientResponse response) {
     if (response == null) {
-      log.warn("쿠폰 서비스의 응답이 null");
+      log.warn("쿠폰 서비스의 응답이 비어있음");
       throw new CouponNotFoundException();
     }
   }
