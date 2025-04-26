@@ -79,4 +79,10 @@ public class Coupon extends BaseEntity {
         .couponMaxPrice(couponMaxPrice)
         .build();
   }
+
+  public static Coupon ofId(Long id) {
+    Coupon coupon = new Coupon();
+    coupon.couponId = id;
+    return coupon;
+  }
 }

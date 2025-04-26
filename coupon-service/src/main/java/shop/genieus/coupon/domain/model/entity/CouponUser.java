@@ -78,6 +78,7 @@ public class CouponUser extends BaseEntity {
   public static CouponUser create(IssueCouponCommand dto) {
     return CouponUser.builder()
         .userId(dto.userId())
+        .coupon(Coupon.ofId(dto.couponId()))
         .couponUserIssuedDate(dto.issuedDate())
         .couponUserExpiredDate(dto.expiredDate())
         .couponUserStatus(dto.status())
