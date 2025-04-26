@@ -49,6 +49,7 @@ eureka:
 logging:
   level:
     root: WARN
+    com.genieus: DEBUG
     shop.genieus: DEBUG
   config: classpath:logback-dev.xml
 
