@@ -3,8 +3,8 @@ package shop.genieus.order.infrastructure.event.internal;
 import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
+import com.genieus.common.event.order.OrderPaymentRequestedEvent;
 import com.genieus.common.event.order.OrderProductItem;
-import com.genieus.common.event.order.PaymentRequestedEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -63,8 +63,11 @@ public class OrderInternalEventAdapter implements OrderInternalEventPort {
 
   @Override
   public void publishPaymentRequested(Order order) {
-    PaymentRequestedEvent event =
-        new PaymentRequestedEvent(order.getOrderId(), order.getOrderPrice().getFinalPrice());
+    OrderPaymentRequestedEvent event =
+        new OrderPaymentRequestedEvent(
+            order.getOrderId(),
+            order.getOrderPrice().getFinalPrice(),
+            order.getOrderTimeStamp().getPaymentRequestedAt());
     publisher.publishEvent(event);
   }
 

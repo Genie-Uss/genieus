@@ -3,7 +3,7 @@ package shop.genieus.order.presentation.event.internal;
 import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
-import com.genieus.common.event.order.PaymentRequestedEvent;
+import com.genieus.common.event.order.OrderPaymentRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class OrderInternalEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-  public void onPaymentRequestedBeforeCommit(PaymentRequestedEvent event) {
+  public void onPaymentRequestedBeforeCommit(OrderPaymentRequestedEvent event) {
     internalEventService.onPaymentRequestedBeforeCommit(event);
   }
 
