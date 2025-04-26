@@ -29,7 +29,6 @@ public class OrderController {
   @PostMapping
   public ResponseEntity<ApiResponse<CreateOrderResponse>> createOrder(
       @WithPassport Passport passport, @Valid @RequestBody CreateOrderRequest request) {
-    log.info("Create order request: {}", request);
     Order order = orderCommandService.create(request.toCommand(passport));
     CreateOrderResponse response = CreateOrderResponse.toResponse(order);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
@@ -40,7 +39,6 @@ public class OrderController {
       @WithPassport Passport passport,
       @PathVariable Long orderId,
       @Valid @RequestBody PaymentRequest request) {
-    log.info("Process payment request: {}", request);
     Order order = orderCommandService.requestPayment(request.toCommand(passport, orderId));
     PaymentResponse response = PaymentResponse.toResponse(order);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
@@ -50,7 +48,6 @@ public class OrderController {
   @PostMapping("/{orderId}/cancel")
   public ResponseEntity<ApiResponse<Void>> cancelOrder(
       @WithPassport Passport passport, @PathVariable Long orderId) {
-    log.info("Cancel order request: {}", orderId);
     orderCommandService.cancelOrder(new CancelOrderCommand(passport.getUserId(), orderId));
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.noContent());
   }

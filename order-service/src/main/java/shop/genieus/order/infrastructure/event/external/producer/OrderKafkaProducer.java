@@ -28,11 +28,11 @@ public class OrderKafkaProducer {
         .whenComplete(
             (sendResult, ex) -> {
               if (ex != null) {
-                log.error("Kafka 전송 실패: eventEnvelop={}", eventEnvelop, ex);
+                log.error("Kafka 이벤트 전송 실패: eventEnvelop={}", eventEnvelop, ex);
                 return;
               }
               log.info(
-                  "Kafka 전송 성공: key={}, value={}",
+                  "Kafka 이벤트 전송 성공: key={}, value={}",
                   sendResult.getProducerRecord().key(),
                   sendResult.getProducerRecord().value());
             });

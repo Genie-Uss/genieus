@@ -31,21 +31,21 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(CustomBadRequestException.class)
   protected ResponseEntity<ApiResponse<Void>> handleBadRequestException(
       CustomBadRequestException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response = ApiResponse.fail(e.getCode(), e.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @ExceptionHandler(CustomNotFoundException.class)
   protected ResponseEntity<ApiResponse<Void>> handleNotFoundException(CustomNotFoundException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response = ApiResponse.fail(e.getCode(), e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
   }
 
   @ExceptionHandler(CustomForbiddenException.class)
   protected ResponseEntity<ApiResponse<Void>> handleForbiddenException(CustomForbiddenException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response = ApiResponse.fail(e.getCode(), e.getMessage());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
   }
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(CustomServiceUnavailableException.class)
   protected ResponseEntity<ApiResponse<Void>> handleServiceUnavailableException(
       CustomServiceUnavailableException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.warn("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response =
         ApiResponse.fail(
             ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     List<ObjectError> errors = e.getBindingResult().getAllErrors();
     String message =
         errors.stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(","));
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), message, e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), message, e);
     final ApiResponse<Void> response = ApiResponse.fail(e.getStatusCode().value(), message);
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   protected ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
       IllegalArgumentException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response =
         ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -86,11 +86,11 @@ public class GlobalExceptionHandler {
     try {
       String content = e.contentUTF8();
       ApiResponse<?> response = objectMapper.readValue(content, ApiResponse.class);
-      log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+      log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
       return ResponseEntity.status(e.status())
           .body(ApiResponse.fail(response.code(), response.message()));
     } catch (Exception ex) {
-      log.error("{} 예외 발생: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
+      log.warn("{} 예외 발생: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
       return ResponseEntity.status(e.status())
           .body(ApiResponse.fail(e.status(), "Feign 예외 발생 (Body 파싱 실패)"));
     }
@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(UnauthorizedException.class)
   protected ResponseEntity<ApiResponse<Void>> handleUnauthorizedException(UnauthorizedException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response =
         ApiResponse.fail(
             ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpMessageNotReadableException.class)
   protected ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
       HttpMessageNotReadableException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response =
         ApiResponse.fail(
             ErrorCode.ORDER_SERVICE_FAILURE.getCode(),
