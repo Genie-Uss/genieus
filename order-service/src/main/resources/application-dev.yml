@@ -29,10 +29,11 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 4
-      connection-timeout: 30000
-      idle-timeout: 300000       # 5분
-      max-lifetime: 1800000      # 30분
-      leak-detection-threshold: 2000
+      connection-timeout: 30000       # 커넥션 요청 최대 대기 시간 (ms)
+      validation-timeout: 5000        # 커넥션 유효성 검사 타임아웃 (ms)
+      idle-timeout: 300000            # 유휴 커넥션 유지 시간 (ms)
+      max-lifetime: 1800000           # 커넥션 최대 수명 (ms)
+      leak-detection-threshold: 2000  # 2초 이상 반납 안 하면 로그 경고
   data:
     redis:
       host: ${REDIS_HOST}
@@ -41,12 +42,12 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
-      # JDBC batch를 50건 단위로 묶어서 executeBatch() 호출
-      jdbc.batch_size: 50
-      # UPDATE SQL을 엔티티별로 묶어서 전송
-      order_updates: true
-      # 버전 필드가 있는 엔티티도 batch로 처리
-      batch_versioned_data: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+        order_updates: true
+        batch_versioned_data: true
 
 eureka:
   client:
@@ -78,7 +79,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,prometheus,info
+        include:
+          - health
+          - prometheus
+          - info
 
 ### 커스텀
 resilience4j:
