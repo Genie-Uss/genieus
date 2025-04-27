@@ -61,7 +61,7 @@ public class OrderCommandService {
     return saved;
   }
 
-  @Observed(name = "order.payment", contextualName = "Payment Order")
+  @Observed(name = "order.payment", contextualName = "Request Payment")
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
