@@ -1,4 +1,4 @@
-package shop.genieus.payment.infrastructure.out.event;
+package shop.genieus.payment.infrastructure.out.cache;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
