@@ -64,6 +64,8 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
+    // log
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
     // common library
     implementation 'com.genieus:genieus-common-lib:1.6.0'
