@@ -1,5 +1,6 @@
 package shop.genieus.order.application.in.command;
 
+import io.micrometer.observation.annotation.Observed;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class OrderCommandService {
   private final OrderCommandPort commandPort;
   private final OrderInternalEventPort internalEventPort;
 
+  @Observed(name = "order.create", contextualName = "Create Order")
   public Order create(CreateOrderCommand command) {
     CreateOrderAssembler assembler = command.toAssembler();
 
@@ -59,6 +61,7 @@ public class OrderCommandService {
     return saved;
   }
 
+  @Observed(name = "order.payment", contextualName = "Request Payment")
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -69,6 +72,7 @@ public class OrderCommandService {
     return order;
   }
 
+  @Observed(name = "order.cancel", contextualName = "Cancel Order")
   public void cancelOrder(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -95,6 +99,7 @@ public class OrderCommandService {
     order.completePayment(paidAt);
   }
 
+  @Observed(name = "order.complete", contextualName = "Complete Order")
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
