@@ -2,11 +2,13 @@ package shop.genieus.coupon.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import shop.genieus.coupon.infrastructure.persistence.dto.IssueCouponCommand;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CouponRedisReader implements ItemReader<IssueCouponCommand> {
@@ -23,7 +25,10 @@ public class CouponRedisReader implements ItemReader<IssueCouponCommand> {
     String json = redisTemplate.opsForList().leftPop(COUPON_LIST_KEY);
 
     // 더이상 가져올 값이 없으면 null을 반환
-    if (json == null) return null;
+    if (json == null) {
+      log.info("Redis에서 더 이상 읽을 데이터 없음");
+      return null;
+    }
 
     // JSON -> 객체 : 역직렬화
     return objectMapper.readValue(json, IssueCouponCommand.class);
