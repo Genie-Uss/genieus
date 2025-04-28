@@ -65,6 +65,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.zipkin.brave:brave-instrumentation-kafka-clients'
 
     // log
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
@@ -72,9 +73,9 @@ dependencies {
     // kafka
     implementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
-    // 공통 라이브러리
-    implementation 'com.genieus:genieus-common-lib:1.6.3'
 
+    // 공통 라이브러리
+    implementation 'com.genieus:genieus-common-lib:1.6.0'
 }
 
 dependencyManagement {

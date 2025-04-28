@@ -1,7 +1,6 @@
 package shop.genieus.product.application.in.command;
 
 import java.util.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.product.application.in.command.dto.CreateProductCommand;
 import shop.genieus.product.application.in.command.dto.ListProductCommand;
 import shop.genieus.product.application.out.cache.ProductCachePort;
+import shop.genieus.product.application.out.event.internal.ProductInternalEventPort;
 import shop.genieus.product.application.out.persistence.ProductCommandPort;
 import shop.genieus.product.domain.model.entity.Product;
 
@@ -18,8 +18,9 @@ import shop.genieus.product.domain.model.entity.Product;
 @RequiredArgsConstructor
 public class ProductCommandService {
 
-  private final ProductCommandPort productCommandPort;
-  private final ProductCachePort productCachePort;
+  private final ProductCommandPort commandPort;
+  private final ProductCachePort cachePort;
+  private final ProductInternalEventPort internalEventPort;
 
   public Product createProduct(CreateProductCommand command) {
     Product product =
@@ -30,12 +31,15 @@ public class ProductCommandService {
             command.productTotalStock(),
             command.productStatus());
 
-    Product saved = productCommandPort.save(product);
-    productCachePort.saveProduct(saved.getProductId(), saved);
+    Product saved = commandPort.save(product);
+    cachePort.saveProduct(saved.getProductId(), saved);
+
+    internalEventPort.publishProductCreated(saved);
+
     return saved;
   }
 
   public List<Product> findProductListByIds(ListProductCommand command) {
-    return productCommandPort.findProductsByIds(command.productIds());
+    return commandPort.findProductsByIds(command.productIds());
   }
 }
