@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import shop.genieus.coupon.domain.model.entity.CouponUser;
 
-public interface CouponUserJpaRepository extends JpaRepository<CouponUser, Long> {
+public interface CouponUserJpaRepository
+    extends JpaRepository<CouponUser, Long>, CouponUserJpaCustom {
   @Query(
       "SELECT cu FROM CouponUser cu WHERE cu.coupon.couponId = :couponId "
           + "AND cu.userId = :userId "

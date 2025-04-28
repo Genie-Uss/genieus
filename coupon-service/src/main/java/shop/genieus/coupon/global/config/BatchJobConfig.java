@@ -24,7 +24,7 @@ public class BatchJobConfig {
 
   @Bean
   public Job couponSaveJob(JobRepository jobRepository, Step saveCouponStep) {
-    log.info("✅ read coupon save job");
+    log.info("coupon save job 실행");
     return new JobBuilder("couponSaveJob", jobRepository)
         .start(saveCouponStep)
         .incrementer(new RunIdIncrementer())
@@ -34,12 +34,13 @@ public class BatchJobConfig {
   @Bean
   public Step saveCouponStep(
       JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-    log.info("✅ write coupon save job");
+    log.info("saveCouponStep : 시작");
     // reader를 100번 호출해서 100개의 데이터를 모은 다음 writer를 호출
     return new StepBuilder("saveCouponStep", jobRepository)
         .<IssueCouponCommand, IssueCouponCommand>chunk(100, transactionManager)
         .reader(reader)
         .writer(writer)
+        .faultTolerant() // chunk 개수를 채우지 못해도 flush
         .build();
   }
 }
