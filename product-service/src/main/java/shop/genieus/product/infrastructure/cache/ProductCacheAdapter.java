@@ -127,8 +127,12 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public void restoreTotalStock(List<StockEvent> stockEvents) {
+  public void restoreTotalStock(List<StockEvent> stockEvents, Long todayTimestamp) {
     if (stockEvents == null || stockEvents.isEmpty()) {
+      return;
+    }
+
+    if (todayTimestamp == null) {
       return;
     }
 
@@ -141,7 +145,7 @@ public class ProductCacheAdapter implements ProductCachePort {
     try {
       String results =
           productRedisRepository.atomicRestoreStockWithEvents(
-              productQuantities, orderId, timestamp);
+              productQuantities, orderId, timestamp, todayTimestamp);
 
       log.info(results);
     } catch (ProductException e) {
@@ -150,9 +154,14 @@ public class ProductCacheAdapter implements ProductCachePort {
   }
 
   @Override
-  public List<String> totalDecreaseStock(List<StockEvent> stockEvents) {
+  public List<String> totalDecreaseStock(List<StockEvent> stockEvents, Long todayTimestamp) {
     if (stockEvents == null || stockEvents.isEmpty()) {
       log.warn("[totalDecreaseStock] stockEvents is null or empty");
+      return Collections.emptyList();
+    }
+
+    if(todayTimestamp == null) {
+      log.warn("[totalDecreaseStock] todayTimestamp is null");
       return Collections.emptyList();
     }
 
@@ -168,7 +177,7 @@ public class ProductCacheAdapter implements ProductCachePort {
 
     try {
       return productRedisRepository.atomicTotalDecreaseStock(
-          productQuantities, timestamp, orderId);
+          productQuantities, timestamp, orderId, todayTimestamp);
     } catch (ProductException e) {
       log.error("상품 재고 차감 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
       throw e;

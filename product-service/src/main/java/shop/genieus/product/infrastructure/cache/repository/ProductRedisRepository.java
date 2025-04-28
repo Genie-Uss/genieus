@@ -26,7 +26,7 @@ public class ProductRedisRepository {
   private static final String TOTAL_PREFIX = "product:stock:total:";
   private static final String EVENT_ID_COUNTER_KEY = "event_id_counter";
   private static final String PROCESSING_QUEUE_KEY = "product:event:stock:queue";
-  private static final String DEDUP_KEY_PREFIX = "dedup:restore:";
+  private static final String DEDUP_KEY_PREFIX = "dedup:";
 
   private static final int DEDUP_TTL_HOURS = 24;
   private static final long META_TTL_HOURS = 24;
@@ -124,15 +124,17 @@ public class ProductRedisRepository {
   }
 
   public String atomicRestoreStockWithEvents(
-      Map<Long, Integer> productQuantities, Long orderId, Long timestamp) {
+      Map<Long, Integer> productQuantities, Long orderId, Long timestamp, Long todayTimestamp) {
 
     if (productQuantities == null || productQuantities.isEmpty()) {
       return "복구할 재고가 존재하지 않습니다.";
     }
-    String deduplicationKey = generateDedupKey(orderId, timestamp);
-    boolean isDuplicate = stringRedisTemplate.hasKey(deduplicationKey);
 
-    if (isDuplicate) {
+    String deduplicationKey = generateDedupKey(todayTimestamp);
+    String dedupValue = generateDedupValue(orderId, timestamp);
+    Boolean isDuplicate = stringRedisTemplate.opsForSet().isMember(deduplicationKey,dedupValue);
+
+    if (Boolean.TRUE.equals(isDuplicate)) {
       return "이미 재고 복구가 처리되어 있습니다.";
     }
 
@@ -154,23 +156,24 @@ public class ProductRedisRepository {
   }
 
   public List<String> atomicTotalDecreaseStock(
-      Map<Long, Integer> productQuantities, Long timestamp, Long orderId) {
+      Map<Long, Integer> productQuantities, Long timestamp, Long orderId, Long todayTimestamp) {
 
     if (productQuantities == null || productQuantities.isEmpty()) {
       return Collections.emptyList();
     }
 
-    String deduplicationKey = generateDedupKey(orderId, timestamp);
-    boolean isDuplicate = stringRedisTemplate.hasKey(deduplicationKey);
+    String dedupKey = generateDedupKey(todayTimestamp);
+    String dedupValue = generateDedupValue(orderId, timestamp);
+    Boolean isDuplicate = stringRedisTemplate.opsForSet().isMember(dedupKey,dedupValue);
 
-    if (isDuplicate) {
+    if (Boolean.TRUE.equals(isDuplicate)) {
       log.info("이미 재고 완료 처리된 주문입니다.");
       return Collections.emptyList();
     }
 
     try {
       List<String> keys = new ArrayList<>();
-      keys.add(deduplicationKey);
+      keys.add(dedupKey);
       keys.add(EVENT_ID_COUNTER_KEY);
 
       // 접두사 추가
@@ -295,8 +298,12 @@ public class ProductRedisRepository {
     return Optional.ofNullable(root.getMessage()).orElse(e.getMessage());
   }
 
-  private String generateDedupKey(Long orderId, Long timestamp) {
-    return DEDUP_KEY_PREFIX + orderId + ":" + timestamp;
+  private String generateDedupKey(Long timestamp) {
+    return DEDUP_KEY_PREFIX  + timestamp;
+  }
+
+  private String generateDedupValue(Long orderId, Long timestamp) {
+    return orderId + ":" + timestamp;
   }
 
   private record ScriptArguments(List<String> keys, List<String> args) {}

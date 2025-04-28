@@ -55,10 +55,13 @@ public class ProductStockCommandService {
   }
 
   public void restoreTotalProductStock(RestoreTotalStockCommand command) {
-    List<StockEvent> events = createStockEvents(command);
+    long timestamp = productTimePort.convertToMillis(command.canceledAt());
+    long todayTimeStamp = productTimePort.convertToStartOfDayToMillis(command.canceledAt());
+
+    List<StockEvent> events = createStockEvents(command, timestamp);
 
     try {
-      productCachePort.restoreTotalStock(events);
+      productCachePort.restoreTotalStock(events, todayTimeStamp);
       log.info("총 재고 복구 성공");
     } catch (Exception e) {
       log.error("총 재고 복구 중 오류 발생: orderId={}, 상세={}", command.orderId(), e.getMessage());
@@ -69,10 +72,13 @@ public class ProductStockCommandService {
   public List<String> totalDecreaseStock(OrderCompletedCommand command) {
     validateOrderCompletedCommand(command);
 
-    List<StockEvent> events = createTotalDecreaseStockEvent(command);
+    long timestamp = productTimePort.convertToMillis(command.completedAt());
+    long todayTimeStamp = productTimePort.convertToStartOfDayToMillis(command.completedAt());
+
+    List<StockEvent> events = createTotalDecreaseStockEvent(command, timestamp);
 
     try {
-      return productCachePort.totalDecreaseStock(events);
+      return productCachePort.totalDecreaseStock(events, todayTimeStamp);
     } catch (Exception e) {
       log.error("상품 재고 차감 중 오류 발생: orderId={}, 에러={}", command.orderId(), e.getMessage());
       throw e;
@@ -101,12 +107,11 @@ public class ProductStockCommandService {
     return items.stream().collect(Collectors.toMap(idExtractor, quantityExtractor, Integer::sum));
   }
 
-  private List<StockEvent> createStockEvents(RestoreTotalStockCommand command) {
+  private List<StockEvent> createStockEvents(RestoreTotalStockCommand command, Long timestamp) {
     Map<Long, Integer> aggregateQuantities =
         aggregateQuantities(
             command.items(), RestoreStockItem::productId, RestoreStockItem::quantity);
     Long orderId = command.orderId();
-    long timestamp = productTimePort.convertToMillis(command.canceledAt());
 
     return aggregateQuantities.entrySet().stream()
         .map(
@@ -116,14 +121,13 @@ public class ProductStockCommandService {
         .toList();
   }
 
-  private List<StockEvent> createTotalDecreaseStockEvent(OrderCompletedCommand command) {
+  private List<StockEvent> createTotalDecreaseStockEvent(OrderCompletedCommand command, Long timestamp) {
     Map<Long, Integer> aggregateQuantities =
             aggregateQuantities(
                     command.orderProductItems(),
                     OrderCompletedCommand.OrderProductItem::productId,
                     OrderCompletedCommand.OrderProductItem::quantity);
     Long orderId = command.orderId();
-    long timestamp = productTimePort.convertToMillis(command.completedAt());
 
     return aggregateQuantities.entrySet().stream()
             .map(

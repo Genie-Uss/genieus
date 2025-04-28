@@ -18,4 +18,13 @@ public class ProductTimeAdapter implements ProductTimePort {
     ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
     return zonedDateTime.toInstant().toEpochMilli();
   }
+
+  @Override
+  public long convertToStartOfDayToMillis(LocalDateTime localDateTime) {
+    return localDateTime
+            .toLocalDate()
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli();
+  }
 }

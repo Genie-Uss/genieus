@@ -20,7 +20,7 @@ public interface ProductCachePort {
 
   void restoreUsedStock(Map<Long, Integer> releasedQuantities);
 
-  void restoreTotalStock(List<StockEvent> releasedQuantities);
+  void restoreTotalStock(List<StockEvent> releasedQuantities, Long todayTimestamp);
 
-  List<String> totalDecreaseStock(List<StockEvent> releasedQuantities);
+  List<String> totalDecreaseStock(List<StockEvent> releasedQuantities, Long todayTimestamp);
 }
