@@ -39,7 +39,7 @@ public class CouponRedisReader implements ItemReader<IssueCouponCommand> {
       // JSON -> 객체 : 역직렬화
       return objectMapper.readValue(json, IssueCouponCommand.class);
     } catch (JsonProcessingException e) {
-      log.error("JSON 처리 실패: {}", e.getMessage());
+      log.warn("JSON 처리 실패: {}", e.getMessage());
       String failedKey = buildFailedKey();
       redisTemplate.opsForList().rightPush(failedKey, json);
 
