@@ -15,6 +15,8 @@ local dedupTTL = ARGV[5]
 local dedupKey = KEYS[1]
 local eventIdCounter = KEYS[2]
 
+local dupValue = ARGV[7] .. ':' .. ARGV[9]
+
 -- item으로 변환
 local items = {}
 for i = 6, #ARGV, 4 do
@@ -85,9 +87,6 @@ for _, item in ipairs(items) do
     'timestamp', item.timestamp
   )
 
-  -- 이벤트 리스트에 추가
-  redis.call('LPUSH', 'product:' .. item.productId .. ':events', eventId)
-
   -- ZADD 처리 대기 큐
   redis.call('ZADD', eventQueuePrefix, tonumber(item.timestamp), eventId)
 
@@ -112,7 +111,10 @@ for _, item in ipairs(items) do
 end
 
 -- 중복 처리 방지를 위한 키 설정
-redis.call('SET', dedupKey, "DONE")
-redis.call('EXPIRE', dedupKey, tonumber(dedupTTL))
+redis.call('SADD', dedupKey, dupValue)
+local ttl = redis.call('TTL', dedupKey)
+if ttl < 0 then
+    redis.call('EXPIRE', dedupKey, dedupTTL)
+end
 
 return results

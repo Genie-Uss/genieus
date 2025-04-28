@@ -26,6 +26,7 @@ local timestamp = ARGV[6]
 local eventType = ARGV[7]
 local eventStatus = ARGV[8]
 local dedupTTL = tonumber(ARGV[9])
+local dedupValue = orderId .. ':' .. timestamp
 
 -- 결과 및 처리 데이터 초기화
 local resultString = "[총 재고 복구 결과]"
@@ -93,9 +94,6 @@ for _, op in ipairs(eventOperations) do
             'status', eventStatus,
             'timestamp', timestamp)
 
-    -- 상품별 이벤트 리스트에 추가
-    redis.call('LPUSH', 'product:' .. productId .. ':events', eventId)
-
     -- 처리 대기 큐에 추가
     redis.call('ZADD', processingQueueKey, timestamp, eventId)
 
@@ -115,7 +113,10 @@ for _, op in ipairs(eventOperations) do
 end
 
 -- 3단계: 중복 처리 방지를 위한 키 설정
-redis.call('SET', dedupKey, "DONE")
-redis.call('EXPIRE', dedupKey, dedupTTL)
+redis.call('SADD', dedupKey, dedupValue)
+local ttl = redis.call('TTL', dedupKey)
+if ttl < 0 then
+    redis.call('EXPIRE', dedupKey, dedupTTL)
+end
 
 return { resultString }
