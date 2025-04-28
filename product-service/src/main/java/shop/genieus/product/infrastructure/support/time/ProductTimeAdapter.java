@@ -21,9 +21,11 @@ public class ProductTimeAdapter implements ProductTimePort {
   }
 
   @Override
-  public long convertTodayToMillis(LocalDateTime localDateTime) {
-    LocalDate today = localDateTime.toLocalDate();
-    LocalDateTime midnight = today.atStartOfDay();
-    return midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  public long convertToStartOfDayToMillis(LocalDateTime localDateTime) {
+    return localDateTime
+            .toLocalDate()
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli();
   }
 }

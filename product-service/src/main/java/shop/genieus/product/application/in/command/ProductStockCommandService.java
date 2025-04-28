@@ -56,7 +56,7 @@ public class ProductStockCommandService {
 
   public void restoreTotalProductStock(RestoreTotalStockCommand command) {
     long timestamp = productTimePort.convertToMillis(command.canceledAt());
-    long todayTimeStamp = productTimePort.convertTodayToMillis(command.canceledAt());
+    long todayTimeStamp = productTimePort.convertToStartOfDayToMillis(command.canceledAt());
 
     List<StockEvent> events = createStockEvents(command, timestamp);
 
@@ -73,7 +73,7 @@ public class ProductStockCommandService {
     validateOrderCompletedCommand(command);
 
     long timestamp = productTimePort.convertToMillis(command.completedAt());
-    long todayTimeStamp = productTimePort.convertTodayToMillis(command.completedAt());
+    long todayTimeStamp = productTimePort.convertToStartOfDayToMillis(command.completedAt());
 
     List<StockEvent> events = createTotalDecreaseStockEvent(command, timestamp);
 

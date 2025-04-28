@@ -7,5 +7,5 @@ public interface ProductTimePort {
 
   long convertToMillis(LocalDateTime localDateTime);
 
-  long convertTodayToMillis(LocalDateTime localDateTime);
+  long convertToStartOfDayToMillis(LocalDateTime localDateTime);
 }
