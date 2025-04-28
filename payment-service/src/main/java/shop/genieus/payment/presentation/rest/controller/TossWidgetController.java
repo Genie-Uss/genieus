@@ -1,21 +1,20 @@
 package shop.genieus.payment.presentation.rest.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.ui.Model;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/api/v1/payments/toss")
@@ -98,8 +97,6 @@ public class TossWidgetController {
     public String index(
             HttpServletRequest request,
             @RequestParam Long orderId,
-            // TODO 이걸로 amount 검증 추가하자
-            // TODO paymentMethod 가 TOSS_PAY 가 맞는지도 검증해야 함
             @RequestParam Integer amount
     ) throws Exception {
         logger.info("Order ID: " + orderId);
