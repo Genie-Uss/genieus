@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
@@ -14,15 +15,19 @@ import shop.genieus.order.application.policy.OrderDelaySchedule;
 @Component
 @RequiredArgsConstructor
 public class OrderDelayQueueAdapter implements OrderDelayQueuePort {
+
   private static final String KEY = "order:delay-queue";
   private final RedisTemplate<String, Long> redisTemplate;
   private final RedisScript<List> popExpiredScript;
+
+  @Value("${order.policy.order-grace-period-seconds:30}")
+  private long gracePeriodSeconds;
 
   @Override
   public void save(OrderDelaySchedule schedule) {
     try {
       Long orderId = schedule.orderId();
-      double score = schedule.epochSecond();
+      double score = schedule.epochSecond() + gracePeriodSeconds;
       redisTemplate.opsForZSet().add(KEY, orderId, score);
     } catch (Exception e) {
       log.error("[save] 저장 중 예외발생: {}, schedule: {}", e.getMessage(), schedule);
