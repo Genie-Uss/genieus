@@ -1,5 +1,6 @@
 package shop.genieus.product.infrastructure.support.time;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -17,5 +18,12 @@ public class ProductTimeAdapter implements ProductTimePort {
   public long convertToMillis(LocalDateTime localDateTime) {
     ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
     return zonedDateTime.toInstant().toEpochMilli();
+  }
+
+  @Override
+  public long convertTodayToMillis(LocalDateTime localDateTime) {
+    LocalDate today = localDateTime.toLocalDate();
+    LocalDateTime midnight = today.atStartOfDay();
+    return midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 }

@@ -6,4 +6,6 @@ public interface ProductTimePort {
   long currentTimeMillis();
 
   long convertToMillis(LocalDateTime localDateTime);
+
+  long convertTodayToMillis(LocalDateTime localDateTime);
 }
