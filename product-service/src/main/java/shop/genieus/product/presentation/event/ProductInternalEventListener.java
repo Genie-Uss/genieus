@@ -16,6 +16,8 @@ public class ProductInternalEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onProductCreatedAfterCommit(ProductCreatedEvent event) {
+    log.info("상품 생성 이벤트 수신: productId={}", event.productId());
     internalEventService.onProductCreatedAfterCommit(event);
+    log.debug("상품 생성 이벤트 처리 완료: productId={}", event.productId());
   }
 }

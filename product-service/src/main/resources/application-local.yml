@@ -32,7 +32,7 @@ logging:
     org.springframework.cloud.gateway: debug
     org.springframework.web.reactive: info
     org.springframework.web.client: warn
-    com.netflix.discovery: off
+    com.netflix.discovery: "off"
     reactor.netty: warn
 
 management:

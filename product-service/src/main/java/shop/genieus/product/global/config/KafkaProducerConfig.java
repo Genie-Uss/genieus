@@ -22,8 +22,11 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 @Configuration
 public class KafkaProducerConfig {
 
-  @Value("${spring.kafka.bootstrap-servers}")
-  private String bootstrapServers;
+  private final String bootstrapServers;
+
+  public KafkaProducerConfig(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
+    this.bootstrapServers = bootstrapServers;
+  }
 
   @Bean
   public KafkaTracing kafkaTracing(Tracing tracing) {
@@ -54,7 +57,7 @@ public class KafkaProducerConfig {
   @Bean
   public KafkaTemplate<String, EventEnvelope<? extends DomainEvent>> kafkaTemplate(
       ProducerFactory<String, EventEnvelope<? extends DomainEvent>> pf) {
-    KafkaTemplate<String, EventEnvelope<?>> template = new KafkaTemplate<>(pf);
+    KafkaTemplate<String, EventEnvelope<? extends DomainEvent>> template = new KafkaTemplate<>(pf);
     template.setObservationEnabled(true);
     return template;
   }

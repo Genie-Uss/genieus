@@ -15,6 +15,11 @@ public class ProductInternalEventService {
   private final ProductExternalEventPort externalEventPort;
 
   public void onProductCreatedAfterCommit(ProductCreatedEvent event) {
-    externalEventPort.sendProductCreatedEvent(event);
+    try {
+      externalEventPort.sendProductCreatedEvent(event);
+      log.info("상품 생성 이벤트 발행 성공: {}", event.productId());
+    } catch (Exception e) {
+      log.error("상품 생성 이벤트 발행 실패: {}", event.productId(), e);
+    }
   }
 }
