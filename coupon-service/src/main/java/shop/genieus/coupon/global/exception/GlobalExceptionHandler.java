@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   protected ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
       IllegalArgumentException e) {
-    log.error("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    log.info("{} 예외 발생: {}", e.getClass().getSimpleName(), e.getMessage(), e);
     final ApiResponse<Void> response =
         ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
