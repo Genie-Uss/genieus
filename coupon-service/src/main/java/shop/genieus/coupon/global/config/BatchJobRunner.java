@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("batch")
+@Profile({"batch", "batch-local"})
 @RequiredArgsConstructor
 @Slf4j
 public class BatchJobRunner implements CommandLineRunner {
