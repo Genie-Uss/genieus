@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.payment.application.dto.CreatePaymentCommand;
 import shop.genieus.payment.application.dto.ProcessPaymentCommand;
 import shop.genieus.payment.application.dto.RegisterPaymentCommand;
+import shop.genieus.payment.application.out.cache.PaymentCachePort;
 import shop.genieus.payment.application.out.event.PaymentEventService;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
@@ -25,17 +26,21 @@ public class PaymentCommandService {
 
   private final PaymentCommandPort paymentCommandPort;
   private final PaymentStrategyFactory paymentStrategyFactory;
-
+  private final PaymentCachePort paymentCachePort;
   private final PaymentEventService paymentEventService;
 
   @Transactional
   public Payment create(CreatePaymentCommand createPaymentCommand) {
     try {
       Payment payment = Payment.create(createPaymentCommand.toAssembler());
-      return paymentCommandPort.create(payment);
+      Payment savedPayment = paymentCommandPort.create(payment);
+
+      return paymentCachePort.putPaymentCache(savedPayment);
     } catch (DataAccessException dae) {
+      log.warn(dae.getMessage());
       throw new PaymentException(PaymentErrorCode.PAYMENT_DUPLICATED_ERROR, dae);
     } catch (RuntimeException e) {
+      log.warn("[결제 요청 실패] 원인: {}", e.getMessage());
       throw new PaymentException(PaymentErrorCode.PAYMENT_REQUEST_FAILED, e);
     }
   }
@@ -47,8 +52,7 @@ public class PaymentCommandService {
 
     checkPaymentStatus(payment.getPaymentStatus());
 
-    PaymentStrategy paymentStrategy =
-        paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
+    PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
     return paymentStrategy.process(payment);
   }
 
@@ -58,6 +62,7 @@ public class PaymentCommandService {
     payment.registerPaymentSuccess();
 
     publishPaymentSuccessEvent(payment);
+    paymentCachePort.putPaymentCache(payment);
 
     return payment;
   }
@@ -68,12 +73,15 @@ public class PaymentCommandService {
     payment.setPaymentSuccessForTest();
 
     publishPaymentSuccessEvent(payment);
+    paymentCachePort.putPaymentCache(payment);
   }
 
   @Transactional
   public Payment cancel(Long orderId) {
     Payment payment = findPaymentByOrderId(orderId);
     payment.cancel();
+
+    paymentCachePort.removePaymentCache(orderId);
 
     return payment;
   }
@@ -84,8 +92,8 @@ public class PaymentCommandService {
 
   private void checkPaymentStatus(PaymentStatus paymentStatus) {
     switch (paymentStatus) {
-      case SUCCESS -> throw new IllegalArgumentException("이미 결제 완료된 주문입니다.");
-      case REFUNDED -> throw new IllegalArgumentException("이미 환불된 주문입니다.");
+      case SUCCESS -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_PAID);
+      case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
     }
   }
 
