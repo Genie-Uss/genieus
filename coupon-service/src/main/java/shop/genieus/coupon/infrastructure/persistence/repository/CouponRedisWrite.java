@@ -15,9 +15,11 @@ public class CouponRedisWrite implements ItemWriter<IssueCouponCommand> {
 
   @Override
   public void write(Chunk<? extends IssueCouponCommand> chunk) throws Exception {
+    if (chunk == null || chunk.isEmpty()) return;
+
     List<CouponUser> entities =
         chunk.getItems().stream().map(dto -> CouponUser.create(dto)).toList();
 
-    couponUserJpaRepository.saveAll(entities);
+    couponUserJpaRepository.bulkInsert(entities);
   }
 }
