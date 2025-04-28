@@ -2,6 +2,7 @@ package shop.genieus.order.application.in.command;
 
 import io.micrometer.observation.annotation.Observed;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,14 +84,16 @@ public class OrderCommandService {
   public void expireOrders(ExpireOrderCommand command) {
     LocalDateTime expiredAt = getCurrentTime();
     List<Order> orders = findOrders(command.orderIds());
-
+    List<Long> expiredOrderIds = new ArrayList<>();
     orders.forEach(
         order -> {
           boolean expired = orderPolicy.expireByOrderDeadline(order, expiredAt);
           if (expired) {
             internalEventPort.publishOrderExpired(order);
+            expiredOrderIds.add(order.getOrderId());
           }
         });
+    commandPort.expireAll(expiredOrderIds, expiredAt);
   }
 
   public void completePayment(CompletePaymentCommand command) {

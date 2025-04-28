@@ -2,6 +2,7 @@ package shop.genieus.order.infrastructure.persistence.command;
 
 import static shop.genieus.order.global.exception.CustomNotFoundException.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -27,5 +28,10 @@ public class OrderCommandAdapter implements OrderCommandPort {
   @Override
   public List<Order> findAll(List<Long> orderIds) {
     return orderJpaRepository.findAllById(orderIds);
+  }
+
+  @Override
+  public void expireAll(List<Long> orderIds, LocalDateTime expiredAt) {
+    orderJpaRepository.expireAll(orderIds, expiredAt);
   }
 }

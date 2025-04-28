@@ -113,7 +113,7 @@ resilience4j:
 
 order:
   policy:
-    order-expiry-seconds: 1200
+    order-expiry-seconds: 120
     order-grace-period-seconds: 10
   scheduler:
     poll-interval: 60000
