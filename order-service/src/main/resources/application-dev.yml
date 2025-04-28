@@ -112,7 +112,8 @@ resilience4j:
         base-config: default
 
 order:
-  cancel-policy:
-    order-pending: 2
+  policy:
+    order-expiry-seconds: 120
+    order-grace-period-seconds: 10
   scheduler:
     poll-interval: 60000

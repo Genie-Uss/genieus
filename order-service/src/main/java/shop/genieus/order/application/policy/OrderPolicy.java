@@ -18,11 +18,11 @@ import shop.genieus.order.domain.model.vo.OrderStatus;
 @RequiredArgsConstructor
 public class OrderPolicy {
 
-  @Value("${order.cancel-policy.order-pending:20}")
-  private long orderPendingMinutes;
+  @Value("${order.policy.order-expiry-seconds:12000}")
+  private long orderExpirySeconds;
 
   public LocalDateTime calculateOrderExpiration(LocalDateTime orderedAt) {
-    return orderedAt.plusMinutes(orderPendingMinutes);
+    return orderedAt.plusSeconds(orderExpirySeconds);
   }
 
   public void cancelOrder(Order order, Long userId, LocalDateTime now) {

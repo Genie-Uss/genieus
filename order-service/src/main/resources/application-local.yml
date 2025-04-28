@@ -29,6 +29,7 @@ spring:
 logging:
   level:
     root: warn
+    com.genieus: debug
     shop.genieus: debug
 
 management:
@@ -72,7 +73,8 @@ resilience4j:
         base-config: default
 
 order:
-  cancel-policy:
-    order-pending: 2
+  policy:
+    order-expiry-seconds: 60
+    order-grace-period-seconds: 10
   scheduler:
     poll-interval: 30000
