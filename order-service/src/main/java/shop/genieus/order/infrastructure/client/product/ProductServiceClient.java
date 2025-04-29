@@ -7,6 +7,7 @@ import feign.FeignException.FeignServerException;
 import feign.RetryableException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import shop.genieus.order.global.exception.CustomServiceUnavailableException.Pro
 public class ProductServiceClient {
   private final ProductFeignClient productFeignClient;
 
+  @Retry(name = "productServiceClient")
   @CircuitBreaker(name = "productServiceClient", fallbackMethod = "useStockFallback")
   public List<ProductClientResponse> useStock(StockRequest request) {
     return productFeignClient.useStock(request);

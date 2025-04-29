@@ -7,6 +7,7 @@ import feign.FeignException.FeignServerException;
 import feign.RetryableException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import shop.genieus.order.global.exception.CustomServiceUnavailableException.Pro
 public class PromotionServiceClient {
   private final PromotionFeignClient promotionFeignClient;
 
+  @Retry(name = "promotionServiceClient")
   @CircuitBreaker(name = "promotionServiceClient", fallbackMethod = "verifyPromotionFallback")
   public List<PromotionClientResponse> verifyPromotion(VerifyPromotionRequest request) {
     return promotionFeignClient.verifyPromotion(request);

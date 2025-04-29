@@ -7,6 +7,7 @@ import feign.FeignException.FeignServerException;
 import feign.RetryableException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import shop.genieus.order.global.exception.CustomServiceUnavailableException.Cou
 public class CouponServiceClient {
   private final CouponFeignClient couponFeignClient;
 
+  @Retry(name = "couponServiceClient")
   @CircuitBreaker(name = "couponServiceClient", fallbackMethod = "useCouponFallback")
   public CouponClientResponse useCoupon(UseCouponRequest request) {
     return couponFeignClient.useCoupon(request);
