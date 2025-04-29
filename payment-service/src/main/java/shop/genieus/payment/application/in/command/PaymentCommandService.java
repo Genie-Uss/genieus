@@ -9,8 +9,10 @@ import shop.genieus.payment.application.in.dto.CreatePaymentCommand;
 import shop.genieus.payment.application.in.dto.ProcessPaymentCommand;
 import shop.genieus.payment.application.in.dto.RegisterPaymentCommand;
 import shop.genieus.payment.application.out.cache.PaymentCachePort;
+import shop.genieus.payment.application.out.dto.CompletedPaymentResult;
 import shop.genieus.payment.application.out.event.PaymentEventService;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
+import shop.genieus.payment.application.out.persistence.PaymentOutboxPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.application.out.strategy.PaymentStrategy;
 import shop.genieus.payment.application.out.strategy.PaymentStrategyFactory;
@@ -27,6 +29,7 @@ public class PaymentCommandService {
   private final PaymentCommandPort paymentCommandPort;
   private final PaymentStrategyFactory paymentStrategyFactory;
   private final PaymentCachePort paymentCachePort;
+  private final PaymentOutboxPort paymentOutboxPort;
   private final PaymentEventService paymentEventService;
 
   @Transactional
@@ -74,6 +77,7 @@ public class PaymentCommandService {
 
     publishPaymentSuccessEvent(payment);
     paymentCachePort.putPaymentCache(payment);
+    paymentOutboxPort.save(CompletedPaymentResult.of(orderId));
   }
 
   @Transactional

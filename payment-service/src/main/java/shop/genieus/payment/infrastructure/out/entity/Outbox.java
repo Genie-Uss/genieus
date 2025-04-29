@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 @Entity
-@Table(name = "payment_outbox")
+@Table(name = "m_payment_outbox")
 @Getter @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -34,7 +34,11 @@ public class Outbox {
 
   @Comment("아웃박스 발행 여부")
   @Column(name = "is_published", nullable = false)
-  private Boolean isPublished = false;
+  private Boolean isPublished;
+
+  public static Outbox create(String event) {
+    return Outbox.builder().event(event).isPublished(false).build();
+  }
 
   public void markPublished() {
     this.isPublished = true;
