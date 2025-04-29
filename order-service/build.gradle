@@ -37,7 +37,7 @@ ext {
 
 dependencies {
     //common-lib
-    implementation 'com.genieus:genieus-common-lib:1.6.3'
+    implementation 'com.genieus:genieus-common-lib:1.6.4'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
@@ -78,12 +78,6 @@ dependencies {
 
     // log
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
-
-    // QueryDsl
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

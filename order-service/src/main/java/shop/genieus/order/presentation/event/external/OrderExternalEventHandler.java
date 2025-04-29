@@ -26,7 +26,7 @@ public class OrderExternalEventHandler {
   @FallbackMapping(topic = "payment-events", eventType = "PaymentCompletedEvent")
   public void paymentCompletedFallback(
       EventEnvelope<PaymentCompletedEvent> envelope, Throwable ex) {
-    log.warn("[paymentCompletedFallback] 결제 완료 실패 : {}, {}", envelope, ex.getMessage());
+    log.warn("[paymentCompletedFallback] 결제완료 처리 실패 : {}, {}", envelope, ex.getMessage());
     DeadLetterEnvelope<PaymentCompletedEvent> deadLetterEnvelope =
         DeadLetterEnvelope.from(envelope, ex.getMessage());
   }

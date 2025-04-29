@@ -44,7 +44,9 @@ public class OrderCommandService {
 
     List<OrderProductAssembler> productAssemblers = command.toProductAssembler();
     List<PromotionProduct> promotions = getPromotionProducts(productAssemblers, orderedAt);
+
     List<Product> products = getProducts(productAssemblers);
+    internalEventPort.publishStockReserved(command);
 
     applyPromotionDiscounts(productAssemblers, promotions);
     applyProductPrices(productAssemblers, products);
@@ -127,6 +129,7 @@ public class OrderCommandService {
       Coupon coupon = getCoupon(command, order);
       Integer couponDiscountAmount = OrderPriceCalculator.useCoupon(order, coupon);
       order.useCoupon(couponDiscountAmount);
+      internalEventPort.publishCouponUsed(order);
     }
   }
 
