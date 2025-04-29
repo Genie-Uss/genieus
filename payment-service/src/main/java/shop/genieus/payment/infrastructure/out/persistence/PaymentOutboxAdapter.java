@@ -28,12 +28,12 @@ public class PaymentOutboxAdapter implements PaymentOutboxPort {
 
   @Override
   public void save(PaymentEvent paymentEvent) {
-    log.info("[결제 아웃박스] 생성 시작: {}", paymentEvent.getContext());
+    log.info("[결제 아웃박스 생성 시작] paymentEvent.context: {}", paymentEvent.getContext());
     PaymentCompletedEvent paymentCompletedEvent = getPaymentCompletedEvent(paymentEvent);
 
     Outbox outbox = createOutbox(paymentCompletedEvent);
     outboxJpaRepository.save(outbox);
-    log.info("[결제 아웃박스] 생성 완료: {}", outbox.getEvent() + " " + outbox.getIsPublished());
+    log.info("[결제 아웃박스 생성 완료] outbox.event status: {}", outbox.getEvent() + " " + outbox.getIsPublished());
   }
 
   @Override
