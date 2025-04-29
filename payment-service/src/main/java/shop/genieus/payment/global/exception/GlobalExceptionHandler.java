@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.genieus.common.response.ApiResponse;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,7 +31,7 @@ public class GlobalExceptionHandler {
         .location(buildLocationString(e.getCause()))
         .build();
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    return ResponseEntity.status(PaymentErrorCode.JSON_PARSING_ERROR.getHttpStatus())
         .body(ApiResponse.of(
             PaymentErrorCode.JSON_PARSING_ERROR.getCode(),
             PaymentErrorCode.JSON_PARSING_ERROR.getMessage(),
@@ -52,7 +51,7 @@ public class GlobalExceptionHandler {
         .location(buildLocationString(e.getCause()))
         .build();
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    return ResponseEntity.status(PaymentErrorCode.JSON_MAPPING_FAILED.getHttpStatus())
         .body(ApiResponse.of(
             PaymentErrorCode.JSON_MAPPING_FAILED.getCode(),
             PaymentErrorCode.JSON_MAPPING_FAILED.getMessage(),
