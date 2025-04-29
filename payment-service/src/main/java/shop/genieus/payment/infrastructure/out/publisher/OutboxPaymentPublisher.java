@@ -32,23 +32,20 @@ public class OutboxPaymentPublisher {
     List<Outbox> eventsNotPublished = paymentOutboxAdapter.findEventsNotPublished();
     if (eventsNotPublished.isEmpty()) { return; }
 
-    /**
-     * 직렬화된 데이터를 다시 역직렬화..?
-     */
     for (Outbox outbox : eventsNotPublished) {
-      log.info("[아웃박스 발행] 시작: {}", outbox.getPaymentOutboxId() + " " + outbox.getIsPublished());
+      log.info("[아웃박스 발행 시작] paymentOutboxId: {}", outbox.getPaymentOutboxId() + " " + outbox.getIsPublished());
 
-      log.info("[결제 완료 이벤트 시작] 결제 완료 이벤트 발행 시작");
+      log.info("[결제 완료 이벤트 발행 시작]");
       var event = getPaymentCompletedEvent(outbox);
       var eventEnvelope = EventEnvelope.create(event);
 
       try {
         String json = objectMapper.writeValueAsString(eventEnvelope);
         kafkaTemplate.send("payment-events", json);
-        log.info("[결제 완료 이벤트 성공] 결제 완료 이벤트 발행 완료: {}", json);
+        log.info("[결제 완료 이벤트 발행 완료] json: {}", json);
 
         outbox.markPublished();
-        log.info("[아웃박스 발행] 완료: {}", outbox.getPaymentOutboxId() + " " + outbox.getIsPublished());
+        log.info("[아웃박스 발행 완료] paymentOutboxId: {}", outbox.getPaymentOutboxId() + " " + outbox.getIsPublished());
 
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);

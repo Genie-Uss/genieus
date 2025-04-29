@@ -10,7 +10,6 @@ import shop.genieus.payment.application.in.dto.ProcessPaymentCommand;
 import shop.genieus.payment.application.in.dto.RegisterPaymentCommand;
 import shop.genieus.payment.application.out.cache.PaymentCachePort;
 import shop.genieus.payment.application.out.dto.CompletedPaymentResult;
-import shop.genieus.payment.application.out.event.PaymentEventService;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
 import shop.genieus.payment.application.out.persistence.PaymentOutboxPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
@@ -30,7 +29,6 @@ public class PaymentCommandService {
   private final PaymentStrategyFactory paymentStrategyFactory;
   private final PaymentCachePort paymentCachePort;
   private final PaymentOutboxPort paymentOutboxPort;
-  private final PaymentEventService paymentEventService;
 
   @Transactional
   public Payment create(CreatePaymentCommand createPaymentCommand) {
@@ -64,8 +62,8 @@ public class PaymentCommandService {
     Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
     payment.registerPaymentSuccess();
 
-    publishPaymentSuccessEvent(payment);
     paymentCachePort.putPaymentCache(payment);
+    paymentOutboxPort.save(CompletedPaymentResult.of(payment.getOrderId()));
 
     return payment;
   }
@@ -75,7 +73,6 @@ public class PaymentCommandService {
     Payment payment = findPaymentByOrderId(orderId);
     payment.setPaymentSuccessForTest();
 
-    publishPaymentSuccessEvent(payment);
     paymentCachePort.putPaymentCache(payment);
     paymentOutboxPort.save(CompletedPaymentResult.of(orderId));
   }
@@ -99,9 +96,5 @@ public class PaymentCommandService {
       case SUCCESS -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_PAID);
       case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
     }
-  }
-
-  private void publishPaymentSuccessEvent(Payment payment) {
-    paymentEventService.createPaymentEvent(payment.getOrderId());
   }
 }
