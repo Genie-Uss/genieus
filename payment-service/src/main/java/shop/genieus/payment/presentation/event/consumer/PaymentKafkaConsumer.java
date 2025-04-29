@@ -1,4 +1,4 @@
-package shop.genieus.payment.presentation.rest.event.consumer;
+package shop.genieus.payment.presentation.event.consumer;
 
 import com.genieus.common.event.util.EventRouter;
 import lombok.RequiredArgsConstructor;
