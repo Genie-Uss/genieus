@@ -30,6 +30,7 @@ public class OutboxPaymentPublisher {
   @Scheduled(fixedDelay = 5000)
   public void publishCompletedPaymentEvents() {
     List<Outbox> eventsNotPublished = paymentOutboxAdapter.findEventsNotPublished();
+    if (eventsNotPublished.isEmpty()) { return; }
 
     /**
      * 직렬화된 데이터를 다시 역직렬화..?
