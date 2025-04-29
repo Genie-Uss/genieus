@@ -22,8 +22,20 @@
 7. ✅커스텀 이벤트, 이벤트 핸들러 붙이기
 8. ✅주문 취소 이벤트를 소비하여 결제 취소 구현
 9. ✅카프카 리스너 공통 라이브러리로 리팩토링
-10. api-gateway-route
-
+10. ☑️주문 취소 이벤트 메시지 예시
+```json
+{
+  "event": {
+    "orderId": 20
+  },
+  "eventId": "d4e2e8a3-6d5f-4c9d-9bd8-5d851f90e01e",
+  "createdAt": "2025-04-27T22:05:49.104",
+  "eventType": "OrderCanceledEvent",
+  "source": "order-service"
+}
+```
+11. ✅결제 완료 아웃박스 패턴 구현
+12. ☑️api-gateway-route 
 ```yaml
 
 - id: payment-list
