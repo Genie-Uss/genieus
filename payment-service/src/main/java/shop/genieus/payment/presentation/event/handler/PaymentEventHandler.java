@@ -1,4 +1,4 @@
-package shop.genieus.payment.presentation.rest.event.handler;
+package shop.genieus.payment.presentation.event.handler;
 
 import com.genieus.common.event.annotation.EventTypeMapping;
 import com.genieus.common.event.order.OrderCanceledEvent;

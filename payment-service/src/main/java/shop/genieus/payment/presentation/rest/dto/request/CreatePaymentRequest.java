@@ -1,7 +1,7 @@
 package shop.genieus.payment.presentation.rest.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import shop.genieus.payment.application.dto.CreatePaymentCommand;
+import shop.genieus.payment.application.in.dto.CreatePaymentCommand;
 
 public record CreatePaymentRequest(
     @JsonProperty("orderId") Long orderId,

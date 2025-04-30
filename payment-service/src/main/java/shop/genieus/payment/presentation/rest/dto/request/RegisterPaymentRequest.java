@@ -1,7 +1,7 @@
 package shop.genieus.payment.presentation.rest.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import shop.genieus.payment.application.dto.RegisterPaymentCommand;
+import shop.genieus.payment.application.in.dto.RegisterPaymentCommand;
 
 public record RegisterPaymentRequest(
         @JsonProperty("paymentKey") String paymentKey,

@@ -5,12 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shop.genieus.payment.application.dto.CreatePaymentCommand;
-import shop.genieus.payment.application.dto.ProcessPaymentCommand;
-import shop.genieus.payment.application.dto.RegisterPaymentCommand;
+import shop.genieus.payment.application.in.dto.CreatePaymentCommand;
+import shop.genieus.payment.application.in.dto.ProcessPaymentCommand;
+import shop.genieus.payment.application.in.dto.RegisterPaymentCommand;
 import shop.genieus.payment.application.out.cache.PaymentCachePort;
-import shop.genieus.payment.application.out.event.PaymentEventService;
+import shop.genieus.payment.application.out.dto.CompletedPaymentResult;
 import shop.genieus.payment.application.out.persistence.PaymentCommandPort;
+import shop.genieus.payment.application.out.persistence.PaymentOutboxPort;
 import shop.genieus.payment.application.out.strategy.PaymentProcessorResult;
 import shop.genieus.payment.application.out.strategy.PaymentStrategy;
 import shop.genieus.payment.application.out.strategy.PaymentStrategyFactory;
@@ -27,7 +28,7 @@ public class PaymentCommandService {
   private final PaymentCommandPort paymentCommandPort;
   private final PaymentStrategyFactory paymentStrategyFactory;
   private final PaymentCachePort paymentCachePort;
-  private final PaymentEventService paymentEventService;
+  private final PaymentOutboxPort paymentOutboxPort;
 
   @Transactional
   public Payment create(CreatePaymentCommand createPaymentCommand) {
@@ -61,8 +62,8 @@ public class PaymentCommandService {
     Payment payment = findPaymentByOrderId(registerPaymentCommand.orderId());
     payment.registerPaymentSuccess();
 
-    publishPaymentSuccessEvent(payment);
     paymentCachePort.putPaymentCache(payment);
+    paymentOutboxPort.save(CompletedPaymentResult.of(payment.getOrderId()));
 
     return payment;
   }
@@ -72,8 +73,8 @@ public class PaymentCommandService {
     Payment payment = findPaymentByOrderId(orderId);
     payment.setPaymentSuccessForTest();
 
-    publishPaymentSuccessEvent(payment);
     paymentCachePort.putPaymentCache(payment);
+    paymentOutboxPort.save(CompletedPaymentResult.of(orderId));
   }
 
   @Transactional
@@ -95,9 +96,5 @@ public class PaymentCommandService {
       case SUCCESS -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_PAID);
       case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
     }
-  }
-
-  private void publishPaymentSuccessEvent(Payment payment) {
-    paymentEventService.createPaymentEvent(payment.getOrderId());
   }
 }

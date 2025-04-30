@@ -1,4 +1,4 @@
-package shop.genieus.payment.application.dto;
+package shop.genieus.payment.application.in.dto;
 
 public record ProcessPaymentCommand(
         Long orderId,
