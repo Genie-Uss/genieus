@@ -37,20 +37,21 @@ public class KafkaConsumerConfig {
     return props;
   }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            ConsumerFactory<String, Object> consumerFactory) {
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
+      ConsumerFactory<String, Object> consumerFactory) {
 
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+    ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+        new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(consumerFactory);
+    factory.setConsumerFactory(consumerFactory);
+    factory.getContainerProperties().setObservationEnabled(true);
 
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                (record, ex) -> new FixedBackOff(0L, 0L));
+    DefaultErrorHandler errorHandler =
+        new DefaultErrorHandler((record, ex) -> new FixedBackOff(0L, 0L));
 
-        errorHandler.setAckAfterHandle(true);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
-    }
+    errorHandler.setAckAfterHandle(true);
+    factory.setCommonErrorHandler(errorHandler);
+    return factory;
+  }
 }
