@@ -25,7 +25,6 @@ import shop.genieus.order.domain.service.OrderPriceCalculator;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class OrderCommandService {
   private final OrderTimePort timePort;
@@ -64,6 +63,7 @@ public class OrderCommandService {
     return saved;
   }
 
+  @Transactional
   @Observed(name = "order.payment", contextualName = "Request Payment")
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
@@ -75,6 +75,7 @@ public class OrderCommandService {
     return order;
   }
 
+  @Transactional
   @Observed(name = "order.cancel", contextualName = "Cancel Order")
   public void cancelOrder(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
@@ -83,6 +84,7 @@ public class OrderCommandService {
     internalEventPort.publishOrderCanceled(order);
   }
 
+  @Transactional
   public void expireOrders(ExpireOrderCommand command) {
     LocalDateTime expiredAt = getCurrentTime();
     List<Order> orders = findOrders(command.orderIds());
@@ -104,6 +106,7 @@ public class OrderCommandService {
     order.completePayment(paidAt);
   }
 
+  @Transactional
   @Observed(name = "order.complete", contextualName = "Complete Order")
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();

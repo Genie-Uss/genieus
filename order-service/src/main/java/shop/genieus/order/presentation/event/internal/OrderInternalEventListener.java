@@ -6,9 +6,11 @@ import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderCreationFailedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.OrderPaymentRequestedEvent;
+import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -20,9 +22,10 @@ import shop.genieus.order.domain.event.OrderCreatedEvent;
 @RequiredArgsConstructor
 public class OrderInternalEventListener {
   private final OrderInternalEventService internalEventService;
+  private final HikariDataSource dataSource;
 
   // ------------ BeforeCommit --------
-  @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+  @EventListener(OrderCreatedEvent.class)
   public void onOrderCreatedBeforeCommit(OrderCreatedEvent event) {
     internalEventService.onOrderCreatedBeforeCommit(event);
   }
