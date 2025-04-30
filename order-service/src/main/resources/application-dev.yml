@@ -48,6 +48,7 @@ spring:
           batch_size: 100
         order_updates: true
         batch_versioned_data: true
+    open-in-view: false # 트랜잭션 커밋 후 커넥션 바로 반납
 
 eureka:
   client:
