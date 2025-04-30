@@ -50,7 +50,7 @@ public class CouponRedisReader implements ItemReader<IssueCouponCommand> {
       }
       return null;
     } catch (RedisException e) {
-      throw new IllegalArgumentException("Redis 예외 발생");
+      throw new IllegalArgumentException("Redis 예외 발생" + e.getMessage());
     }
   }
 

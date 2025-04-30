@@ -2,6 +2,7 @@ package shop.genieus.coupon.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -37,6 +38,12 @@ public class CouponRedisWrite implements ItemWriter<IssueCouponCommand> {
         try {
           String failedKey = buildFailedKey();
           redisTemplate.opsForList().rightPush(failedKey, objectMapper.writeValueAsString(entity));
+
+          // 실패 데이터 ttl 설정: 3일
+          Long ttl = redisTemplate.getExpire(failedKey);
+          if (ttl == null || ttl == -1) {
+            redisTemplate.expire(failedKey, Duration.ofDays(3));
+          }
         } catch (JsonProcessingException je) {
           log.warn("실패 데이터 저장 중 JSON 오류: {}", je.getMessage());
         }
