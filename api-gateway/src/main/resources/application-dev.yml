@@ -44,7 +44,7 @@ resilience4j:
 logging:
   level:
     root: WARN
-    shop.genieus: DEBUG
+    shop.genieus: INFO
   config: classpath:logback-dev.xml
 
 management:
