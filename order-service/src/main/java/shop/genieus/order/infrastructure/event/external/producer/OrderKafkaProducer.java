@@ -48,7 +48,9 @@ public class OrderKafkaProducer {
     }
     log.info(
         "Kafka 이벤트 전송 성공: key={}, value={}",
-        sendResult.getProducerRecord().key(),
+        sendResult.getProducerRecord().key() != null
+            ? sendResult.getProducerRecord().key()
+            : "null",
         sendResult.getProducerRecord().value());
   }
 }

@@ -63,7 +63,7 @@ public class ProductKafkaEventHandler {
 
   @EventTypeMapping(topic = "order-events")
   public void handleOrderCreationFailed(OrderCreationFailedEvent event) {
-    log.info("[handleOrderCompleted] 주문 생성 실패 이벤트 수신 : {}", event);
+    log.info("[handleOrderCreationFailed] 주문 생성 실패 이벤트 수신 : {}", event);
 
     try {
       commandService.restoreUsedProductStock(mapper.toRestoreUsedStockCommand(event));
@@ -71,6 +71,6 @@ public class ProductKafkaEventHandler {
       log.warn("주문 생성 실패 이벤트 처리 실패: {}", ex.getMessage());
     }
 
-    log.info("[handleOrderCompletedEvent] 주문 생성 실패 이벤트 컨슘 완료");
+    log.info("[handleOrderCreationFailed] 주문 생성 실패 이벤트 컨슘 완료");
   }
 }
