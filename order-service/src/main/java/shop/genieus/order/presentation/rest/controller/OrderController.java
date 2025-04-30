@@ -26,6 +26,7 @@ import shop.genieus.order.presentation.rest.dto.response.PaymentResponse;
 public class OrderController {
   private final OrderCommandService orderCommandService;
 
+  @HasRole({RoleType.CUSTOMER, RoleType.MASTER_ADMIN})
   @PostMapping
   public ResponseEntity<ApiResponse<CreateOrderResponse>> createOrder(
       @WithPassport Passport passport, @Valid @RequestBody CreateOrderRequest request) {
@@ -34,6 +35,7 @@ public class OrderController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
   }
 
+  @HasRole({RoleType.CUSTOMER, RoleType.MASTER_ADMIN})
   @PostMapping("/{orderId}/payment")
   public ResponseEntity<ApiResponse<PaymentResponse>> processPayment(
       @WithPassport Passport passport,

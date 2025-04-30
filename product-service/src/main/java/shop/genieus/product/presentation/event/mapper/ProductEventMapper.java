@@ -2,13 +2,14 @@ package shop.genieus.product.presentation.event.mapper;
 
 import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
+import com.genieus.common.event.order.OrderCreationFailedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import shop.genieus.product.application.in.command.dto.OrderCompletedCommand;
 import shop.genieus.product.application.in.command.dto.RestoreStockItem;
 import shop.genieus.product.application.in.command.dto.RestoreTotalStockCommand;
 import shop.genieus.product.application.in.command.dto.RestoreUsedStockCommand;
-import shop.genieus.product.application.in.command.dto.OrderCompletedCommand;
 
 @Component
 public class ProductEventMapper {
@@ -39,5 +40,14 @@ public class ProductEventMapper {
             .toList();
 
     return new OrderCompletedCommand(event.orderId(), event.completedAt(), commandItem);
+  }
+
+  public RestoreUsedStockCommand toRestoreUsedStockCommand(OrderCreationFailedEvent event) {
+    List<RestoreStockItem> items =
+        event.orderProductItems().stream()
+            .map(item -> new RestoreStockItem(item.productId(), item.quantity()))
+            .toList();
+
+    return new RestoreUsedStockCommand(-1L, items);
   }
 }

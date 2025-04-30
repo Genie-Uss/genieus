@@ -6,6 +6,7 @@ import feign.FeignException.FeignServerException;
 import feign.RetryableException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import shop.genieus.order.global.exception.CustomServiceUnavailableException.Pay
 public class PaymentServiceClient {
   private final PaymentFeignClient paymentFeignClient;
 
+  @Retry(name = "paymentServiceClient")
   @CircuitBreaker(name = "paymentServiceClient", fallbackMethod = "createPaymentFallback")
   public void createPayment(CreatePaymentRequest request) {
     paymentFeignClient.createPayment(request);

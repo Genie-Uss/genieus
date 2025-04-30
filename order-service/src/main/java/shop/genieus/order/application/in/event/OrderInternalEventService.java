@@ -1,7 +1,9 @@
 package shop.genieus.order.application.in.event;
 
+import com.genieus.common.event.order.CouponRestoredEvent;
 import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
+import com.genieus.common.event.order.OrderCreationFailedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.OrderPaymentRequestedEvent;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +51,14 @@ public class OrderInternalEventService {
 
   public void onOrderCompletedAfterCommit(OrderCompletedEvent event) {
     externalEventPort.sendOrderCompletedEvent(event);
+  }
+
+  // ------------ AfterRollback --------
+  public void onOrderCreationFailedAfterRollback(OrderCreationFailedEvent event) {
+    externalEventPort.sendOrderCreationFailedEvent(event);
+  }
+
+  public void onCouponRestoredAfterRollback(CouponRestoredEvent event) {
+    externalEventPort.sendCouponRestoredEvent(event);
   }
 }

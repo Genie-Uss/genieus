@@ -1,7 +1,9 @@
 package shop.genieus.order.presentation.event.internal;
 
+import com.genieus.common.event.order.CouponRestoredEvent;
 import com.genieus.common.event.order.OrderCanceledEvent;
 import com.genieus.common.event.order.OrderCompletedEvent;
+import com.genieus.common.event.order.OrderCreationFailedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.OrderPaymentRequestedEvent;
 import io.micrometer.observation.annotation.Observed;
@@ -50,5 +52,16 @@ public class OrderInternalEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onOrderCompletedAfterCommit(OrderCompletedEvent event) {
     internalEventService.onOrderCompletedAfterCommit(event);
+  }
+
+  // ------------ AfterRollback --------
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+  public void onStockReservedAfterRollback(OrderCreationFailedEvent event) {
+    internalEventService.onOrderCreationFailedAfterRollback(event);
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+  public void onCouponUsedAfterRollback(CouponRestoredEvent event) {
+    internalEventService.onCouponRestoredAfterRollback(event);
   }
 }

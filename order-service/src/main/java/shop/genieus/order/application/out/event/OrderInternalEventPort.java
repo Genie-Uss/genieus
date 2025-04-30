@@ -1,5 +1,6 @@
 package shop.genieus.order.application.out.event;
 
+import shop.genieus.order.application.in.command.dto.CreateOrderCommand;
 import shop.genieus.order.domain.model.entity.Order;
 
 public interface OrderInternalEventPort {
@@ -12,4 +13,8 @@ public interface OrderInternalEventPort {
   void publishOrderCompleted(Order order);
 
   void publishPaymentRequested(Order order);
+
+  void publishCouponUsed(Order order);
+
+  void publishStockReserved(CreateOrderCommand command);
 }

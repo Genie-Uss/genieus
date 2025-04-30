@@ -84,7 +84,6 @@ management:
           - prometheus
           - info
 
-### 커스텀
 resilience4j:
   circuitbreaker:
     configs:
@@ -98,6 +97,27 @@ resilience4j:
           - java.io.IOException
           - feign.RetryableException
           - feign.FeignException.FeignServerException
+        ignore-exceptions:
+          - shop.genieus.order.global.exception.CustomNotFoundException
+          - feign.FeignException.FeignClientException
+    instances:
+      productServiceClient:
+        base-config: default
+      promotionServiceClient:
+        base-config: default
+      paymentServiceClient:
+        base-config: default
+      couponServiceClient:
+        base-config: default
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - feign.RetryableException
+          - feign.FeignException.FeignServerException
+          - shop.genieus.order.global.exception.CustomServiceUnavailableException
         ignore-exceptions:
           - shop.genieus.order.global.exception.CustomNotFoundException
           - feign.FeignException.FeignClientException
