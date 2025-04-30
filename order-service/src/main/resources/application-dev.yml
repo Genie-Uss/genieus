@@ -27,8 +27,8 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 4
+      maximum-pool-size: 50
+      minimum-idle: 10
       connection-timeout: 30000       # 커넥션 요청 최대 대기 시간 (ms)
       validation-timeout: 5000        # 커넥션 유효성 검사 타임아웃 (ms)
       idle-timeout: 300000            # 유휴 커넥션 유지 시간 (ms)
