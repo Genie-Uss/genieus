@@ -59,15 +59,17 @@ public class OrderCommandService {
     }
   }
 
-  @Transactional
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
-    Order order = findOrder(command.orderId());
+    Order order = transactionalSupport.findById(command.orderId());
+
     processCouponForPayment(command, order);
+
     order.requestPayment(paymentRequestedAt);
-    createPayment(order);
-    internalEventPort.publishPaymentRequested(order);
-    return order;
+    Order updated = transactionalSupport.updateAndPublishPaymentRequested(order);
+
+    createPayment(updated);
+    return updated;
   }
 
   @Transactional

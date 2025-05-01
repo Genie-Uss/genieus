@@ -21,4 +21,16 @@ public class OrderTransactionalSupport {
     internalEventPort.publishOrderCreated(saved);
     return saved;
   }
+
+  @Transactional(readOnly = true)
+  public Order findById(Long orderId) {
+    return commandPort.findById(orderId);
+  }
+
+  @Transactional
+  public Order updateAndPublishPaymentRequested(Order order) {
+    Order updated = commandPort.save(order);
+    internalEventPort.publishPaymentRequested(updated);
+    return updated;
+  }
 }
