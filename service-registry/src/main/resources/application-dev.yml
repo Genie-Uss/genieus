@@ -18,8 +18,9 @@ management:
     tracing:
       endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
   tracing:
+    enabled: false
     sampling:
-      probability: 1.0
+      probability: 0.01
   endpoints:
     web:
       exposure:

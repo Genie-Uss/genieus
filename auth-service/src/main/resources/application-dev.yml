@@ -53,14 +53,19 @@ management:
   zipkin:
     tracing:
       endpoint: http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v2/spans
-  tracing:
-    sampling:
-      probability: 1.0
   server:
     port: ${MANAGEMENT_AUTH_PORT}
   endpoints:
     web:
       exposure:
         include: health,prometheus
+  tracing:
+    sampling:
+      probability: 0.01
+    web:
+      exclude-patterns:
+        - "/actuator/**"
+        - "/prometheus"
+        - "/eureka/**"
 jwt:
   secret: ${JWT_SECRET}
