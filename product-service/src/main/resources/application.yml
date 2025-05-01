@@ -3,6 +3,10 @@ spring:
     name: product-service
   profiles:
     active: local
+  config:
+    import:
+      - classpath:redis-key.yml
+      - classpath:batch-${spring.profiles.active}.yml
 
 server:
   port: 10060
