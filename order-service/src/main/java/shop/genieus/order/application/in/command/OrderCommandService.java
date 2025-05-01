@@ -1,6 +1,5 @@
 package shop.genieus.order.application.in.command;
 
-import io.micrometer.observation.annotation.Observed;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ import shop.genieus.order.domain.service.OrderPriceCalculator;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class OrderCommandService {
   private final OrderTimePort timePort;
@@ -33,8 +31,8 @@ public class OrderCommandService {
   private final OrderClientPort clientPort;
   private final OrderCommandPort commandPort;
   private final OrderInternalEventPort internalEventPort;
+  private final OrderTransactionalSupport transactionalSupport;
 
-  @Observed(name = "order.create", contextualName = "Create Order")
   public Order create(CreateOrderCommand command) {
     CreateOrderAssembler assembler = command.toAssembler();
 
@@ -46,25 +44,22 @@ public class OrderCommandService {
     List<PromotionProduct> promotions = getPromotionProducts(productAssemblers, orderedAt);
 
     List<Product> products = getProducts(productAssemblers);
-    internalEventPort.publishStockReserved(command);
-
-    applyPromotionDiscounts(productAssemblers, promotions);
-    applyProductPrices(productAssemblers, products);
-
-    List<OrderProduct> orderProducts =
-        productAssemblers.stream().map(OrderProduct::create).toList();
-    assembler.applyOrderProducts(orderProducts);
-
-    OrderPriceCalculator.calculate(assembler);
-
-    Order order = Order.create(assembler);
-    Order saved = commandPort.save(order);
-
-    internalEventPort.publishOrderCreated(saved);
-    return saved;
+    try {
+      applyPromotionDiscounts(productAssemblers, promotions);
+      applyProductPrices(productAssemblers, products);
+      List<OrderProduct> orderProducts =
+          productAssemblers.stream().map(OrderProduct::create).toList();
+      assembler.applyOrderProducts(orderProducts);
+      OrderPriceCalculator.calculate(assembler);
+      Order order = Order.create(assembler);
+      return transactionalSupport.saveAndPublish(order);
+    } catch (Exception e) {
+      internalEventPort.publishOrderCreationFailed(command);
+      throw e;
+    }
   }
 
-  @Observed(name = "order.payment", contextualName = "Request Payment")
+  @Transactional
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -75,7 +70,7 @@ public class OrderCommandService {
     return order;
   }
 
-  @Observed(name = "order.cancel", contextualName = "Cancel Order")
+  @Transactional
   public void cancelOrder(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -83,6 +78,7 @@ public class OrderCommandService {
     internalEventPort.publishOrderCanceled(order);
   }
 
+  @Transactional
   public void expireOrders(ExpireOrderCommand command) {
     LocalDateTime expiredAt = getCurrentTime();
     List<Order> orders = findOrders(command.orderIds());
@@ -104,7 +100,7 @@ public class OrderCommandService {
     order.completePayment(paidAt);
   }
 
-  @Observed(name = "order.complete", contextualName = "Complete Order")
+  @Transactional
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();
     Order order = findOrder(command.orderId());

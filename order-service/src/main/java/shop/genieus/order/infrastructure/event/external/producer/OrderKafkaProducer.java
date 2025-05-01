@@ -21,7 +21,6 @@ public class OrderKafkaProducer {
   private String orderTopic;
 
   public void publish(String key, EventEnvelope<? extends DomainEvent> eventEnvelop) {
-
     ProducerRecord<String, EventEnvelope<? extends DomainEvent>> record =
         new ProducerRecord<>(orderTopic, key, eventEnvelop);
     kafkaTemplate
@@ -30,7 +29,6 @@ public class OrderKafkaProducer {
   }
 
   public void publish(EventEnvelope<? extends DomainEvent> eventEnvelop) {
-
     ProducerRecord<String, EventEnvelope<? extends DomainEvent>> record =
         new ProducerRecord<>(orderTopic, eventEnvelop);
     kafkaTemplate
