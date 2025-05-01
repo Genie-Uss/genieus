@@ -18,6 +18,7 @@ import shop.genieus.product.infrastructure.batch.repository.model.StockEventBatc
 @Service
 @RequiredArgsConstructor
 public class StockEventProcessingService {
+  private static final String EVENT_PREFIX = "event:";
   private final StockEventMapper stockEventMapper;
   private final StockEventRedisRepository stockEventRedisRepository;
 
@@ -38,7 +39,13 @@ public class StockEventProcessingService {
     double maxEventScore = findMaxEventScore(eventTuples, lastProcessedScore);
 
     List<String> eventKeys = extractEventKeys(eventTuples);
-    List<String> eventJsons = stockEventRedisRepository.getEventJsonsByKeys(eventKeys);
+    List<String> eventJsons;
+    try {
+      eventJsons = stockEventRedisRepository.getEventJsonsByKeys(eventKeys);
+    } catch (Exception e) {
+      log.error("[StockEventProcessingService] 이벤트 JSON 조회 중 오류 발생: {}", e.getMessage(), e);
+      return createEmptyIterator();
+    }
 
     List<StockHistory> stockHistories = stockEventMapper.convertToStockHistories(eventJsons);
 
@@ -66,7 +73,7 @@ public class StockEventProcessingService {
 
   private List<String> extractEventKeys(Set<ZSetOperations.TypedTuple<String>> eventTuples) {
     return eventTuples.stream()
-        .map(item -> "event:" + item.getValue())
+        .map(item -> EVENT_PREFIX + item.getValue())
         .collect(Collectors.toList());
   }
 

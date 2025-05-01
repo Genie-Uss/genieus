@@ -1,6 +1,5 @@
 package shop.genieus.product.infrastructure.batch.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -36,11 +35,8 @@ public class StockEventMapper {
           event.quantity(),
           event.type(),
           convertTimestampToLocalDateTime(event.timestamp()));
-    } catch (JsonProcessingException e) {
-      log.warn("JsonProcessingException: Redis 값에서 StockEvent 파싱 실패: {}", eventJson, e);
-      return null;
     } catch (Exception e) {
-      log.warn("Exception: Redis 값에서 StockEvent 파싱 실패: {}", eventJson, e);
+      log.warn("Redis 값에서 StockEvent 파싱 실패: {}", eventJson, e);
       return null;
     }
   }

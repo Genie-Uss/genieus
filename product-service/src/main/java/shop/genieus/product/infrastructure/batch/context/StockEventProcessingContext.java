@@ -51,8 +51,16 @@ public class StockEventProcessingContext {
   public void close() {
     if (initialized) {
       log.info("[StockEventProcessingContext] 최종 lastProcessedScore 저장: {}", lastProcessedScore);
-      stockEventProcessingService.saveLastProcessedEventScore(lastProcessedScore);
-      initialized = false;
+      try {
+        stockEventProcessingService.saveLastProcessedEventScore(lastProcessedScore);
+      } catch (Exception e) {
+        log.error(
+            "[StockEventProcessingContext] 최종 lastProcessedScore 저장 중 오류 발생: {}",
+            e.getMessage(),
+            e);
+      } finally {
+        initialized = false;
+      }
     }
   }
 }

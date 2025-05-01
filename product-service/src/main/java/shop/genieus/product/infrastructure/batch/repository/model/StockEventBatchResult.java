@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import shop.genieus.product.domain.model.entity.StockHistory;
 
 @RequiredArgsConstructor
-public class StockEventBatchResult implements Iterator<StockHistory> {
+public class StockEventBatchResult implements Iterator<StockHistory>, Iterable<StockHistory> {
   private final Iterator<StockHistory> stockHistoryIterator;
   @Getter private final double maxEventScore;
 
@@ -18,5 +18,10 @@ public class StockEventBatchResult implements Iterator<StockHistory> {
   @Override
   public StockHistory next() {
     return stockHistoryIterator.next();
+  }
+
+  @Override
+  public Iterator<StockHistory> iterator() {
+    return this;
   }
 }

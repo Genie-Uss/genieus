@@ -1,15 +1,25 @@
 redis:
   key:
     prefix:
+      # 상품 상태 정보 키 접두사
       status: "product:status:"
+      # 상품 메타데이터 키 접두사
       meta: "product:meta:"
+      # 사용된 재고 정보 키 접두사
       used: "product:stock:used:"
+      # 총 재고 정보 키 접두사
       total: "product:stock:total:"
+      # 중복 제거용 키 접두사
       dedup: "dedup:"
     event:
+      # 이벤트 ID 카운터 키
       id-counter: "event_id_counter"
+      # 재고 이벤트 처리 큐 키
       processing-queue: "product:event:stock:queue"
+      # 마지막으로 처리된 배치 점수 키
       stock-last-score: "product:batch:offset"
     ttl:
+      # 중복 제거 키 유효 시간(시간)
       dedup-hours: 24
+      # 메타데이터 키 유효 시간(시간)
       meta-hours: 24

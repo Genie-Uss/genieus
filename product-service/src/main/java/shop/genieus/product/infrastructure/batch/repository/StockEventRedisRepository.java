@@ -1,5 +1,6 @@
 package shop.genieus.product.infrastructure.batch.repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,16 @@ public class StockEventRedisRepository {
   }
 
   public List<String> getEventJsonsByKeys(List<String> eventKeys) {
-    return redisTemplate.execute(
-        ProductLuaScriptProvider.getMultipleGetHashKeysScript(), eventKeys);
+    if (eventKeys == null || eventKeys.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    try {
+      return redisTemplate.execute(
+          ProductLuaScriptProvider.getMultipleGetHashKeysScript(), eventKeys);
+    } catch (Exception e) {
+      log.error("Redis Lua 스크립트 실행 중 오류 발생: {}", e.getMessage(), e);
+      return Collections.emptyList();
+    }
   }
 }

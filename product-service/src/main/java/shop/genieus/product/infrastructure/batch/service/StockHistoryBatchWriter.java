@@ -3,13 +3,13 @@ package shop.genieus.product.infrastructure.batch.service;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import shop.genieus.product.domain.model.entity.StockHistory;
@@ -17,10 +17,19 @@ import shop.genieus.product.infrastructure.batch.context.StockEventProcessingCon
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class StockHistoryBatchWriter implements ItemWriter<StockHistory>, ItemStream {
   private final JdbcTemplate jdbcTemplate;
   private final StockEventProcessingContext processingContext;
+  private final int batchSize;
+
+  public StockHistoryBatchWriter(
+      JdbcTemplate jdbcTemplate,
+      StockEventProcessingContext processingContext,
+      @Value("${batch.writer.chunk-size:100}") int batchSize) {
+    this.jdbcTemplate = jdbcTemplate;
+    this.processingContext = processingContext;
+    this.batchSize = batchSize;
+  }
 
   @Override
   public void open(ExecutionContext executionContext) throws ItemStreamException {
@@ -44,7 +53,7 @@ public class StockHistoryBatchWriter implements ItemWriter<StockHistory>, ItemSt
           "INSERT INTO m_stock_history (product_id, order_id, quantity, type, processed_at, created_at) "
               + "VALUES (?, ?, ? ,? ,?, ?)",
           stockHistories,
-          100,
+          batchSize,
           (PreparedStatement ps, StockHistory stockHistory) -> {
             ps.setLong(1, stockHistory.getProductId());
             ps.setLong(2, stockHistory.getOrderId());
