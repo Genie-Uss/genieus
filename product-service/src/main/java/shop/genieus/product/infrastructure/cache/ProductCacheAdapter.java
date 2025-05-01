@@ -160,17 +160,13 @@ public class ProductCacheAdapter implements ProductCachePort {
       return Collections.emptyList();
     }
 
-    if(todayTimestamp == null) {
+    if (todayTimestamp == null) {
       log.warn("[totalDecreaseStock] todayTimestamp is null");
       return Collections.emptyList();
     }
 
     Map<Long, Integer> productQuantities =
-            stockEvents.stream()
-                    .collect(Collectors.toMap(
-                            StockEvent::productId,
-                            StockEvent::quantity)
-                    );
+        stockEvents.stream().collect(Collectors.toMap(StockEvent::productId, StockEvent::quantity));
 
     Long orderId = stockEvents.get(0).orderId();
     Long timestamp = stockEvents.get(0).timestamp();
@@ -179,7 +175,7 @@ public class ProductCacheAdapter implements ProductCachePort {
       return productRedisRepository.atomicTotalDecreaseStock(
           productQuantities, timestamp, orderId, todayTimestamp);
     } catch (ProductException e) {
-      log.error("상품 재고 차감 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
+      log.warn("상품 재고 차감 중 오류 발생: orderId={}, 상세={}", orderId, e.getMessage());
       throw e;
     }
   }

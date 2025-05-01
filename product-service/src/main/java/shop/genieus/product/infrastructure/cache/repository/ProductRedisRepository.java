@@ -228,8 +228,7 @@ public class ProductRedisRepository {
       return results;
     } catch (Exception e) {
       String message = extractRedisErrorMessage(e);
-      log.error("상품 재고 차감 업데이트 에러, {}", message);
-      throw new ProductException("상품 재고 차감 업데이트 에러 발생");
+      throw new ProductException("상품 재고 차감 업데이트 에러 " + message);
     }
   }
 
