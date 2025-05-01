@@ -16,8 +16,7 @@ public class OrderKafkaListener {
 
   private final EventRouter eventRouter;
 
-  @KafkaListener(
-      topics = {"${spring.kafka.consumer.topic.payment}", "${spring.kafka.consumer.topic.order}"})
+  @KafkaListener(topics = "${spring.kafka.consumer.topic.payment}")
   public void consume(@Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Payload String payload) {
     eventRouter.route(topic, payload);
   }
