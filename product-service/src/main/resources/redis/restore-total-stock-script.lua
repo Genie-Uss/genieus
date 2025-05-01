@@ -94,8 +94,9 @@ for _, op in ipairs(eventOperations) do
             'status', eventStatus,
             'timestamp', timestamp)
 
-    -- 처리 대기 큐에 추가
-    redis.call('ZADD', processingQueueKey, timestamp, eventId)
+    -- 처리 대기 큐에 (timestamp × 10^5) + productId숫자 형태로 ZADD
+    local score = (tonumber(timestamp) * 1000) + tonumber(productId)
+    redis.call('ZADD', processingQueueKey, score, eventId)
 
     -- 총재고 증가 실행
     local newTotal = redis.call('INCRBY', totalKey, amount)

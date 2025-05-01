@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -20,20 +21,36 @@ import shop.genieus.product.infrastructure.cache.util.ProductLuaScriptProvider;
 @RequiredArgsConstructor
 public class ProductRedisRepository {
 
-  private static final String STATUS_PREFIX = "product:status:";
-  private static final String META_PREFIX = "product:meta:";
-  private static final String USED_PREFIX = "product:stock:used:";
-  private static final String TOTAL_PREFIX = "product:stock:total:";
-  private static final String EVENT_ID_COUNTER_KEY = "event_id_counter";
-  private static final String PROCESSING_QUEUE_KEY = "product:event:stock:queue";
-  private static final String DEDUP_KEY_PREFIX = "dedup:";
-
-  private static final int DEDUP_TTL_HOURS = 24;
-  private static final long META_TTL_HOURS = 24;
-
   private final RedisTemplate<String, ProductView> productViewRedisTemplate;
   private final RedisTemplate<String, Long> longRedisTemplate;
   private final StringRedisTemplate stringRedisTemplate;
+
+  @Value("${redis.key.prefix.status}")
+  private String STATUS_PREFIX;
+
+  @Value("${redis.key.prefix.meta}")
+  private String META_PREFIX;
+
+  @Value("${redis.key.prefix.used}")
+  private String USED_PREFIX;
+
+  @Value("${redis.key.prefix.total}")
+  private String TOTAL_PREFIX;
+
+  @Value("${redis.key.prefix.dedup}")
+  private String DEDUP_KEY_PREFIX;
+
+  @Value("${redis.key.event.id-counter}")
+  private String EVENT_ID_COUNTER_KEY;
+
+  @Value("${redis.key.event.processing-queue}")
+  private String PROCESSING_QUEUE_KEY;
+
+  @Value("${redis.key.ttl.dedup-hours}")
+  private int DEDUP_TTL_HOURS;
+
+  @Value("${redis.key.ttl.meta-hours}")
+  private long META_TTL_HOURS;
 
   public Optional<ProductView> findProductViewById(Long id) {
     return Optional.ofNullable(productViewRedisTemplate.opsForValue().get(META_PREFIX + id));
@@ -132,7 +149,7 @@ public class ProductRedisRepository {
 
     String deduplicationKey = generateDedupKey(todayTimestamp);
     String dedupValue = generateDedupValue(orderId, timestamp);
-    Boolean isDuplicate = stringRedisTemplate.opsForSet().isMember(deduplicationKey,dedupValue);
+    Boolean isDuplicate = stringRedisTemplate.opsForSet().isMember(deduplicationKey, dedupValue);
 
     if (Boolean.TRUE.equals(isDuplicate)) {
       return "이미 재고 복구가 처리되어 있습니다.";
@@ -164,7 +181,7 @@ public class ProductRedisRepository {
 
     String dedupKey = generateDedupKey(todayTimestamp);
     String dedupValue = generateDedupValue(orderId, timestamp);
-    Boolean isDuplicate = stringRedisTemplate.opsForSet().isMember(dedupKey,dedupValue);
+    Boolean isDuplicate = stringRedisTemplate.opsForSet().isMember(dedupKey, dedupValue);
 
     if (Boolean.TRUE.equals(isDuplicate)) {
       log.info("이미 재고 완료 처리된 주문입니다.");
@@ -299,7 +316,7 @@ public class ProductRedisRepository {
   }
 
   private String generateDedupKey(Long timestamp) {
-    return DEDUP_KEY_PREFIX  + timestamp;
+    return DEDUP_KEY_PREFIX + timestamp;
   }
 
   private String generateDedupValue(Long orderId, Long timestamp) {

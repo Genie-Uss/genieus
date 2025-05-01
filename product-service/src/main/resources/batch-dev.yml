@@ -1,0 +1,10 @@
+spring:
+  batch:
+    jdbc:
+      initialize-schema: never
+batch:
+  product:
+    cron: "0 */5 * * * *"
+    batchSize: 100
+  writer:
+    chunk-size: 100

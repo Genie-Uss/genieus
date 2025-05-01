@@ -12,6 +12,7 @@ public class ProductLuaScriptProvider {
   private static final RedisScript<List> DECREASE_USED_STOCK_SCRIPT;
   private static final RedisScript<List> RESTORE_TOTAL_STOCK_SCRIPT;
   private static final RedisScript<List> TOTAL_STOCK_DECREASE_SCRIPT;
+  private static final RedisScript<List> MULTIPLE_GET_HASH_KEYS_SCRIPT;
 
   static {
     DefaultRedisScript<List> stockDecreaseScript = new DefaultRedisScript<>();
@@ -37,6 +38,12 @@ public class ProductLuaScriptProvider {
         new ResourceScriptSource(new ClassPathResource("redis/order-completed.lua")));
     totalStockDecreaseScript.setResultType(List.class);
     TOTAL_STOCK_DECREASE_SCRIPT = totalStockDecreaseScript;
+
+    DefaultRedisScript<List> multiGetHashKeys = new DefaultRedisScript<>();
+    multiGetHashKeys.setScriptSource(
+        new ResourceScriptSource(new ClassPathResource("redis/multi-get-hash-keys.lua")));
+    multiGetHashKeys.setResultType(List.class);
+    MULTIPLE_GET_HASH_KEYS_SCRIPT = multiGetHashKeys;
   }
 
   public static RedisScript<List> getValidateAndDecreaseScript() {
@@ -53,5 +60,9 @@ public class ProductLuaScriptProvider {
 
   public static RedisScript<List> getTotalStockDecreaseScript() {
     return TOTAL_STOCK_DECREASE_SCRIPT;
+  }
+
+  public static RedisScript<List> getMultipleGetHashKeysScript() {
+    return MULTIPLE_GET_HASH_KEYS_SCRIPT;
   }
 }
