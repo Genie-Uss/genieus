@@ -6,6 +6,7 @@ import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderCreationFailedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.OrderPaymentRequestedEvent;
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -43,6 +44,7 @@ public class OrderInternalEventListener {
     internalEventService.onOrderCanceledAfterCommit(event);
   }
 
+  @Observed(name = "order.expire", contextualName = "Expire Order")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onOrderExpiredAfterCommit(OrderExpiredEvent event) {
     internalEventService.onOrderExpiredAfterCommit(event);

@@ -1,5 +1,6 @@
 package shop.genieus.product.application.in.command;
 
+import io.micrometer.observation.annotation.Observed;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -21,6 +22,7 @@ public class ProductStockCommandService {
   private final ProductCachePort productCachePort;
   private final ProductTimePort productTimePort;
 
+  @Observed(name = "stock.reserve", contextualName = "Reserve Stock")
   public List<ProductView> checkStockAvailability(ValidateProductCommand command) {
     Map<Long, Integer> requestedQuantities =
         aggregateQuantities(
@@ -40,6 +42,7 @@ public class ProductStockCommandService {
     }
   }
 
+  @Observed(name = "stock.reservation.cancel", contextualName = "Cancel Stock Reservation")
   public void restoreUsedProductStock(RestoreUsedStockCommand command) {
     Map<Long, Integer> restoredQuantities =
         aggregateQuantities(
@@ -69,6 +72,7 @@ public class ProductStockCommandService {
     }
   }
 
+  @Observed(name = "stock.decrease.total", contextualName = "Decrease Total Stock")
   public List<String> totalDecreaseStock(OrderCompletedCommand command) {
     validateOrderCompletedCommand(command);
 
@@ -121,19 +125,20 @@ public class ProductStockCommandService {
         .toList();
   }
 
-  private List<StockEvent> createTotalDecreaseStockEvent(OrderCompletedCommand command, Long timestamp) {
+  private List<StockEvent> createTotalDecreaseStockEvent(
+      OrderCompletedCommand command, Long timestamp) {
     Map<Long, Integer> aggregateQuantities =
-            aggregateQuantities(
-                    command.orderProductItems(),
-                    OrderCompletedCommand.OrderProductItem::productId,
-                    OrderCompletedCommand.OrderProductItem::quantity);
+        aggregateQuantities(
+            command.orderProductItems(),
+            OrderCompletedCommand.OrderProductItem::productId,
+            OrderCompletedCommand.OrderProductItem::quantity);
     Long orderId = command.orderId();
 
     return aggregateQuantities.entrySet().stream()
-            .map(
-                    entry ->
-                            StockEvent.createDecreaseEvent(
-                                    entry.getKey(), orderId, entry.getValue(), timestamp))
-            .toList();
+        .map(
+            entry ->
+                StockEvent.createDecreaseEvent(
+                    entry.getKey(), orderId, entry.getValue(), timestamp))
+        .toList();
   }
 }

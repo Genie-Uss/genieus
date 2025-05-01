@@ -1,5 +1,6 @@
 package shop.genieus.payment.application.in.command;
 
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -30,6 +31,7 @@ public class PaymentCommandService {
   private final PaymentCachePort paymentCachePort;
   private final PaymentOutboxPort paymentOutboxPort;
 
+  @Observed(name = "payment.create", contextualName = "Create Payment")
   @Transactional
   public Payment create(CreatePaymentCommand createPaymentCommand) {
     try {
@@ -53,7 +55,8 @@ public class PaymentCommandService {
 
     checkPaymentStatus(payment.getPaymentStatus());
 
-    PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
+    PaymentStrategy paymentStrategy =
+        paymentStrategyFactory.getStrategy(payment.getPaymentMethod());
     return paymentStrategy.process(payment);
   }
 
@@ -68,6 +71,7 @@ public class PaymentCommandService {
     return payment;
   }
 
+  @Observed(name = "payment.success", contextualName = "Success Payment")
   @Transactional
   public void registerPaymentSuccessForTest(Long orderId) {
     Payment payment = findPaymentByOrderId(orderId);
@@ -94,7 +98,8 @@ public class PaymentCommandService {
   private void checkPaymentStatus(PaymentStatus paymentStatus) {
     switch (paymentStatus) {
       case SUCCESS -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_PAID);
-      case REFUNDED -> throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
+      case REFUNDED ->
+          throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REGISTER_REFUNDED);
     }
   }
 }

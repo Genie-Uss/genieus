@@ -1,5 +1,6 @@
 package shop.genieus.order.application.in.command;
 
+import io.micrometer.observation.annotation.Observed;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class OrderCommandService {
   private final OrderInternalEventPort internalEventPort;
   private final OrderTransactionalSupport transactionalSupport;
 
+  @Observed(name = "order.create", contextualName = "Create Order")
   public Order create(CreateOrderCommand command) {
     CreateOrderAssembler assembler = command.toAssembler();
 
@@ -59,6 +61,7 @@ public class OrderCommandService {
     }
   }
 
+  @Observed(name = "order.payment", contextualName = "Payment Order")
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
     Order order = transactionalSupport.findById(command.orderId());
@@ -102,6 +105,7 @@ public class OrderCommandService {
     order.completePayment(paidAt);
   }
 
+  @Observed(name = "order.complete", contextualName = "Complete Order")
   @Transactional
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();
