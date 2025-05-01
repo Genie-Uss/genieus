@@ -2,6 +2,7 @@ package shop.genieus.coupon.application.in.command;
 
 import com.genieus.common.internal.request.UseCouponRequest;
 import com.genieus.common.internal.response.CouponClientResponse;
+import io.micrometer.observation.annotation.Observed;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class CouponCommandService {
     return saved;
   }
 
+  @Observed(name = "coupon.use", contextualName = "Use Coupon")
   public CouponClientResponse useCoupon(UseCouponRequest request) {
     // 1. 쿠폰 사용 가능 여부 확인
     CouponUser couponUser = findAvailableCoupon(request);
