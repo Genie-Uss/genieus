@@ -9,7 +9,6 @@ import com.genieus.common.event.order.OrderPaymentRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.order.application.out.event.OrderExternalEventPort;
 import shop.genieus.order.application.out.persistence.OrderDelayQueuePort;
 import shop.genieus.order.application.out.util.OrderTimePort;
@@ -18,7 +17,6 @@ import shop.genieus.order.domain.event.OrderCreatedEvent;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class OrderInternalEventService {
   private final OrderTimePort timePort;
@@ -55,6 +53,7 @@ public class OrderInternalEventService {
 
   // ------------ AfterRollback --------
   public void onOrderCreationFailedAfterRollback(OrderCreationFailedEvent event) {
+    log.info("OrderCreationFailedEvent: {}", event);
     externalEventPort.sendOrderCreationFailedEvent(event);
   }
 

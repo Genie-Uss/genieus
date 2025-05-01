@@ -1,6 +1,5 @@
 package shop.genieus.order.application.in.command;
 
-import io.micrometer.observation.annotation.Observed;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +31,8 @@ public class OrderCommandService {
   private final OrderClientPort clientPort;
   private final OrderCommandPort commandPort;
   private final OrderInternalEventPort internalEventPort;
+  private final OrderTransactionalSupport transactionalSupport;
 
-  @Observed(name = "order.create", contextualName = "Create Order")
   public Order create(CreateOrderCommand command) {
     CreateOrderAssembler assembler = command.toAssembler();
 
@@ -45,26 +44,22 @@ public class OrderCommandService {
     List<PromotionProduct> promotions = getPromotionProducts(productAssemblers, orderedAt);
 
     List<Product> products = getProducts(productAssemblers);
-    internalEventPort.publishStockReserved(command);
-
-    applyPromotionDiscounts(productAssemblers, promotions);
-    applyProductPrices(productAssemblers, products);
-
-    List<OrderProduct> orderProducts =
-        productAssemblers.stream().map(OrderProduct::create).toList();
-    assembler.applyOrderProducts(orderProducts);
-
-    OrderPriceCalculator.calculate(assembler);
-
-    Order order = Order.create(assembler);
-    Order saved = commandPort.save(order);
-
-    internalEventPort.publishOrderCreated(saved);
-    return saved;
+    try {
+      applyPromotionDiscounts(productAssemblers, promotions);
+      applyProductPrices(productAssemblers, products);
+      List<OrderProduct> orderProducts =
+          productAssemblers.stream().map(OrderProduct::create).toList();
+      assembler.applyOrderProducts(orderProducts);
+      OrderPriceCalculator.calculate(assembler);
+      Order order = Order.create(assembler);
+      return transactionalSupport.saveAndPublish(order);
+    } catch (Exception e) {
+      internalEventPort.publishOrderCreationFailed(command);
+      throw e;
+    }
   }
 
   @Transactional
-  @Observed(name = "order.payment", contextualName = "Request Payment")
   public Order requestPayment(PaymentCommand command) {
     LocalDateTime paymentRequestedAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -76,7 +71,6 @@ public class OrderCommandService {
   }
 
   @Transactional
-  @Observed(name = "order.cancel", contextualName = "Cancel Order")
   public void cancelOrder(CancelOrderCommand command) {
     LocalDateTime canceledAt = getCurrentTime();
     Order order = findOrder(command.orderId());
@@ -107,7 +101,6 @@ public class OrderCommandService {
   }
 
   @Transactional
-  @Observed(name = "order.complete", contextualName = "Complete Order")
   public void completeOrder(CompleteOrderCommand command) {
     LocalDateTime completedAt = getCurrentTime();
     Order order = findOrder(command.orderId());

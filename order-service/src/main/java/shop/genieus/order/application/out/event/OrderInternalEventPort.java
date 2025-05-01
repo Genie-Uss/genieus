@@ -16,5 +16,5 @@ public interface OrderInternalEventPort {
 
   void publishCouponUsed(Order order);
 
-  void publishStockReserved(CreateOrderCommand command);
+  void publishOrderCreationFailed(CreateOrderCommand command);
 }

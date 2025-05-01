@@ -6,8 +6,6 @@ import com.genieus.common.event.order.OrderCompletedEvent;
 import com.genieus.common.event.order.OrderCreationFailedEvent;
 import com.genieus.common.event.order.OrderExpiredEvent;
 import com.genieus.common.event.order.OrderPaymentRequestedEvent;
-import com.zaxxer.hikari.HikariDataSource;
-import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -22,10 +20,9 @@ import shop.genieus.order.domain.event.OrderCreatedEvent;
 @RequiredArgsConstructor
 public class OrderInternalEventListener {
   private final OrderInternalEventService internalEventService;
-  private final HikariDataSource dataSource;
 
   // ------------ BeforeCommit --------
-  @EventListener(OrderCreatedEvent.class)
+  @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
   public void onOrderCreatedBeforeCommit(OrderCreatedEvent event) {
     internalEventService.onOrderCreatedBeforeCommit(event);
   }
@@ -46,7 +43,6 @@ public class OrderInternalEventListener {
     internalEventService.onOrderCanceledAfterCommit(event);
   }
 
-  @Observed(name = "order.expire", contextualName = "Expire Order")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onOrderExpiredAfterCommit(OrderExpiredEvent event) {
     internalEventService.onOrderExpiredAfterCommit(event);
@@ -58,8 +54,8 @@ public class OrderInternalEventListener {
   }
 
   // ------------ AfterRollback --------
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-  public void onStockReservedAfterRollback(OrderCreationFailedEvent event) {
+  @EventListener(classes = OrderCreationFailedEvent.class)
+  public void onOrderCreationFailedAfterRollback(OrderCreationFailedEvent event) {
     internalEventService.onOrderCreationFailedAfterRollback(event);
   }
 

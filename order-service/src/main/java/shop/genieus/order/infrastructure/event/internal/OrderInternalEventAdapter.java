@@ -83,7 +83,7 @@ public class OrderInternalEventAdapter implements OrderInternalEventPort {
   }
 
   @Override
-  public void publishStockReserved(CreateOrderCommand command) {
+  public void publishOrderCreationFailed(CreateOrderCommand command) {
     OrderCreationFailedEvent event =
         new OrderCreationFailedEvent(fromOrderProductCommand(command.orderProductCommands()));
     publisher.publishEvent(event);
