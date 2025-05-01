@@ -1,0 +1,15 @@
+redis:
+  key:
+    prefix:
+      status: "product:status:"
+      meta: "product:meta:"
+      used: "product:stock:used:"
+      total: "product:stock:total:"
+      dedup: "dedup:"
+    event:
+      id-counter: "event_id_counter"
+      processing-queue: "product:event:stock:queue"
+      stock-last-score: "product:batch:offset"
+    ttl:
+      dedup-hours: 24
+      meta-hours: 24
