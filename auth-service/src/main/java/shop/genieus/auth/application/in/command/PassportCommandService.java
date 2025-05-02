@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import shop.genieus.auth.application.in.command.dto.IssuePassportCommand;
 import shop.genieus.auth.application.out.persistence.AuthCommandPort;
 import shop.genieus.auth.application.out.support.encoder.PassportEncodingPort;
@@ -14,7 +13,6 @@ import shop.genieus.auth.domain.model.entity.User;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class PassportCommandService {
   private final PassportEncodingPort passportEncodingPort;
