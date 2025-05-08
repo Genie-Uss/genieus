@@ -46,9 +46,8 @@ Genie(🧞‍♂️)와 Us(우리)가 만나, 가장 합리적인 소비를 완�
 <aside>
 
 ### 시스템 아키텍처 설계도
-</aside>
+
 ![인프라_아키텍처 drawio](https://github.com/user-attachments/assets/7d6074dd-b73d-436c-9f2e-9845e2373b56)
-<aside>
 
 ### 카프카 이벤트 흐름
 ![image 2](https://github.com/user-attachments/assets/c74ba7d2-7dd8-4c10-b61d-a07249715572)
