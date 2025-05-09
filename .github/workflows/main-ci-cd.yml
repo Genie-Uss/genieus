@@ -3,7 +3,7 @@ name: CI/CD with GitHub Actions, Docker, and ECR
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
